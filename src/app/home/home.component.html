@@ -1,0 +1,35 @@
+<div class="container">
+  <a class="navbar-text" href="https://www.reddit.com/message/compose/?to=BoyAndHisBlob&subject=EDC%20Raffle%20Tool" target="_blank">PM /u/BoyAndHisBlob with feedback and feature requests</a>
+
+  <div class="starter-template">
+    <h1>
+      EDC Raffle Tool
+    </h1>
+    <div class="col-xs-12">
+      <div>
+        <label for="numSlots">Number of Raffle Slots:</label>
+        <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSpots(numSlots)"/>
+        <input type="text" id="callTheBot" readonly value="/u/callthebot {{numSlots}}" (click)="copyText('callTheBot')" class="no-border">
+      </div>
+      <div class="col-xs-6">
+        <button (click)="generateRandom()">Get Random Unclaimed Slot Number</button>
+        <b>{{randomSlot}}</b>
+      </div>
+      <div>
+        <label for="unpaid">Unpaid: </label>
+        <input type="text" readonly id="unpaid" [(ngModel)]="unpaidUsers" (click)="copyText('unpaid')"/>
+      </div>
+    </div>
+    <div class="col-xs-6">
+      <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
+        <label for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
+        <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="updateCommentText()"/>
+        <label for="paid{{i}}">Paid?</label>
+        <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [(ngModel)]="raffleParticipant.paid" (change)="updateCommentText()"/>
+      </div>
+    </div>
+    <div class="col-xs-6">
+      <textarea id="commentText" readonly rows="20" cols="50" [(ngModel)]="commentText" (click)="copyText('commentText')"></textarea>
+    </div>
+  </div>
+</div>
