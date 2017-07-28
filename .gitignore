@@ -1,0 +1,7 @@
+
+.firebaserc
+.idea/*
+dist/*
+node_modules/*
+firebase.json
+src/assets/.gitkeep
