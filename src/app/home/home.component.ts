@@ -123,7 +123,7 @@ export class HomeComponent implements OnInit {
                 let postText = txt.innerText;
 
                 let slotText = '<raffle-tool>\n\nThis slot list is created and updated by ' +
-                    '[The EDC Raffle Tool.](https://edc-raffle-tool.firebaseapp.com)\n\n' + this.commentText + '\n\n</raffle-tool>';
+                    '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' + this.commentText + '\n\n</raffle-tool>';
 
                 if (postText.indexOf('<raffle-tool>') !== -1 && postText.indexOf('</raffle-tool>') !== -1) {
                     postText = postText.replace(re, slotText);
