@@ -14,14 +14,22 @@ export class OauthService {
     //private client_secret = 'fZ4l6sEAnJRPD4cLIjXkyniE_Qo';
 
     //TEST
-    //private client_id = '40BtLpGGLTlHow';
-    //private client_secret = 'C6O06ZscQt_qhyS26vi-DDLI5Nk';
+    private client_id = '40BtLpGGLTlHow';
+    private client_secret = 'C6O06ZscQt_qhyS26vi-DDLI5Nk';
 
     //LOCAL
-    private client_id = 'UWap4qOFI6uYgw';
-    private client_secret = 'PwroVMyw3nRPEHHjTVxxUPed_tw';
+    //private client_id = 'UWap4qOFI6uYgw';
+    //private client_secret = 'PwroVMyw3nRPEHHjTVxxUPed_tw';
 
-    private redirectUri = 'http://localhost:4200/home';
+    //PROD
+    //private redirectUri = 'https://edc-raffle-tool.firebaseapp.com/home';
+
+    //TEST
+    private redirectUri = 'https://test-edc-raffle-tool.firebaseapp.com/home';
+
+    //local
+    //private redirectUri = 'http://localhost:4200/home';
+
     private accessTokenUrl = 'https://www.reddit.com/api/v1/access_token';
     private state = 'XYZ';
     private accessToken = '';
@@ -54,10 +62,10 @@ export class OauthService {
 
     public getAccessToken(): Observable<any> {
         const currentDate = new Date();
-        if ((Math.round(currentDate.getTime() / 1000)) <= this.expireTime) {
+        if ((Math.round(currentDate.getTime() / 1000)) >= this.expireTime) {
             return this.refreshAccessToken();
         } else {
-            return Observable.of({accessToken: this.accessToken}).map(o => JSON.stringify(o));
+            return Observable.of({access_token: this.accessToken}).map(o => o);
         }
     }
 
