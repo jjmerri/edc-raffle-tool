@@ -23,6 +23,7 @@ export class HomeComponent implements OnInit {
     private userName: string;
     private currentRaffle;
     private raffleImported = false;
+    private calledSpotMessageShown = false;
 
     constructor(private activatedRoute: ActivatedRoute, private http: Http, private oauthSerice: OauthService,
                 private redditService: RedditService) {
@@ -103,6 +104,7 @@ export class HomeComponent implements OnInit {
             let raffler = this.raffleParticipants[x];
             if (raffler.name) {
                 raffler.name = raffler.name.replace(new RegExp(' ', 'g'), '');
+                raffler.name = raffler.name.replace(new RegExp('/[uU]/', 'g'), '');
             }
             this.commentText += ( x + 1) + ' ' + (raffler.name ? '/u/' + raffler.name + ' ' : '') + (raffler.paid ? '**PAID**' : '') + '\n\n';
             this.unpaidUsers += !raffler.paid && raffler.name && this.unpaidUsers.indexOf('/u/' + raffler.name + ' ' ) === -1 ? '/u/' + raffler.name + ' ' : '';
@@ -189,12 +191,14 @@ export class HomeComponent implements OnInit {
 
     }
 
-    private _keyUpRestrictSpace(event: any) {
-        let inputChar = String.fromCharCode(event.charCode);
+    private checkCalledSpot(event: any) {
+        if (!this.calledSpotMessageShown &&
+            (!this.randomSlot ||
+                ((event.target.id !== 'raffleParticipant' + (this.randomSlot - 1)) && event.target.value === ''))) {
+            alert('It looks like you are trying to fill a slot that isnt random. ' +
+                'Please double check that your raffle allows called slots. You wont get this message again.');
 
-        if (inputChar === ' ') {
-            // invalid character, prevent input
-            event.preventDefault();
+            this.calledSpotMessageShown = true;
         }
     }
 

@@ -69,6 +69,11 @@
     </div>
   </div>
 
+
+
+
+
+
   <a *ngIf="currentRaffle" href="{{currentRaffle.url}}" target="_blank">Linked to: {{currentRaffle.title}}</a>
 
   <div class="starter-template">
@@ -96,8 +101,8 @@
     </div>
     <div class="col-xs-6">
       <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
-        <label for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
-        <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="updateCommentText()"/>
+        <label [ngClass]="{'bg-success': raffleParticipant.name === undefined || raffleParticipant.name === ''}" for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
+        <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="updateCommentText()" (focus)="checkCalledSpot($event)" />
         <label for="paid{{i}}">Paid?</label>
         <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [disabled]="raffleParticipant.name === undefined || raffleParticipant.name === ''" [(ngModel)]="raffleParticipant.paid" (change)="updateCommentText()"/>
       </div>
