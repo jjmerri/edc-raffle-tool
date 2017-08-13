@@ -1,13 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router';
 import {Http} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
 import 'rxjs/Rx';
-import {HostListener} from '@angular/core';
 
 import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
-import {isNullOrUndefined} from "util";
 
 @Component({
     selector: 'app-home',
@@ -16,7 +13,7 @@ import {isNullOrUndefined} from "util";
 })
 export class HomeComponent implements OnInit {
     private raffleParticipants = [];
-    private numSlots = 20;
+    private numSlots = 1;
     private randomSlot: number;
     private commentText: string;
     private unpaidUsers: string;
@@ -24,6 +21,9 @@ export class HomeComponent implements OnInit {
     private currentRaffle;
     private raffleImported = false;
     private calledSpotMessageShown = false;
+    private paidPopoverProperties = {};
+    private closePopOver = false;
+    private numOpenSlots = this.numSlots;
 
     constructor(private activatedRoute: ActivatedRoute, private http: Http, private oauthSerice: OauthService,
                 private redditService: RedditService) {
@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
 
                                     this.redditService.getCurrentRaffleSubmission(userDetailsResponse.name)
                                         .subscribe(submissionResponse => {
-                                          if(Object.keys(submissionResponse).length !== 0 && submissionResponse.constructor === Object) {
+                                          if (Object.keys(submissionResponse).length !== 0 && submissionResponse.constructor === Object) {
                                               this.currentRaffle = submissionResponse;
                                               this.importRaffleSlots(submissionResponse);
                                           }
@@ -88,15 +88,18 @@ export class HomeComponent implements OnInit {
                 openRaffleSpots.push(x + 1);
             }
         }
-        let min = 0;
-        let max = openRaffleSpots.length - 1;
-        let randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-        this.randomSlot = openRaffleSpots[randomNum];
+        if (openRaffleSpots.length > 0) {
+            let min = 0;
+            let max = openRaffleSpots.length - 1;
+            let randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+            this.randomSlot = openRaffleSpots[randomNum];
 
-        document.getElementById('raffleParticipant' + (this.randomSlot - 1)).focus();
+            document.getElementById('raffleParticipant' + (this.randomSlot - 1)).focus();
+        }
     }
 
     public updateCommentText() {
+        let numSlotsTaken = 0;
         this.commentText = '';
         this.unpaidUsers = '';
 
@@ -105,10 +108,14 @@ export class HomeComponent implements OnInit {
             if (raffler.name) {
                 raffler.name = raffler.name.replace(new RegExp(' ', 'g'), '');
                 raffler.name = raffler.name.replace(new RegExp('/[uU]/', 'g'), '');
+
+                numSlotsTaken++;
             }
             this.commentText += ( x + 1) + ' ' + (raffler.name ? '/u/' + raffler.name + ' ' : '') + (raffler.paid ? '**PAID**' : '') + '\n\n';
             this.unpaidUsers += !raffler.paid && raffler.name && this.unpaidUsers.indexOf('/u/' + raffler.name + ' ' ) === -1 ? '/u/' + raffler.name + ' ' : '';
         }
+
+        this.numOpenSlots = this.numSlots - numSlotsTaken;
 
 
         if (this.currentRaffle) {
@@ -200,6 +207,33 @@ export class HomeComponent implements OnInit {
 
             this.calledSpotMessageShown = true;
         }
+    }
+
+    private updateAffectedSlots(name: string, event: any) {
+        let numAffected = 1;
+
+        this.closePopOver = false;
+
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (raffler.name === name) {
+                if (raffler.paid !== event.target.checked) {
+                    raffler.paid = event.target.checked;
+                    numAffected++;
+                }
+            }
+        }
+
+        this.paidPopoverProperties = {numAffected: numAffected, paid: event.target.checked};
+
+        this.updateCommentText();
+
+        //close popOver after 3 seconds
+        let timer = setInterval(x => {
+            this.closePopOver = true;
+            clearInterval(timer);
+        }, 3000);
+
     }
 
 }
