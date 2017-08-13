@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Http, Headers, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
+import {environment} from '../../../environments/environment';
 
 @Injectable()
 export class OauthService {
@@ -9,26 +10,10 @@ export class OauthService {
     private accessTokenObserver: Observer<any>;
 
     private authUrl = 'https://www.reddit.com/api/v1/authorize';
-    //PROD
-    //private client_id = 'r6dZ3REoL89n2A';
-    //private client_secret = 'fZ4l6sEAnJRPD4cLIjXkyniE_Qo';
 
-    //TEST
-    private client_id = '40BtLpGGLTlHow';
-    private client_secret = 'C6O06ZscQt_qhyS26vi-DDLI5Nk';
-
-    //LOCAL
-    //private client_id = 'UWap4qOFI6uYgw';
-    //private client_secret = 'PwroVMyw3nRPEHHjTVxxUPed_tw';
-
-    //PROD
-    //private redirectUri = 'https://edc-raffle-tool.firebaseapp.com/home';
-
-    //TEST
-    private redirectUri = 'https://test-edc-raffle-tool.firebaseapp.com/home';
-
-    //local
-    //private redirectUri = 'http://localhost:4200/home';
+    private client_id = environment.client_id;
+    private client_secret = environment.client_secret;
+    private redirectUri = environment.redirectUri;
 
     private accessTokenUrl = 'https://www.reddit.com/api/v1/access_token';
     private state = 'XYZ';
