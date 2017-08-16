@@ -21,11 +21,15 @@ export class RedditService {
     private commentObservable: Observable<any>;
     private commentObserver: Observer<any>;
 
+    private userPmsObservable: Observable<any>;
+    private userPmsObserver: Observer<any>;
+
     private userDetailsUrl = 'https://oauth.reddit.com/api/v1/me';
     private userSubmissionsPlaceholder = 'https://www.reddit.com/user/{userName}/submitted.json?sort=new';
     private editUrl = 'https://oauth.reddit.com/api/editusertext';
     private composeUrl = 'https://oauth.reddit.com/api/compose';
     private commentUrl = 'https://oauth.reddit.com/api/comment';
+    private inboxUrl = 'https://oauth.reddit.com/message/inbox';
 
     private approvedSubs = ['edc_raffle', 'testingground4bots'];
 
@@ -35,6 +39,7 @@ export class RedditService {
         this.updatePostObservable = new Observable(observer => this.updatePostObserver = observer).share();
         this.composeObservable = new Observable(observer => this.composeObserver = observer).share();
         this.commentObservable = new Observable(observer => this.commentObserver = observer).share();
+        this.userPmsObservable = new Observable(observer => this.userPmsObserver = observer).share();
     }
 
     public getUserDetails(): Observable<any> {
@@ -207,6 +212,33 @@ export class RedditService {
         );
 
         return this.commentObservable;
+    }
+
+
+    public getPms(after: string, count: number): Observable<any> {
+        this.oauthService.getAccessToken().subscribe(response => {
+            let params = '?after=' + after + '&count=' + count + '&limit=100';
+
+                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                headers.append('Accept', 'application/json');
+                return this.http.get(this.inboxUrl + params, {headers: headers})
+                    .map(res => res.json())
+                    .subscribe(pmResponse => {
+                            this.userPmsObserver.next(pmResponse);
+                        },
+                        err => {
+                            console.error(err);
+                            this.userPmsObserver.next(err);
+                        }
+                    );
+            },
+            err => {
+                console.error(err);
+                this.userPmsObserver.next(err);
+            }
+        );
+
+        return this.userPmsObservable;
     }
 
     private handleErrorObservable (error: Response | any) {

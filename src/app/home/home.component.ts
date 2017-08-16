@@ -47,6 +47,9 @@ export class HomeComponent implements OnInit {
                                               this.currentRaffle = submissionResponse;
                                               this.importRaffleSlots(submissionResponse);
                                           }
+
+                                                this.pm();
+
                                         },
                                         err => {
                                             console.error(err);
@@ -293,6 +296,31 @@ export class HomeComponent implements OnInit {
                 );
             });
         }
+    }
+
+    private pm() {
+        this.redditService.getPms('', 0).subscribe(resp => {
+            let myMessage: any;
+            for (let message of resp.data.children) {
+                if (message.kind === 't4' && message.data.author === 'BoyAndHisBlob') {
+                    myMessage = message;
+                    break;
+                }
+            }
+            console.log(myMessage);
+            let txt: any;
+            txt = document.createElement("textareatmp");
+            txt.innerHTML = decodeURI(myMessage.data.body_html);
+            swal({
+                title: myMessage.data.subject,
+                html: txt.innerText,
+                type: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                //cancelButtonColor: '#d33',
+                confirmButtonText: 'Donate Slot'
+            });
+        });
     }
 
 }
