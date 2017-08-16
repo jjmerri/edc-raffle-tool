@@ -82,43 +82,72 @@
 
 
 
+  <div *ngIf="currentRaffle" class="col-xs-6">
+    <div class="well-sm">
+      <p><a class="btn btn-sm btn-success" (click)="donateSlot()">Donate Slot to /u/BoyAndHisBlob...</a></p>
+    </div>
+  </div>
+  <div *ngIf="currentRaffle" class="col-xs-6">
+    <div class="well-sm">
+      <div class="text-right">
+        <a class="align-middle" href="{{currentRaffle.url}}" target="_blank">Linked to: {{currentRaffle.title}}</a>
+      </div>
+    </div>
+  </div>
 
-
-  <a *ngIf="currentRaffle" href="{{currentRaffle.url}}" target="_blank">Linked to: {{currentRaffle.title}}</a>
 
   <div class="starter-template">
-    <div class="col-xs-12">
-      <div class="row">
-        <div class="col-xs-12">
-          <label for="numSlots">Number of Raffle Slots:</label>
-          <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSpots(numSlots)"/>
-          <input type="text" id="callTheBot" readonly value="/u/callthebot {{numSlots}}" (click)="copyText('callTheBot')" class="no-border">
-        </div>
-      </div>
+    <div class="col-xs-12 well" style="background: rgb(252, 252, 252);">
 
+      <div class="col-xs-12">
+
+        <div class="row" *ngIf="currentRaffle">
+          <div class="col-xs-4">
+          </div>
+
+          <div class="col-xs-8">
+            <div class="text-right">
+              <label for="payPalInfo">PayPal Info: </label>
+              <input type="text" id="payPalInfo" [(ngModel)]="payPalInfo" (focus)="showPayPalWarning($event)"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-12">
+            <label for="numSlots">Number of Raffle Slots:</label>
+            <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSpots(numSlots)"/>
+            <input type="text" id="callTheBot" readonly value="/u/callthebot {{numSlots}}" (click)="copyText('callTheBot')" class="no-border">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-6">
+            <p><a class="btn btn-md btn-primary" (click)="generateRandom()">Get Random Unclaimed Slot Number</a>
+              <b>{{randomSlot}}</b></p>
+          </div>
+
+          <div class="col-sm-6">
+            <strong>{{numOpenSlots}}</strong> open slots remain <strong>|</strong>
+            <label for="unpaid">Unpaid: </label>
+            <input type="text" readonly id="unpaid" [(ngModel)]="unpaidUsers" (click)="copyText('unpaid')"/>
+          </div>
+        </div>
+
+      </div>
       <div class="row">
         <div class="col-xs-6">
-          <button (click)="generateRandom()">Get Random Unclaimed Slot Number</button>
-          <b>{{randomSlot}}</b>
+          <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
+            <label [ngClass]="{'bg-success': raffleParticipant.name === undefined || raffleParticipant.name === ''}" for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
+            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="updateCommentText(); sendPayPalPm(raffleParticipant.name);" (focus)="checkCalledSpot($event)" />
+            <label for="paid{{i}}">Paid?</label>
+            <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [disabled]="raffleParticipant.name === undefined || raffleParticipant.name === ''" [(ngModel)]="raffleParticipant.paid" (change)="updateAffectedSlots(raffleParticipant.name,$event); paidPopOver.toggle($event)"/>
+          </div>
         </div>
-
-        <div class="col-sm-6">
-          <strong>{{numOpenSlots}}</strong> open slots remain <strong>|</strong>
-          <label for="unpaid">Unpaid: </label>
-          <input type="text" readonly id="unpaid" [(ngModel)]="unpaidUsers" (click)="copyText('unpaid')"/>
+        <div class="col-xs-6">
+          <textarea id="commentText" readonly rows="20" cols="50" [(ngModel)]="commentText" (click)="copyText('commentText')"></textarea>
         </div>
-
-    </div>
-    <div class="col-xs-6">
-      <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
-        <label [ngClass]="{'bg-success': raffleParticipant.name === undefined || raffleParticipant.name === ''}" for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
-        <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="updateCommentText()" (focus)="checkCalledSpot($event)" />
-        <label for="paid{{i}}">Paid?</label>
-        <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [disabled]="raffleParticipant.name === undefined || raffleParticipant.name === ''" [(ngModel)]="raffleParticipant.paid" (change)="updateAffectedSlots(raffleParticipant.name,$event); paidPopOver.toggle($event)"/>
       </div>
-    </div>
-    <div class="col-xs-6">
-      <textarea id="commentText" readonly rows="20" cols="50" [(ngModel)]="commentText" (click)="copyText('commentText')"></textarea>
     </div>
   </div>
 </div>

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router';
-import {Http} from '@angular/http';
 import 'rxjs/Rx';
+import swal from 'sweetalert2';
 
 import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
@@ -21,11 +21,14 @@ export class HomeComponent implements OnInit {
     private currentRaffle;
     private raffleImported = false;
     private calledSpotMessageShown = false;
+    private payPalMessageShown = false;
     private paidPopoverProperties = {};
     private closePopOver = false;
     private numOpenSlots = this.numSlots;
+    private payPalInfo: string;
+    private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below:\n\n';
 
-    constructor(private activatedRoute: ActivatedRoute, private http: Http, private oauthSerice: OauthService,
+    constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService) {
     }
 
@@ -65,7 +68,7 @@ export class HomeComponent implements OnInit {
         this.updateRaffleSpots(this.numSlots);
     }
 
-    public updateRaffleSpots(updatedNumSplots: number) {
+    private updateRaffleSpots(updatedNumSplots: number) {
         const prevSpots = this.raffleParticipants.length;
         if (updatedNumSplots > prevSpots) {
             for ( let x = prevSpots; x < updatedNumSplots; x++) {
@@ -81,7 +84,7 @@ export class HomeComponent implements OnInit {
         this.updateCommentText();
     }
 
-    public generateRandom() {
+    private generateRandom() {
         let openRaffleSpots = [];
         for (let x = 0; x < this.raffleParticipants.length; x++) {
             if (!this.raffleParticipants[x].name) {
@@ -139,7 +142,6 @@ export class HomeComponent implements OnInit {
                 }
                 this.redditService.updatePostText(postText, this.currentRaffle.name)
                     .subscribe(postResponse => {
-                            console.log(postResponse);
                         },
                         err => {
                             console.error(err);
@@ -202,8 +204,12 @@ export class HomeComponent implements OnInit {
         if (!this.calledSpotMessageShown &&
             (!this.randomSlot ||
                 ((event.target.id !== 'raffleParticipant' + (this.randomSlot - 1)) && event.target.value === ''))) {
-            alert('It looks like you are trying to fill a slot that isnt random. ' +
-                'Please double check that your raffle allows called slots. You wont get this message again.');
+
+            swal('Are Called Slots Allowed?',
+                'It looks like you are trying to fill a slot that isnt random. ' +
+                'Please double check that your raffle allows called slots. You wont get this message again.',
+                'question'
+            );
 
             this.calledSpotMessageShown = true;
         }
@@ -228,12 +234,65 @@ export class HomeComponent implements OnInit {
 
         this.updateCommentText();
 
-        //close popOver after 3 seconds
-        let timer = setInterval(x => {
+        // close popOver after 3 seconds
+        let timer = setInterval(() => {
             this.closePopOver = true;
             clearInterval(timer);
         }, 3000);
 
+    }
+
+    private showPayPalWarning(event: any) {
+        if (!this.payPalMessageShown) {
+            swal('',
+                'Entering your PayPal info will cause <strong>PMs to be sent</strong> to participants as you add them to the slot list. ' +
+                'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
+                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>PayPalEmail@blob.com',
+                'info'
+            );
+            this.payPalMessageShown = true;
+        }
+    }
+
+    private sendPayPalPm(recipient: string) {
+        let recipientNumSlots = 0
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (raffler.name === recipient) {
+                recipientNumSlots++;
+            }
+        }
+
+        if (recipient && recipientNumSlots === 1 && this.payPalInfo) {
+            this.redditService.sendPm(recipient, 'Raffle PayPal Info',
+                this.payPalPmMessage + this.payPalInfo +
+                '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n');
+        }
+    }
+
+    private donateSlot() {
+        let commentText = 'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool.' +
+            '\n\nThis slot request will be processed in the order it was recieved in the queue.'
+
+        if (this.currentRaffle) {
+            swal({
+                title: 'Donate Slot?',
+                html: 'This will post the below comment to your raffle. Thank you for donating!<br /><br />' + '<i>' + commentText + '</i>',
+                type: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                //cancelButtonColor: '#d33',
+                confirmButtonText: 'Donate Slot'
+            }).then( () => {
+                this.redditService.postComment(commentText, this.currentRaffle.name);
+
+                swal(
+                    'Donation Comment Posted!',
+                    'Please process the slot request in the order it was recieved in the queue and thank you again for your generosity!',
+                    'success'
+                );
+            });
+        }
     }
 
 }

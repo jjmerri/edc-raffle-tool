@@ -15,9 +15,17 @@ export class RedditService {
     private updatePostObservable: Observable<any>;
     private updatePostObserver: Observer<any>;
 
+    private composeObservable: Observable<any>;
+    private composeObserver: Observer<any>;
+
+    private commentObservable: Observable<any>;
+    private commentObserver: Observer<any>;
+
     private userDetailsUrl = 'https://oauth.reddit.com/api/v1/me';
     private userSubmissionsPlaceholder = 'https://www.reddit.com/user/{userName}/submitted.json?sort=new';
     private editUrl = 'https://oauth.reddit.com/api/editusertext';
+    private composeUrl = 'https://oauth.reddit.com/api/compose';
+    private commentUrl = 'https://oauth.reddit.com/api/comment';
 
     private approvedSubs = ['edc_raffle', 'testingground4bots'];
 
@@ -25,6 +33,8 @@ export class RedditService {
         this.userDetailsObservable = new Observable(observer => this.userDetailsObserver = observer).share();
         this.currentRaffleObservable = new Observable(observer => this.currentRaffleObserver = observer).share();
         this.updatePostObservable = new Observable(observer => this.updatePostObserver = observer).share();
+        this.composeObservable = new Observable(observer => this.composeObserver = observer).share();
+        this.commentObservable = new Observable(observer => this.commentObserver = observer).share();
     }
 
     public getUserDetails(): Observable<any> {
@@ -130,6 +140,73 @@ export class RedditService {
         return this.http.get(submissionUrl, {})
             .map(res => res.json())
             .catch(this.handleErrorObservable);
+    }
+
+    public sendPm(recipient: string, subject: string, messageText: string) {
+            if (!messageText) {
+            return Observable.throw({error: 'cannot send empty PM!'});
+        }
+
+        this.oauthService.getAccessToken().subscribe(response => {
+                let form = new FormData();
+                form.append('api_type', 'json');
+                form.append('text', messageText);
+                form.append('subject', subject );
+                form.append('to', recipient );
+
+                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                headers.append('Accept', 'application/json');
+                return this.http.post(this.composeUrl, form, {headers: headers})
+                    .map(res => res.json())
+                    .subscribe(composeResponse => {
+                            this.composeObserver.next(composeResponse);
+                        },
+                        err => {
+                            console.error(err);
+                            this.composeObserver.next(err);
+                        }
+                    );
+            },
+            err => {
+                console.error(err);
+                this.composeObserver.next(err);
+            }
+        );
+
+        return this.composeObservable;
+    }
+
+    public postComment(commentText: string, thing_id: string): Observable<any> {
+        if (!commentText) {
+            return Observable.throw({error: 'cannot update post to empty string'});
+        }
+
+        this.oauthService.getAccessToken().subscribe(response => {
+                let form = new FormData();
+                form.append('api_type', 'json');
+                form.append('text', commentText);
+                form.append('thing_id', thing_id );
+
+                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                headers.append('Accept', 'application/json');
+                return this.http.post(this.commentUrl, form, {headers: headers})
+                    .map(res => res.json())
+                    .subscribe(composeResponse => {
+                            this.commentObserver.next(composeResponse);
+                        },
+                        err => {
+                            console.error(err);
+                            this.commentObserver.next(err);
+                        }
+                    );
+            },
+            err => {
+                console.error(err);
+                this.commentObserver.next(err);
+            }
+        );
+
+        return this.commentObservable;
     }
 
     private handleErrorObservable (error: Response | any) {
