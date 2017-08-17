@@ -6,26 +6,6 @@ import {OauthService} from '../../oauth/services/oauth.service';
 
 @Injectable()
 export class RedditService {
-    private userDetailsObservable: Observable<any>;
-    private userDetailsObserver: Observer<any>;
-
-    private currentRaffleObservable: Observable<any>;
-    private currentRaffleObserver: Observer<any>;
-
-    private updatePostObservable: Observable<any>;
-    private updatePostObserver: Observer<any>;
-
-    private composeObservable: Observable<any>;
-    private composeObserver: Observer<any>;
-
-    private commentObservable: Observable<any>;
-    private commentObserver: Observer<any>;
-
-    private userMessagesObservable: Observable<any>;
-    private userMessagesObserver: Observer<any>;
-
-    private userPmsObservable: Observable<any>;
-    private userPmsObserver: Observer<any>;
 
     private userDetailsUrl = 'https://oauth.reddit.com/api/v1/me';
     private userSubmissionsPlaceholder = 'https://www.reddit.com/user/{userName}/submitted.json?sort=new';
@@ -37,36 +17,33 @@ export class RedditService {
     private approvedSubs = ['edc_raffle', 'testingground4bots'];
 
     constructor(private http: Http, private oauthService: OauthService) {
-        this.userDetailsObservable = new Observable(observer => this.userDetailsObserver = observer).share();
-        this.currentRaffleObservable = new Observable(observer => this.currentRaffleObserver = observer).share();
-        this.updatePostObservable = new Observable(observer => this.updatePostObserver = observer).share();
-        this.composeObservable = new Observable(observer => this.composeObserver = observer).share();
-        this.commentObservable = new Observable(observer => this.commentObserver = observer).share();
-        this.userMessagesObservable = new Observable(observer => this.userMessagesObserver = observer).share();
-        this.userPmsObservable = new Observable(observer => this.userPmsObserver = observer).share();
     }
 
     public getUserDetails(): Observable<any> {
-        this.oauthService.getAccessToken().subscribe(response => {
-                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
-                headers.append('Accept', 'application/json');
-                this.http.get(this.userDetailsUrl, {headers: headers})
-                    .map(res => res.json())
-                    .subscribe(userDetailsResponse => {
-                        this.userDetailsObserver.next(userDetailsResponse);
-                    },
-                    err => {
-                        console.error(err);
-                        this.userDetailsObserver.next(err);
-                    }
-                );
-            },
-            err => {
-                console.error(err);
-            }
-        );
-
-        return this.userDetailsObservable;
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    this.http.get(this.userDetailsUrl, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(userDetailsResponse => {
+                                observer.next(userDetailsResponse);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
     }
 
     public getUserSubmissions(userName: string): Observable<any> {
@@ -79,37 +56,39 @@ export class RedditService {
     }
 
     public getCurrentRaffleSubmission(userName: string) {
-        this.getUserSubmissions(userName).subscribe(userSubmissionsResponse => {
-                let currentRaffle: any;
-                currentRaffle = {};
-                if (userSubmissionsResponse && userSubmissionsResponse.data && userSubmissionsResponse.data.children) {
-                    for (let i = 0; i < userSubmissionsResponse.data.children.length; i++) {
-                        const submission = userSubmissionsResponse.data.children[i].data;
+        return Observable.create(observer => {
+            this.getUserSubmissions(userName).subscribe(userSubmissionsResponse => {
+                    let currentRaffle: any;
+                    currentRaffle = {};
+                    if (userSubmissionsResponse && userSubmissionsResponse.data && userSubmissionsResponse.data.children) {
+                        for (let i = 0; i < userSubmissionsResponse.data.children.length; i++) {
+                            const submission = userSubmissionsResponse.data.children[i].data;
 
-                        const currentDate = new Date();
-                        const currentDateSeconds = currentDate.getTime() / 1000;
-                        const submissionAge = currentDateSeconds - submission.created_utc;
+                            const currentDate = new Date();
+                            const currentDateSeconds = currentDate.getTime() / 1000;
+                            const submissionAge = currentDateSeconds - submission.created_utc;
 
-                        // submissions are ordered by age
-                        // if submissionAge > 48 hours nothing beyond this will be current
-                        if (submissionAge > (48 * 60 * 60)) {
-                            break;
-                        } else if (this.approvedSubs.indexOf(submission.subreddit) !== -1 &&
-                                   submission.link_flair_text !== 'Complete' && submission.link_flair_text !== 'Canceled') {
-                            currentRaffle = submission;
-                            break;
+                            // submissions are ordered by age
+                            // if submissionAge > 48 hours nothing beyond this will be current
+                            if (submissionAge > (48 * 60 * 60)) {
+                                break;
+                            } else if (this.approvedSubs.indexOf(submission.subreddit) !== -1 &&
+                                submission.link_flair_text !== 'Complete' && submission.link_flair_text !== 'Canceled') {
+                                currentRaffle = submission;
+                                break;
+                            }
                         }
                     }
+                    observer.next(currentRaffle);
+                    observer.complete();
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
                 }
-                this.currentRaffleObserver.next(currentRaffle);
-            },
-            err => {
-                console.error(err);
-                this.currentRaffleObserver.next(err);
-            }
-        );
-
-        return this.currentRaffleObservable;
+            );
+        });
     }
 
     public updatePostText(postText: string, thing_id: string): Observable<any> {
@@ -117,32 +96,35 @@ export class RedditService {
             return Observable.throw({error: 'cannot update post to empty string'});
         }
 
-        this.oauthService.getAccessToken().subscribe(response => {
-                let form = new FormData();
-                form.append('api_type', 'json');
-                form.append('text', postText);
-                form.append('thing_id', thing_id );
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    let form = new FormData();
+                    form.append('api_type', 'json');
+                    form.append('text', postText);
+                    form.append('thing_id', thing_id );
 
-                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
-                headers.append('Accept', 'application/json');
-                return this.http.post(this.editUrl, form, {headers: headers})
-                    .map(res => res.json())
-                    .subscribe(editResponse => {
-                            this.updatePostObserver.next(editResponse);
-                        },
-                        err => {
-                            console.error(err);
-                            this.updatePostObserver.next(err);
-                        }
-                    );
-            },
-            err => {
-                console.error(err);
-                this.updatePostObserver.next(err);
-            }
-        );
-
-        return this.updatePostObservable;
+                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    return this.http.post(this.editUrl, form, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(editResponse => {
+                                observer.next(editResponse);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
     }
 
     public getSubmission(submissionUrl: string): Observable<any> {
@@ -153,36 +135,39 @@ export class RedditService {
 
     public sendPm(recipient: string, subject: string, messageText: string) {
             if (!messageText) {
-            return Observable.throw({error: 'cannot send empty PM!'});
-        }
-
-        this.oauthService.getAccessToken().subscribe(response => {
-                let form = new FormData();
-                form.append('api_type', 'json');
-                form.append('text', messageText);
-                form.append('subject', subject );
-                form.append('to', recipient );
-
-                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
-                headers.append('Accept', 'application/json');
-                return this.http.post(this.composeUrl, form, {headers: headers})
-                    .map(res => res.json())
-                    .subscribe(composeResponse => {
-                            this.composeObserver.next(composeResponse);
-                        },
-                        err => {
-                            console.error(err);
-                            this.composeObserver.next(err);
-                        }
-                    );
-            },
-            err => {
-                console.error(err);
-                this.composeObserver.next(err);
+                return Observable.throw({error: 'cannot send empty PM!'});
             }
-        );
 
-        return this.composeObservable;
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    let form = new FormData();
+                    form.append('api_type', 'json');
+                    form.append('text', messageText);
+                    form.append('subject', subject );
+                    form.append('to', recipient );
+
+                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    return this.http.post(this.composeUrl, form, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(composeResponse => {
+                                observer.next(composeResponse);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
     }
 
     public postComment(commentText: string, thing_id: string): Observable<any> {
@@ -190,87 +175,97 @@ export class RedditService {
             return Observable.throw({error: 'cannot update post to empty string'});
         }
 
-        this.oauthService.getAccessToken().subscribe(response => {
-                let form = new FormData();
-                form.append('api_type', 'json');
-                form.append('text', commentText);
-                form.append('thing_id', thing_id );
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    let form = new FormData();
+                    form.append('api_type', 'json');
+                    form.append('text', commentText);
+                    form.append('thing_id', thing_id);
 
-                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
-                headers.append('Accept', 'application/json');
-                return this.http.post(this.commentUrl, form, {headers: headers})
-                    .map(res => res.json())
-                    .subscribe(composeResponse => {
-                            this.commentObserver.next(composeResponse);
-                        },
-                        err => {
-                            console.error(err);
-                            this.commentObserver.next(err);
-                        }
-                    );
-            },
-            err => {
-                console.error(err);
-                this.commentObserver.next(err);
-            }
-        );
-
-        return this.commentObservable;
+                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    return this.http.post(this.commentUrl, form, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(composeResponse => {
+                                observer.next(composeResponse);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
     }
 
 
     public getInbox(after: string, count: number): Observable<any> {
-        this.oauthService.getAccessToken().subscribe(response => {
-            let params = '?after=' + after + '&count=' + count + '&limit=100';
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    let params = '?after=' + after + '&count=' + count + '&limit=100';
 
-                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
-                headers.append('Accept', 'application/json');
-                return this.http.get(this.inboxUrl + params, {headers: headers})
-                    .map(res => res.json())
-                    .subscribe(pmResponse => {
-                            this.userMessagesObserver.next(pmResponse);
-                        },
-                        err => {
-                            console.error(err);
-                            this.userMessagesObserver.next(err);
-                        }
-                    );
-            },
-            err => {
-                console.error(err);
-                this.userMessagesObserver.next(err);
-            }
-        );
-
-        return this.userMessagesObservable;
+                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    return this.http.get(this.inboxUrl + params, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(pmResponse => {
+                                observer.next(pmResponse);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
     }
 
     public getPmsAfter(createdAfter: number) {
-        let messages: any = [];
-        let itemCount = 0;
+        return Observable.create(observer => {
+            let messages: any = [];
+            let itemCount = 0;
 
-        this.getInbox('', itemCount).expand((inboxItems) => {
-            let listCount = 0;
-            for (let message of inboxItems.data.children) {
-                listCount++
-                itemCount++;
-                if (message.data.created_utc > createdAfter) {
-                    if (message.kind === 't4') {
-                        messages.push(message);
+            this.getInbox('', itemCount).expand((inboxItems) => {
+                let listCount = 0;
+                for (let message of inboxItems.data.children) {
+                    listCount++;
+                    itemCount++;
+                    if (message.data.created_utc > createdAfter) {
+                        if (message.kind === 't4') {
+                            messages.push(message);
+                        }
+                        if (listCount === inboxItems.data.children.length) {
+                            if (inboxItems.data.after) {
+                                return this.getInbox(inboxItems.data.after, itemCount);
+                            } else {
+                                return Observable.empty();
+                            }
+                        }
+                    } else {
+                        observer.next(messages);
+                        observer.complete();
+                        return Observable.empty();
                     }
-                    if (listCount === inboxItems.data.children.length ) {
-                        return this.getInbox(inboxItems.data.after, itemCount);
-                    }
-                } else {
-                    this.userPmsObserver.next(messages);
-                    return Observable.empty();
                 }
-            }
-        }).subscribe((resp) => {
-            console.log(resp);
+            }).catch(error => observer.error(error)).subscribe((resp) => {
+            });
         });
-
-        return this.userPmsObservable;
     }
 
     private handleErrorObservable (error: Response | any) {

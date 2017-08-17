@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit {
     private numOpenSlots = this.numSlots;
     private payPalInfo: string;
     private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below:\n\n';
+    private popUpTimer: any;
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService) {
@@ -225,7 +226,7 @@ export class HomeComponent implements OnInit {
 
         for (let x = 0; x < this.raffleParticipants.length; x++) {
             const raffler = this.raffleParticipants[x];
-            if (raffler.name === name) {
+            if (raffler.name && (raffler.name.toUpperCase() === name.toUpperCase())) {
                 if (raffler.paid !== event.target.checked) {
                     raffler.paid = event.target.checked;
                     numAffected++;
@@ -238,9 +239,10 @@ export class HomeComponent implements OnInit {
         this.updateCommentText();
 
         // close popOver after 3 seconds
-        let timer = setInterval(() => {
+        clearInterval(this.popUpTimer);
+        this.popUpTimer = setInterval(() => {
             this.closePopOver = true;
-            clearInterval(timer);
+            clearInterval(this.popUpTimer);
         }, 3000);
 
     }
@@ -261,7 +263,7 @@ export class HomeComponent implements OnInit {
         let recipientNumSlots = 0
         for (let x = 0; x < this.raffleParticipants.length; x++) {
             const raffler = this.raffleParticipants[x];
-            if (raffler.name === recipient) {
+            if (raffler.name && (raffler.name.toUpperCase() === recipient.toUpperCase())) {
                 recipientNumSlots++;
             }
         }
@@ -269,7 +271,7 @@ export class HomeComponent implements OnInit {
         if (recipient && recipientNumSlots === 1 && this.payPalInfo) {
             this.redditService.sendPm(recipient, 'Raffle PayPal Info',
                 this.payPalPmMessage + this.payPalInfo +
-                '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n');
+                '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe();
         }
     }
 
@@ -287,7 +289,7 @@ export class HomeComponent implements OnInit {
                 //cancelButtonColor: '#d33',
                 confirmButtonText: 'Donate Slot'
             }).then( () => {
-                this.redditService.postComment(commentText, this.currentRaffle.name);
+                this.redditService.postComment(commentText, this.currentRaffle.name).subscribe();
 
                 swal(
                     'Donation Comment Posted!',
@@ -312,12 +314,13 @@ export class HomeComponent implements OnInit {
         txt = document.createElement("textareatmp");
         txt.innerHTML = decodeURI(message.data.body_html);
         swal({
-            title: message.data.subject,
+            title: message.data.author + ': ' + message.data.subject,
             html: txt.innerText,
             type: 'info',
             showCancelButton: true,
+            cancelButtonText: 'PM Doesn\'t contain PayPal Info',
             confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Donate Slot'
+            confirmButtonText: 'Mark ' + message.data.author + ' as Paid'
         }).then(function () {
         }, function (dismiss) {
             if (dismiss === 'cancel') {
