@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit {
                                               this.importRaffleSlots(submissionResponse);
                                           }
 
-                                                this.pm();
+                                             //   this.pm();
 
                                         },
                                         err => {
