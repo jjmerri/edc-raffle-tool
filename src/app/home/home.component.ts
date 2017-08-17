@@ -299,27 +299,30 @@ export class HomeComponent implements OnInit {
     }
 
     private pm() {
-        this.redditService.getPms('', 0).subscribe(resp => {
+        this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(resp => {
             let myMessage: any;
-            for (let message of resp.data.children) {
-                if (message.kind === 't4' && message.data.author === 'BoyAndHisBlob') {
-                    myMessage = message;
-                    break;
-                }
+            for (let message of resp) {
+                this.showPm(message);
             }
-            console.log(myMessage);
-            let txt: any;
-            txt = document.createElement("textareatmp");
-            txt.innerHTML = decodeURI(myMessage.data.body_html);
-            swal({
-                title: myMessage.data.subject,
-                html: txt.innerText,
-                type: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                //cancelButtonColor: '#d33',
-                confirmButtonText: 'Donate Slot'
-            });
+        });
+    }
+
+    private showPm(message: any) {
+        let txt: any;
+        txt = document.createElement("textareatmp");
+        txt.innerHTML = decodeURI(message.data.body_html);
+        swal({
+            title: message.data.subject,
+            html: txt.innerText,
+            type: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Donate Slot'
+        }).then(function () {
+        }, function (dismiss) {
+            if (dismiss === 'cancel') {
+
+            }
         });
     }
 

@@ -21,6 +21,9 @@ export class RedditService {
     private commentObservable: Observable<any>;
     private commentObserver: Observer<any>;
 
+    private userMessagesObservable: Observable<any>;
+    private userMessagesObserver: Observer<any>;
+
     private userPmsObservable: Observable<any>;
     private userPmsObserver: Observer<any>;
 
@@ -39,6 +42,7 @@ export class RedditService {
         this.updatePostObservable = new Observable(observer => this.updatePostObserver = observer).share();
         this.composeObservable = new Observable(observer => this.composeObserver = observer).share();
         this.commentObservable = new Observable(observer => this.commentObserver = observer).share();
+        this.userMessagesObservable = new Observable(observer => this.userMessagesObserver = observer).share();
         this.userPmsObservable = new Observable(observer => this.userPmsObserver = observer).share();
     }
 
@@ -215,7 +219,7 @@ export class RedditService {
     }
 
 
-    public getPms(after: string, count: number): Observable<any> {
+    public getInbox(after: string, count: number): Observable<any> {
         this.oauthService.getAccessToken().subscribe(response => {
             let params = '?after=' + after + '&count=' + count + '&limit=100';
 
@@ -224,19 +228,47 @@ export class RedditService {
                 return this.http.get(this.inboxUrl + params, {headers: headers})
                     .map(res => res.json())
                     .subscribe(pmResponse => {
-                            this.userPmsObserver.next(pmResponse);
+                            this.userMessagesObserver.next(pmResponse);
                         },
                         err => {
                             console.error(err);
-                            this.userPmsObserver.next(err);
+                            this.userMessagesObserver.next(err);
                         }
                     );
             },
             err => {
                 console.error(err);
-                this.userPmsObserver.next(err);
+                this.userMessagesObserver.next(err);
             }
         );
+
+        return this.userMessagesObservable;
+    }
+
+    public getPmsAfter(createdAfter: number) {
+        let messages: any = [];
+        let itemCount = 0;
+
+        this.getInbox('', itemCount).expand((inboxItems) => {
+            let listCount = 0;
+            for (let message of inboxItems.data.children) {
+                listCount++
+                itemCount++;
+                if (message.data.created_utc > createdAfter) {
+                    if (message.kind === 't4') {
+                        messages.push(message);
+                    }
+                    if (listCount === inboxItems.data.children.length ) {
+                        return this.getInbox(inboxItems.data.after, itemCount);
+                    }
+                } else {
+                    this.userPmsObserver.next(messages);
+                    return Observable.empty();
+                }
+            }
+        }).subscribe((resp) => {
+            console.log(resp);
+        });
 
         return this.userPmsObservable;
     }
