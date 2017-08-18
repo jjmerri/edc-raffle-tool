@@ -10,7 +10,7 @@ import { PopoverModule } from 'ng2-pop-over';
         BrowserModule,
         FormsModule,
         HttpModule,
-        PopoverModule],
+        PopoverModule,],
     declarations: [HomeComponent],
     exports: [HomeComponent],
     entryComponents: []

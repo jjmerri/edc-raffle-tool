@@ -28,6 +28,7 @@ export class HomeComponent implements OnInit {
     private payPalInfo: string;
     private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below:\n\n';
     private popUpTimer: any;
+    private skippedPms = [];
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService) {
@@ -93,9 +94,9 @@ export class HomeComponent implements OnInit {
             }
         }
         if (openRaffleSpots.length > 0) {
-            let min = 0;
-            let max = openRaffleSpots.length - 1;
-            let randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+            const min = 0;
+            const max = openRaffleSpots.length - 1;
+            const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
             this.randomSlot = openRaffleSpots[randomNum];
 
             document.getElementById('raffleParticipant' + (this.randomSlot - 1)).focus();
@@ -210,7 +211,9 @@ export class HomeComponent implements OnInit {
                 'It looks like you are trying to fill a slot that isnt random. ' +
                 'Please double check that your raffle allows called slots. You wont get this message again.',
                 'question'
-            );
+            ).then(() => {
+            }, (dismiss) => {
+            });
 
             this.calledSpotMessageShown = true;
         }
@@ -251,7 +254,9 @@ export class HomeComponent implements OnInit {
                 'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
                 '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>PayPalEmail@blob.com',
                 'info'
-            );
+            ).then(() => {
+            }, (dismiss) => {
+            });
             this.payPalMessageShown = true;
         }
     }
@@ -301,6 +306,8 @@ export class HomeComponent implements OnInit {
         this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(messages => {
             if (messages && messages.length) {
                 this.showPm(messages, messages.length -1);
+            } else {
+                this.showNoUnpaidPms();
             }
         });
     }
@@ -310,25 +317,25 @@ export class HomeComponent implements OnInit {
             return;
         }
 
-        let message = messages[messageIndex];
-        let authorSlotCount = this.getNumberSlots(message.data.author);
-        let authorPaid = this.isUserPaid(message.data.author);
+        const message = messages[messageIndex];
+        const authorSlotCount = this.getNumberSlots(message.data.author);
+        const authorPaid = this.isUserPaid(message.data.author);
 
         let txt: any;
         txt = document.createElement("temptxt");
         txt.innerHTML = decodeURI(message.data.body_html);
 
-        if (authorSlotCount && !authorPaid) {
+        if (authorSlotCount && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
             swal({
-                title: 'Unpaid raffle participant PMs',
+                title: 'Unpaid Raffle Participant PMs',
                 html: '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + authorSlotCount + ' total slots)' +
                 '<br />Subject: ' + message.data.subject + ' </b>' +
                 '</h3> <div class="well text-left">' + txt.innerText + '</div>',
                 showCloseButton: true,
                 showCancelButton: true,
-                cancelButtonText: 'PM Doesn\'t contain PayPal Info',
+                cancelButtonText: 'No PayPal Info in PM',
                 confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Mark ' + message.data.author + ' as Paid'
+                confirmButtonText: 'Mark User As Paid'
             }).then(() => {
                 this.markAsPaid(message.data.author);
                 if (messageIndex !== 0) {
@@ -338,6 +345,7 @@ export class HomeComponent implements OnInit {
                 }
             }, (dismiss) => {
                 if (dismiss === 'cancel') {
+                    this.skippedPms.push(message.data.name);
                     if (messageIndex !== 0) {
                         this.showPm(messages, messageIndex - 1);
                     } else {
@@ -387,12 +395,16 @@ export class HomeComponent implements OnInit {
             swal('All slots are marked paid, congrats on a successful raffle!',
                 '',
                 'info'
-            );
+            ).then(() => {
+            }, (dismiss) => {
+            });
         } else {
             swal('No more PMs from unpaid raffle participants.',
                 '',
                 'info'
-            );
+            ).then(() => {
+            }, (dismiss) => {
+            });
         }
     }
 
