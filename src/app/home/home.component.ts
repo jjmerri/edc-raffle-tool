@@ -306,6 +306,10 @@ export class HomeComponent implements OnInit {
     }
 
     private showPm(messages: any, messageIndex: number) {
+        if (messageIndex < 0) {
+            return;
+        }
+
         let message = messages[messageIndex];
         let authorSlotCount = this.getNumberSlots(message.data.author);
         let authorPaid = this.isUserPaid(message.data.author);
@@ -334,9 +338,11 @@ export class HomeComponent implements OnInit {
                 }
             }, (dismiss) => {
                 if (dismiss === 'cancel') {
-                    this.showPm(messages, messageIndex - 1);
-                } else {
-                    this.showNoUnpaidPms();
+                    if (messageIndex !== 0) {
+                        this.showPm(messages, messageIndex - 1);
+                    } else {
+                        this.showNoUnpaidPms();
+                    }
                 }
             });
         } else if (messageIndex !== 0) {
