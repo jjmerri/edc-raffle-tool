@@ -48,9 +48,6 @@ export class HomeComponent implements OnInit {
                                               this.currentRaffle = submissionResponse;
                                               this.importRaffleSlots(submissionResponse);
                                           }
-
-                                             //   this.pm();
-
                                         },
                                         err => {
                                             console.error(err);
@@ -277,7 +274,7 @@ export class HomeComponent implements OnInit {
 
     private donateSlot() {
         let commentText = 'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool.' +
-            '\n\nThis slot request will be processed in the order it was recieved in the queue.'
+            '\n\nThis slot request will be processed in the order it was recieved in the queue.';
 
         if (this.currentRaffle) {
             swal({
@@ -300,33 +297,119 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    private pm() {
-        this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(resp => {
-            let myMessage: any;
-            for (let message of resp) {
-                this.showPm(message);
+    private runPaymentConfirmer() {
+        this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(messages => {
+            if (messages && messages.length) {
+                this.showPm(messages, messages.length -1);
             }
         });
     }
 
-    private showPm(message: any) {
-        let txt: any;
-        txt = document.createElement("textareatmp");
-        txt.innerHTML = decodeURI(message.data.body_html);
-        swal({
-            title: message.data.author + ': ' + message.data.subject,
-            html: txt.innerText,
-            type: 'info',
-            showCancelButton: true,
-            cancelButtonText: 'PM Doesn\'t contain PayPal Info',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Mark ' + message.data.author + ' as Paid'
-        }).then(function () {
-        }, function (dismiss) {
-            if (dismiss === 'cancel') {
+    private showPm(messages: any, messageIndex: number) {
+        let message = messages[messageIndex];
+        let authorSlotCount = this.getNumberSlots(message.data.author);
+        let authorPaid = this.isUserPaid(message.data.author);
 
+        let txt: any;
+        txt = document.createElement("temptxt");
+        txt.innerHTML = decodeURI(message.data.body_html);
+
+        if (authorSlotCount && !authorPaid) {
+            swal({
+                title: 'Unpaid raffle participant PMs',
+                html: '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + authorSlotCount + ' total slots)' +
+                '<br />Subject: ' + message.data.subject + ' </b>' +
+                '</h3> <div class="well text-left">' + txt.innerText + '</div>',
+                showCloseButton: true,
+                showCancelButton: true,
+                cancelButtonText: 'PM Doesn\'t contain PayPal Info',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Mark ' + message.data.author + ' as Paid'
+            }).then(() => {
+                this.markAsPaid(message.data.author);
+                if (messageIndex !== 0) {
+                    this.showPm(messages, messageIndex - 1);
+                } else {
+                    this.showNoUnpaidPms();
+                }
+            }, (dismiss) => {
+                if (dismiss === 'cancel') {
+                    this.showPm(messages, messageIndex - 1);
+                } else {
+                    this.showNoUnpaidPms();
+                }
+            });
+        } else if (messageIndex !== 0) {
+            this.showPm(messages, messageIndex - 1);
+        } else {
+            this.showNoUnpaidPms();
+        }
+
+    }
+
+    private getNumberSlots(userName: string): number {
+        let numUserSlots = 0;
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (raffler.name && (raffler.name.toUpperCase() === userName.toUpperCase())) {
+                numUserSlots++;
             }
-        });
+
+            if (x + 1 === this.raffleParticipants.length) {
+                return numUserSlots;
+            }
+        }
+    }
+
+    private isUserPaid(userName: string): boolean {
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (raffler.name && !raffler.paid && (raffler.name.toUpperCase() === userName.toUpperCase())) {
+                return false;
+            }
+
+            if (x + 1 === this.raffleParticipants.length) {
+                return true;
+            }
+        }
+    }
+
+    private showNoUnpaidPms() {
+        let allPaid = this.isAllPaid();
+
+        if (allPaid) {
+            swal('All slots are marked paid, congrats on a successful raffle!',
+                '',
+                'info'
+            );
+        } else {
+            swal('No more PMs from unpaid raffle participants.',
+                '',
+                'info'
+            );
+        }
+    }
+
+    private markAsPaid(userName: string) {
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (raffler.name && (raffler.name.toUpperCase() === userName.toUpperCase())) {
+                raffler.paid = true;
+            }
+        }
+    }
+
+    private isAllPaid(): boolean {
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (!raffler.paid) {
+                return false;
+            }
+
+            if (x + 1 === this.raffleParticipants.length) {
+                return true;
+            }
+        }
     }
 
 }
