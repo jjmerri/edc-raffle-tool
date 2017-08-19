@@ -204,8 +204,8 @@ export class HomeComponent implements OnInit {
 
     private checkCalledSpot(event: any) {
         if (!this.calledSpotMessageShown &&
-            (!this.randomSlot ||
-                ((event.target.id !== 'raffleParticipant' + (this.randomSlot - 1)) && event.target.value === ''))) {
+            event.target.value === '' && (!this.randomSlot ||
+                (event.target.id !== 'raffleParticipant' + (this.randomSlot - 1)))) {
 
             swal('Are Called Slots Allowed?',
                 'It looks like you are trying to fill a slot that isnt random. ' +
@@ -297,7 +297,10 @@ export class HomeComponent implements OnInit {
                     'Donation Comment Posted!',
                     'Please process the slot request in the order it was recieved in the queue and thank you again for your generosity!',
                     'success'
-                );
+                ).then(() => {
+                }, (dismiss) => {
+                });
+            }, (dismiss) => {
             });
         }
     }
