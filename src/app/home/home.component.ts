@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router';
+import { Modal } from 'ngx-modialog/plugins/bootstrap';
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
 
@@ -31,7 +32,7 @@ export class HomeComponent implements OnInit {
     private skippedPms = [];
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
-                private redditService: RedditService) {
+                private redditService: RedditService, private modal: Modal) {
     }
 
     ngOnInit() {
@@ -417,6 +418,10 @@ export class HomeComponent implements OnInit {
             if (raffler.name && (raffler.name.toUpperCase() === userName.toUpperCase())) {
                 raffler.paid = true;
             }
+
+            if (x + 1 === this.raffleParticipants.length) {
+                this.updateCommentText();
+            }
         }
     }
 
@@ -431,6 +436,13 @@ export class HomeComponent implements OnInit {
                 return true;
             }
         }
+    }
+
+    private slotAssignmentWizard() {
+        this.redditService.getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name).subscribe(comments => {
+            //this.modal.open();
+            console.log(comments);
+        });
     }
 
 }

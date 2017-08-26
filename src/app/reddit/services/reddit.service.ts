@@ -7,12 +7,16 @@ import {OauthService} from '../../oauth/services/oauth.service';
 @Injectable()
 export class RedditService {
 
-    private userDetailsUrl = 'https://oauth.reddit.com/api/v1/me';
-    private userSubmissionsPlaceholder = 'https://www.reddit.com/user/{userName}/submitted.json?sort=new';
-    private editUrl = 'https://oauth.reddit.com/api/editusertext';
-    private composeUrl = 'https://oauth.reddit.com/api/compose';
-    private commentUrl = 'https://oauth.reddit.com/api/comment';
-    private inboxUrl = 'https://oauth.reddit.com/message/inbox';
+    private publicRedditUrl = 'https://www.reddit.com';
+    private secureRedditUrl = 'https://oauth.reddit.com';
+
+    private userDetailsUrl = this.secureRedditUrl + '/api/v1/me';
+    private userSubmissionsPlaceholder = this.publicRedditUrl + '/user/{userName}/submitted.json?sort=new';
+    private editUrl = this.secureRedditUrl + '/api/editusertext';
+    private composeUrl = this.secureRedditUrl + '/api/compose';
+    private commentUrl = this.secureRedditUrl + '/api/comment';
+    private inboxUrl = this.secureRedditUrl + '/message/inbox';
+    private childrenUrl = this.secureRedditUrl + '/api/morechildren';
 
     private approvedSubs = ['edc_raffle', 'testingground4bots'];
 
@@ -236,7 +240,36 @@ export class RedditService {
         });
     }
 
-    public getPmsAfter(createdAfter: number) {
+    public getPostComments(permalink: string): Observable<any> {
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    const params = '.json?sort=new';
+
+                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    this.http.get(this.secureRedditUrl + permalink + params, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(commentsResponse => {
+                                observer.next(commentsResponse[1].data.children);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
+    }
+
+    public getPmsAfter(createdAfter: number): Observable<any> {
         return Observable.create(observer => {
             let messages: any = [];
             let itemCount = 0;
@@ -265,6 +298,99 @@ export class RedditService {
                 }
             }).catch(error => observer.error(error)).subscribe((resp) => {
             });
+        });
+    }
+
+    public getTopLevelComments(permalink: string, link_id: String): Observable<any> {
+        return Observable.create(observer => {
+            let topLevelComments = [];
+
+            this.getComments(permalink, false, [], link_id, '').expand((comments) => {
+                let child_ids = '';
+
+                for (let z = 0; z < comments.length; z++) {
+                    let comment = comments[z];
+                    if (comment.kind === 't1' && comment.data.depth === 0) {
+                        topLevelComments.push(comment);
+                    }
+
+                    if (z + 1 === comments.length) {
+                        if (comment.kind === 'more') {
+                            return this.getComments('', true, comment.data.children, link_id, comment.data.name);
+                        } else {
+                            observer.next(topLevelComments);
+                            observer.complete();
+                            return Observable.empty();
+                        }
+                    }
+                }
+            }).catch(error => observer.error(error)).subscribe((resp) => {
+            });
+        });
+    }
+
+    private getChildComments(child_ids: any, link_id: String, more_Id: String): Observable<any> {
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    let form = new FormData();
+                    form.append('api_type', 'json');
+                    form.append('sort', 'new');
+                    form.append('link_id', <any>link_id);
+                    form.append('children', child_ids.join());
+                    form.append('limit_children', <any>false);
+                    form.append('depth', <any>0);
+                    form.append('id', <any>more_Id);
+
+                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    return this.http.post(this.childrenUrl, form, {headers: headers})
+                    .map(res => res.json())
+                    .subscribe(childrenResponse => {
+                            observer.next(childrenResponse.json.data.things);
+                            observer.complete();
+                        },
+                        err => {
+                            console.error(err);
+                            observer.error(err);
+                            observer.complete();
+                        }
+                    );
+
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
+    }
+
+    public getComments(permalink: string, getChildren: boolean, child_ids: any, link_id: String, more_Id: String): Observable<any> {
+        return Observable.create(observer => {
+            if (!getChildren) {
+                this.getPostComments(permalink).subscribe(comments => {
+                    observer.next(comments);
+                    observer.complete();
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+                );
+            } else {
+                this.getChildComments(child_ids, link_id, more_Id).subscribe(comments => {
+                        observer.next(comments);
+                        observer.complete();
+                    },
+                    err => {
+                        console.error(err);
+                        observer.error(err);
+                        observer.complete();
+                    }
+                );
+            }
         });
     }
 
