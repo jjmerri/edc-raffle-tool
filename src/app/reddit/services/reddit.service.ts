@@ -18,7 +18,7 @@ export class RedditService {
     private inboxUrl = this.secureRedditUrl + '/message/inbox';
     private childrenUrl = this.secureRedditUrl + '/api/morechildren';
 
-    private approvedSubs = ['edc_raffle', 'testingground4bots'];
+    private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle'];
 
     constructor(private http: Http, private oauthService: OauthService) {
     }
@@ -75,7 +75,11 @@ export class RedditService {
                             // submissions are ordered by age
                             // if submissionAge > 48 hours nothing beyond this will be current
                             if (submissionAge > (48 * 60 * 60)) {
-                                break;
+                                if (submission.stickied) {
+                                    continue;
+                                } else {
+                                    break;
+                                }
                             } else if (this.approvedSubs.indexOf(submission.subreddit) !== -1 &&
                                 submission.link_flair_text !== 'Complete' && submission.link_flair_text !== 'Canceled') {
                                 currentRaffle = submission;
