@@ -328,6 +328,13 @@ export class RedditService {
                         }
                     }
                 }
+
+                //no comments on post
+                if (topLevelComments.length === 0 && comments.length === 0) {
+                    observer.next(topLevelComments);
+                    observer.complete();
+                    return Observable.empty();
+                }
             }).catch(error => observer.error(error)).subscribe((resp) => {
             });
         });
