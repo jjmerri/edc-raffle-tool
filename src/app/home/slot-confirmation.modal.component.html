@@ -1,9 +1,12 @@
-<div class="container">
-    <div class="jumbotron">
-        <h1>Bootstrap Tutorial</h1>
-        <p>Bootstrap is the most popular HTML, CSS, and JS framework for developing
-            responsive, mobile-first projects on the web.</p>
+<div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" (click)="closeModal()">&times;</button>
+        <h4 class="modal-title">{{context.comment.data.author}}</h4>
     </div>
-    <p>This is some text.</p>
-    <p>This is another text.</p>
+    <div class="modal-body">
+        <p>{{context.comment.data.body}}</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
+    </div>
 </div>

@@ -443,8 +443,19 @@ export class HomeComponent implements OnInit {
 
     private slotAssignmentWizard() {
         this.redditService.getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name).subscribe(comments => {
-            //this.modal.open(SlotConfirmationModalComponent, overlayConfigFactory({ num1: 2, num2: 3 }, BSModalContext));
-            console.log(comments);
+            this.showSlotAssignmentModal(comments, comments.length - 1);
+        });
+    }
+
+    private showSlotAssignmentModal(comments: any, commentIndex: number) {
+        this.modal.open(SlotConfirmationModalComponent,
+            overlayConfigFactory({isBlocking: false, comment: comments[commentIndex]}, BSModalContext))
+            .then( dialogRef => {
+                dialogRef.result.then( result => {
+                    if (commentIndex > 0) {
+                        this.showSlotAssignmentModal(comments, commentIndex - 1);
+                    }
+                }).catch(error => console.log(error));
         });
     }
 
