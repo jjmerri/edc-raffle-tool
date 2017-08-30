@@ -6,7 +6,31 @@
     <div class="modal-body">
         <p>{{context.comment.data.body}}</p>
     </div>
+
+    <div >
+        <div class="row">
+            <div class="col-xs-6">
+                <label for="username">Slots For: </label>
+                <input id="username" [(ngModel)]="slotAssignment.username" type="text"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <label for="calledSlots">Called Slots</label>
+                <input id="calledSlots" [(ngModel)]="slotAssignment.calledSlots" type="text"/>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <label for="randomSlots">Random Slots</label>
+                <input id="randomSlots" [(ngModel)]="slotAssignment.randomSlots" type="number"/>
+            </div>
+        </div>
+    </div>
     <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="assignSlot()">Assign Slots</button>
         <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
     </div>
 </div>

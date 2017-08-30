@@ -452,6 +452,7 @@ export class HomeComponent implements OnInit {
             overlayConfigFactory({isBlocking: false, comment: comments[commentIndex]}, BSModalContext))
             .then( dialogRef => {
                 dialogRef.result.then( result => {
+                    console.log(result);
                     if (commentIndex > 0) {
                         this.showSlotAssignmentModal(comments, commentIndex - 1);
                     }

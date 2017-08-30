@@ -18,6 +18,8 @@ export class SlotConfirmationModalContext extends BSModalContext {
 export class SlotConfirmationModalComponent implements OnInit, ModalComponent<SlotConfirmationModalContext> {
     context: SlotConfirmationModalContext;
 
+    private slotAssignment: any = {};
+
     constructor(public dialog: DialogRef<SlotConfirmationModalContext>) {
         this.context = dialog.context;
     }
@@ -26,8 +28,12 @@ export class SlotConfirmationModalComponent implements OnInit, ModalComponent<Sl
         console.log(this.context.comment);
     }
 
-    closeModal() {
+    private closeModal() {
         this.dialog.close();
+    }
+
+    private assignSlot() {
+        this.dialog.close(this.slotAssignment);
     }
 
 }
