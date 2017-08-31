@@ -26,6 +26,8 @@ export class SlotConfirmationModalComponent implements OnInit, ModalComponent<Sl
 
     private slotAssignment: any = {};
 
+    private requestedTooManySlots = false;
+
     constructor(public dialog: DialogRef<SlotConfirmationModalContext>) {
         this.context = dialog.context;
     }
@@ -46,12 +48,13 @@ export class SlotConfirmationModalComponent implements OnInit, ModalComponent<Sl
     private checkSlots() {
         this.unavailableSlots = [];
         let slotsToCheck = this.slotAssignment.calledSlots;
-
+        let numRequestedSlots = 0;
         if (slotsToCheck) {
             slotsToCheck = slotsToCheck.replace(/\s+/g, '');
             const calledSlots = slotsToCheck.split(',');
             for (let x = 0; x < calledSlots.length; x++) {
                 if ( calledSlots[x] !== '') {
+                    numRequestedSlots++;
                     const calledSlot = +calledSlots[x];
                     if (!this.context.callingComponent.isSlotAvailable(calledSlot)) {
                         this.unavailableSlots.push(calledSlot);
@@ -59,6 +62,8 @@ export class SlotConfirmationModalComponent implements OnInit, ModalComponent<Sl
                 }
             }
         }
+        numRequestedSlots += this.slotAssignment.randomSlots;
+        this.requestedTooManySlots = numRequestedSlots > this.context.numOpenSlots;
     }
 
 }

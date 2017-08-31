@@ -8,6 +8,12 @@
     </div>
 
     <div class="modal-body">
+        <div class="row" *ngIf="requestedTooManySlots">
+            <div class="col-md-6">
+                <label for="username">The User is requesting more slots than there are available.</label>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-6">
                 <label for="username">{{context.numOpenSlots}} Open Slots Left</label>
@@ -31,7 +37,7 @@
         <div class="row">
             <div class="col-md-6">
                 <label for="randomSlots">Number of Random Slots: </label>
-                <input id="randomSlots" [(ngModel)]="slotAssignment.randomSlots" type="number"/>
+                <input id="randomSlots" [(ngModel)]="slotAssignment.randomSlots" type="number" (change)="checkSlots()"/>
             </div>
         </div>
     </div>
