@@ -9,6 +9,7 @@ import { BSModalContext } from 'ngx-modialog/plugins/bootstrap';
 export class SlotConfirmationModalContext extends BSModalContext {
     public comment: any;
     public callingComponent: any;
+    public numOpenSlots: number;
 }
 
 /**
@@ -42,8 +43,9 @@ export class SlotConfirmationModalComponent implements OnInit, ModalComponent<Sl
         this.dialog.close(this.slotAssignment);
     }
 
-    private checkSlots(slotsToCheck: String) {
+    private checkSlots() {
         this.unavailableSlots = [];
+        let slotsToCheck = this.slotAssignment.calledSlots;
 
         if (slotsToCheck) {
             slotsToCheck = slotsToCheck.replace(/\s+/g, '');
@@ -56,7 +58,6 @@ export class SlotConfirmationModalComponent implements OnInit, ModalComponent<Sl
                     }
                 }
             }
-
         }
     }
 

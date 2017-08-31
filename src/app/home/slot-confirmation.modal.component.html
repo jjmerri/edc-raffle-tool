@@ -10,6 +10,12 @@
     <div class="modal-body">
         <div class="row">
             <div class="col-md-6">
+                <label for="username">{{context.numOpenSlots}} Open Slots Left</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
                 <label for="username">Slots For: </label>
                 <input id="username" [(ngModel)]="slotAssignment.username" type="text"/>
             </div>
@@ -18,7 +24,7 @@
         <div class="row">
             <div class="col-md-6">
                 <label for="calledSlots">Called Slots (e.g. 2,7,9): {{unavailableSlots.toString()}}</label>
-                <input id="calledSlots" [(ngModel)]="slotAssignment.calledSlots" type="text" (change)="checkSlots(slotAssignment.calledSlots)"/>
+                <input id="calledSlots" [(ngModel)]="slotAssignment.calledSlots" type="text" (change)="checkSlots()"/>
             </div>
         </div>
 

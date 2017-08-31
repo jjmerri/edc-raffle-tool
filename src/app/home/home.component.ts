@@ -3,6 +3,7 @@ import {ActivatedRoute, Params} from '@angular/router';
 import { Modal, BSModalContext} from 'ngx-modialog/plugins/bootstrap';
 import { overlayConfigFactory } from 'ngx-modialog';
 import {Observer} from 'rxjs/Observer';
+import {Observable} from 'rxjs/Observable';
 
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
@@ -10,7 +11,6 @@ import swal from 'sweetalert2';
 import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
 import {SlotConfirmationModalComponent} from './slot-confirmation.modal.component';
-import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: 'app-home',
@@ -73,17 +73,17 @@ export class HomeComponent implements OnInit {
                 });
             }
         });
-        this.updateRaffleSpots(this.numSlots);
+        this.updateRaffleSlots(this.numSlots);
     }
 
-    private updateRaffleSpots(updatedNumSplots: number) {
+    private updateRaffleSlots(updatedNumSlots: number) {
         const prevSpots = this.raffleParticipants.length;
-        if (updatedNumSplots > prevSpots) {
-            for ( let x = prevSpots; x < updatedNumSplots; x++) {
+        if (updatedNumSlots > prevSpots) {
+            for ( let x = prevSpots; x < updatedNumSlots; x++) {
                 this.raffleParticipants[x] = {};
             }
-        } else if (updatedNumSplots < prevSpots) {
-            this.raffleParticipants.splice(updatedNumSplots, prevSpots - updatedNumSplots);
+        } else if (updatedNumSlots < prevSpots) {
+            this.raffleParticipants.splice(updatedNumSlots, prevSpots - updatedNumSlots);
         }
 
         let commentControl: any = document.getElementById('commentText');
@@ -103,17 +103,17 @@ export class HomeComponent implements OnInit {
 
     private getRandomUnclaimedSlotNumber(): Observable<any> {
         return Observable.create(observer => {
-            let openRaffleSpots = [];
+            let openRaffleSlots = [];
             for (let x = 0; x < this.raffleParticipants.length; x++) {
                 if (!this.raffleParticipants[x].name) {
-                    openRaffleSpots.push(x + 1);
+                    openRaffleSlots.push(x + 1);
                 }
             }
-            if (openRaffleSpots.length > 0) {
+            if (openRaffleSlots.length > 0) {
                 const min = 0;
-                const max = openRaffleSpots.length - 1;
+                const max = openRaffleSlots.length - 1;
                 const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-                observer.next(openRaffleSpots[randomNum]);
+                observer.next(openRaffleSlots[randomNum]);
                 observer.complete();
             } else {
                 observer.next(0);
@@ -154,7 +154,8 @@ export class HomeComponent implements OnInit {
                 let postText = txt.innerText;
 
                 let slotText = '<raffle-tool>\n\nThis slot list is created and updated by ' +
-                    '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' + this.commentText + '\n\n</raffle-tool>';
+                    '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' +
+                    this.commentText + '\n\n</raffle-tool>';
 
                 if (postText.indexOf('<raffle-tool>') !== -1 && postText.indexOf('</raffle-tool>') !== -1) {
                     postText = postText.replace(re, slotText);
@@ -178,7 +179,7 @@ export class HomeComponent implements OnInit {
     }
 
     public copyText(elementId: string) {
-        let commentControl: any = document.getElementById(elementId);
+        const commentControl: any = document.getElementById(elementId);
         commentControl.select();
         document.execCommand('copy');
     }
@@ -190,7 +191,7 @@ export class HomeComponent implements OnInit {
     public importRaffleSlots(raffle: any) {
         const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
         let txt: any;
-        txt = document.createElement("textareatmp");
+        txt = document.createElement('textareatmp');
         txt.innerHTML = raffle.selftext;
         const postText = txt.innerText;
 
@@ -214,7 +215,7 @@ export class HomeComponent implements OnInit {
                 }
             }
             this.numSlots = numSlots;
-            this.updateRaffleSpots(numSlots);
+            this.updateRaffleSlots(numSlots);
             this.raffleImported = true;
         }
 
@@ -297,7 +298,7 @@ export class HomeComponent implements OnInit {
     }
 
     private donateSlot() {
-        let commentText = 'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool.' +
+        const commentText = 'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool.' +
             '\n\nThis slot request will be processed in the order it was recieved in the queue.';
 
         if (this.currentRaffle) {
@@ -307,7 +308,6 @@ export class HomeComponent implements OnInit {
                 type: 'info',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
-                //cancelButtonColor: '#d33',
                 confirmButtonText: 'Donate Slot'
             }).then( () => {
                 this.redditService.postComment(commentText, this.currentRaffle.name).subscribe();
@@ -344,7 +344,7 @@ export class HomeComponent implements OnInit {
         const authorPaid = this.isUserPaid(message.data.author);
 
         let txt: any;
-        txt = document.createElement("temptxt");
+        txt = document.createElement('temptxt');
         txt.innerHTML = decodeURI(message.data.body_html);
 
         if (authorSlotCount && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
@@ -411,7 +411,7 @@ export class HomeComponent implements OnInit {
     }
 
     private showNoUnpaidPms() {
-        let allPaid = this.isAllPaid();
+        const allPaid = this.isAllPaid();
 
         if (allPaid) {
             swal('All slots are marked paid, congrats on a successful raffle!',
@@ -464,7 +464,13 @@ export class HomeComponent implements OnInit {
 
     private showSlotAssignmentModal(comments: any, commentIndex: number) {
         this.modal.open(SlotConfirmationModalComponent,
-            overlayConfigFactory({isBlocking: false, comment: comments[commentIndex], callingComponent: this}, BSModalContext))
+            overlayConfigFactory({
+                            isBlocking: false,
+                            comment: comments[commentIndex],
+                            callingComponent: this,
+                            numOpenSlots: this.numOpenSlots
+                        },
+                        BSModalContext))
             .then( dialogRef => {
                 dialogRef.result.then( result => {
                     if (result) {
@@ -479,12 +485,13 @@ export class HomeComponent implements OnInit {
     }
 
     private assignSlots(slotAssignment: any) {
-        if (slotAssignment.calledSlots) {
-            for (let x = 0; x < slotAssignment.calledSlots.length; x++) {
-                const calledSlot = slotAssignment.calledSlots[x];
-                if (this.isSlotAvailable(calledSlot)) {
-                    this.raffleParticipants[calledSlot - 1].name = slotAssignment.username;
-                }
+        let slotsToAssignString = slotAssignment.calledSlots;
+        if (slotsToAssignString) {
+            slotsToAssignString = slotsToAssignString.replace(/\s+/g, '');
+            const slotsToAssign = slotsToAssignString.split(',');
+            for (let x = 0; x < slotsToAssign.length; x++) {
+                const calledSlot = slotsToAssign[x];
+                this.assignSlot(slotAssignment.username, calledSlot, false);
             }
         }
 
@@ -492,7 +499,7 @@ export class HomeComponent implements OnInit {
             for (let x = 0; x < slotAssignment.randomSlots; x++) {
                 this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
                     if (randomSlot) {
-                        this.raffleParticipants[randomSlot - 1].name = slotAssignment.username;
+                        this.assignSlot(slotAssignment.username, randomSlot, false);
                     }
                 });
             }
@@ -510,6 +517,14 @@ export class HomeComponent implements OnInit {
         }
 
         return true;
+    }
+
+    private assignSlot(username: string, slotNumber: number, forceAssignment: boolean) {
+        if (this.isSlotAvailable(slotNumber) || forceAssignment) {
+            this.raffleParticipants[slotNumber - 1].name = username;
+            this.updateCommentText();
+            this.sendPayPalPm(username);
+        }
     }
 
 }
