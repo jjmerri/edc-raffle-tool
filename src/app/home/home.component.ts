@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router';
 import { Modal, BSModalContext} from 'ngx-modialog/plugins/bootstrap';
 import { overlayConfigFactory } from 'ngx-modialog';
+import {Observer} from 'rxjs/Observer';
 
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
@@ -9,6 +10,7 @@ import swal from 'sweetalert2';
 import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
 import {SlotConfirmationModalComponent} from './slot-confirmation.modal.component';
+import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: 'app-home',
@@ -91,20 +93,33 @@ export class HomeComponent implements OnInit {
     }
 
     private generateRandom() {
-        let openRaffleSpots = [];
-        for (let x = 0; x < this.raffleParticipants.length; x++) {
-            if (!this.raffleParticipants[x].name) {
-                openRaffleSpots.push(x + 1);
+        this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
+            if (randomSlot) {
+                this.randomSlot = randomSlot;
+                document.getElementById('raffleParticipant' + (randomSlot - 1)).focus();
             }
-        }
-        if (openRaffleSpots.length > 0) {
-            const min = 0;
-            const max = openRaffleSpots.length - 1;
-            const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-            this.randomSlot = openRaffleSpots[randomNum];
+        });
+    }
 
-            document.getElementById('raffleParticipant' + (this.randomSlot - 1)).focus();
-        }
+    private getRandomUnclaimedSlotNumber(): Observable<any> {
+        return Observable.create(observer => {
+            let openRaffleSpots = [];
+            for (let x = 0; x < this.raffleParticipants.length; x++) {
+                if (!this.raffleParticipants[x].name) {
+                    openRaffleSpots.push(x + 1);
+                }
+            }
+            if (openRaffleSpots.length > 0) {
+                const min = 0;
+                const max = openRaffleSpots.length - 1;
+                const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+                observer.next(openRaffleSpots[randomNum]);
+                observer.complete();
+            } else {
+                observer.next(0);
+                observer.complete();
+            }
+        });
     }
 
     public updateCommentText() {
@@ -449,15 +464,52 @@ export class HomeComponent implements OnInit {
 
     private showSlotAssignmentModal(comments: any, commentIndex: number) {
         this.modal.open(SlotConfirmationModalComponent,
-            overlayConfigFactory({isBlocking: false, comment: comments[commentIndex]}, BSModalContext))
+            overlayConfigFactory({isBlocking: false, comment: comments[commentIndex], callingComponent: this}, BSModalContext))
             .then( dialogRef => {
                 dialogRef.result.then( result => {
-                    console.log(result);
+                    if (result) {
+                        this.assignSlots(result);
+                    }
+
                     if (commentIndex > 0) {
                         this.showSlotAssignmentModal(comments, commentIndex - 1);
                     }
                 }).catch(error => console.log(error));
         });
+    }
+
+    private assignSlots(slotAssignment: any) {
+        if (slotAssignment.calledSlots) {
+            for (let x = 0; x < slotAssignment.calledSlots.length; x++) {
+                const calledSlot = slotAssignment.calledSlots[x];
+                if (this.isSlotAvailable(calledSlot)) {
+                    this.raffleParticipants[calledSlot - 1].name = slotAssignment.username;
+                }
+            }
+        }
+
+        if (slotAssignment.randomSlots) {
+            for (let x = 0; x < slotAssignment.randomSlots; x++) {
+                this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
+                    if (randomSlot) {
+                        this.raffleParticipants[randomSlot - 1].name = slotAssignment.username;
+                    }
+                });
+            }
+        }
+
+    }
+
+    public isSlotAvailable(slotNumber: number): boolean {
+        if (slotNumber > 0 && slotNumber <= this.raffleParticipants.length) {
+            if (this.raffleParticipants[slotNumber - 1].name) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        return true;
     }
 
 }
