@@ -5,6 +5,7 @@ import { overlayConfigFactory } from 'ngx-modialog';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 
+
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
 
@@ -35,6 +36,7 @@ export class HomeComponent implements OnInit {
     private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below:\n\n';
     private popUpTimer: any;
     private skippedPms = [];
+    private lastConfirmedCommentIndex: number = -1;
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService, private modal: Modal) {
@@ -54,6 +56,8 @@ export class HomeComponent implements OnInit {
                                           if (Object.keys(submissionResponse).length !== 0 && submissionResponse.constructor === Object) {
                                               this.currentRaffle = submissionResponse;
                                               this.importRaffleSlots(submissionResponse);
+
+                                              this.loadStorage(submissionResponse.name);
                                           }
                                         },
                                         err => {
@@ -272,7 +276,7 @@ export class HomeComponent implements OnInit {
             swal('',
                 'Entering your PayPal info will cause <strong>PMs to be sent</strong> to participants as you add them to the slot list. ' +
                 'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
-                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>PayPalEmail@blob.com',
+                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>https://www.paypal.me/yourname',
                 'info'
             ).then(() => {
             }, (dismiss) => {
@@ -291,7 +295,8 @@ export class HomeComponent implements OnInit {
         }
 
         if (recipient && recipientNumSlots === 1 && this.payPalInfo) {
-            this.redditService.sendPm(recipient, 'Raffle PayPal Info',
+            const subject = 'PayPal Info For: ' + this.currentRaffle.title;
+            this.redditService.sendPm(recipient, subject.substr(0, 100),
                 this.payPalPmMessage + this.payPalInfo +
                 '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe();
         }
@@ -299,7 +304,7 @@ export class HomeComponent implements OnInit {
 
     private donateSlot() {
         const commentText = 'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool.' +
-            '\n\nThis slot request will be processed in the order it was recieved in the queue.';
+            '\n\nThis slot request will be processed in the order it was received in the queue.';
 
         if (this.currentRaffle) {
             swal({
@@ -368,6 +373,7 @@ export class HomeComponent implements OnInit {
             }, (dismiss) => {
                 if (dismiss === 'cancel') {
                     this.skippedPms.push(message.data.name);
+                    localStorage.setItem(this.currentRaffle.name + '_skippedPms', JSON.stringify(this.skippedPms));
                     if (messageIndex !== 0) {
                         this.showPm(messages, messageIndex - 1);
                     } else {
@@ -458,7 +464,22 @@ export class HomeComponent implements OnInit {
 
     private slotAssignmentWizard() {
         this.redditService.getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name).subscribe(comments => {
-            this.showSlotAssignmentModal(comments, comments.length - 1);
+            for (let x = 0; x < comments.length; x++) {
+                if (comments[x].data.stickied || comments[x].data.author === 'AutoModerator') {
+                    comments.splice(x, 1);
+                }
+            }
+
+            if (this.lastConfirmedCommentIndex < comments.length - 1) {
+                this.showSlotAssignmentModal(comments.reverse(), this.lastConfirmedCommentIndex + 1);
+            } else {
+                swal('',
+                    'No more slot requests at this time. Check back later.',
+                    'info'
+                ).then(() => {
+                }, (dismiss) => {
+                });
+            }
         });
     }
 
@@ -473,38 +494,58 @@ export class HomeComponent implements OnInit {
                         BSModalContext))
             .then( dialogRef => {
                 dialogRef.result.then( result => {
-                    if (result) {
-                        this.assignSlots(result);
+                    if (result && result.slotAssignments && result.slotAssignments.length > 0) {
+                        this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name);
                     }
 
-                    if (commentIndex > 0) {
-                        this.showSlotAssignmentModal(comments, commentIndex - 1);
+                    if (result) {
+                        this.lastConfirmedCommentIndex = commentIndex;
+                        localStorage.setItem(this.currentRaffle.name + '_lastConfirmedCommentIndex', JSON.stringify(this.lastConfirmedCommentIndex));
+                        if (commentIndex < comments.length - 1) {
+                            this.showSlotAssignmentModal(comments, commentIndex + 1);
+                        } else {
+                            //check if more comments since start of wizard
+                            this.slotAssignmentWizard();
+                        }
                     }
                 }).catch(error => console.log(error));
         });
     }
 
-    private assignSlots(slotAssignment: any) {
-        let slotsToAssignString = slotAssignment.calledSlots;
-        if (slotsToAssignString) {
-            slotsToAssignString = slotsToAssignString.replace(/\s+/g, '');
-            const slotsToAssign = slotsToAssignString.split(',');
-            for (let x = 0; x < slotsToAssign.length; x++) {
-                const calledSlot = slotsToAssign[x];
-                this.assignSlot(slotAssignment.username, calledSlot, false);
+    private assignSlots(slotAssignments: any): any {
+        const assignedSlots = [];
+
+        for (let i = 0; i < slotAssignments.length; i++) {
+            const slotAssignment = slotAssignments[i];
+            let slotsToAssignString = slotAssignment.calledSlots;
+
+            assignedSlots.push({assignee: slotAssignment.username, calledSlots: [], randomSlots: []});
+
+            if (slotsToAssignString) {
+                slotsToAssignString = slotsToAssignString.replace(/\s+/g, '');
+                const slotsToAssign = slotsToAssignString.split(',');
+                for (let x = 0; x < slotsToAssign.length; x++) {
+                    const calledSlot = slotsToAssign[x];
+                    assignedSlots[i].calledSlots.push(+calledSlot);
+                    this.assignSlot(slotAssignment.username, calledSlot, false);
+                }
             }
         }
 
-        if (slotAssignment.randomSlots) {
-            for (let x = 0; x < slotAssignment.randomSlots; x++) {
-                this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
-                    if (randomSlot) {
-                        this.assignSlot(slotAssignment.username, randomSlot, false);
-                    }
-                });
+        for (let i = 0; i < slotAssignments.length; i++) {
+            const slotAssignment = slotAssignments[i];
+            if (slotAssignment.randomSlots) {
+                for (let x = 0; x < slotAssignment.randomSlots; x++) {
+                    this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
+                        if (randomSlot) {
+                            assignedSlots[i].randomSlots.push(randomSlot);
+                            this.assignSlot(slotAssignment.username, randomSlot, false);
+                        }
+                    });
+                }
             }
         }
-
+        return assignedSlots;
     }
 
     public isSlotAvailable(slotNumber: number): boolean {
@@ -524,6 +565,35 @@ export class HomeComponent implements OnInit {
             this.raffleParticipants[slotNumber - 1].name = username;
             this.updateCommentText();
             this.sendPayPalPm(username);
+        }
+    }
+
+    private sendConfirmationReply(slotAssignments: any, confirmationMessage: string, commentId: string) {
+        this.redditService.postComment(this.getCommentText(slotAssignments, confirmationMessage), commentId).subscribe();
+    }
+
+    private getCommentText(slotAssignments: any, commentText: string): string {
+        let updatedText = commentText;
+        for (let x = 0; x < slotAssignments.length; x++) {
+            const slotAssignment = slotAssignments[x];
+            const allSlots = slotAssignment.calledSlots.join(',') + (slotAssignment.calledSlots.length ? ',' : '') + slotAssignment.randomSlots.join(',');
+            updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_ALL_SLOTS' + '}', 'ig'), allSlots);
+            updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_CALLED_SLOTS' + '}', 'ig'), slotAssignment.calledSlots.join(','));
+            updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_RANDOM_SLOTS' + '}', 'ig'), slotAssignment.randomSlots.join(','));
+        }
+
+        return updatedText;
+    }
+
+    private loadStorage(raffleName: string) {
+        const lastConfirmedIndex = JSON.parse(localStorage.getItem(raffleName + '_lastConfirmedCommentIndex'));
+        if (lastConfirmedIndex !== null) {
+            this.lastConfirmedCommentIndex = lastConfirmedIndex;
+        }
+
+        const skippedPms = JSON.parse(localStorage.getItem(raffleName + '_skippedPms'));
+        if (skippedPms !== null) {
+            this.skippedPms = skippedPms;
         }
     }
 

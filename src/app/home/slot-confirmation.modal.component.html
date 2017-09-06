@@ -1,48 +1,93 @@
 <div class="modal-content">
     <div class="modal-header">
-        <button type="button" class="close" (click)="closeModal()">&times;</button>
-        <h4 class="modal-title">Comment from {{context.comment.data.author}}</h4>
+        <button type="button" class="close" (click)="closeModal(null)">&times;</button>
+        <h4 class="modal-title">Top Level Comment from <b>{{context.comment.data.author}}</b></h4>
     </div>
-    <div class="modal-body">
-        <p>{{context.comment.data.body}}</p>
+    <div class="modal-body well" innerHtml="{{formattedMessage}}">
     </div>
 
     <div class="modal-body">
+        <label *ngIf="context.numOpenSlots > 0" for="confirmationMessage">Confirmation Reply. The following text can be used and will be replaced with actual values.
+            {{'{slotOwner_ALL_SLOTS}'}}
+            {{'{slotOwner_CALLED_SLOTS}'}}
+            {{'{slotOwner_RANDOM_SLOTS}'}}</label>
+        <label for="confirmationMessage">Comment Reply: </label>
+
+        <textarea style="min-width: 100%" id="confirmationMessage" rows="3" [(ngModel)]="confirmationMessageText"></textarea>
+    </div>
+    <div *ngIf="context.numOpenSlots > 0" class="modal-body">
+
         <div class="row" *ngIf="requestedTooManySlots">
-            <div class="col-md-6">
-                <label for="username">The User is requesting more slots than there are available.</label>
+            <div class="col-lg-6">
+                <small class="text-danger">
+                    The User is requesting more slots than there are available.
+                </small>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="hasDuplicateSlots">
+            <div class="col-lg-6">
+                <small class="text-danger">
+                    The called slots list contain duplicates
+                </small>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="unavailableSlots.length !== 0">
+            <div class="col-lg-6">
+                <small class="text-danger">
+                    The {{unavailableSlots.toString()}} are already taken.
+                </small>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <label for="username">{{context.numOpenSlots}} Open Slots Left</label>
+            <div class="col-lg-6">
+                <label>{{context.numOpenSlots}} Open Slots Left</label>
+            </div>
+        </div>
+
+        <div class="panel panel-default" *ngFor="let slotAssignment of slotAssignments; let i = index">
+            <div class="panel-heading">
+                <span>Slot Assignment {{i + 1}}</span>
+                <button type="button" class="close pull-right" *ngIf="slotAssignments.length > 1" (click)="removeSlotAssignment(i)">&times;</button>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-xs-4">
+                        <label for="username{{i}}">Assign Slots To: </label>
+                        <input id="username{{i}}" [(ngModel)]="slotAssignment.username" type="text"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-xs-4">
+                        <label for="calledSlots{{i}}">Called Slots (e.g. 2,7,9): </label>
+                        <input id="calledSlots{{i}}" [(ngModel)]="slotAssignment.calledSlots" type="text" (change)="checkSlots()"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-xs-4">
+                        <label for="randomSlots{{i}}">Number of Random Slots: </label>
+                        <input id="randomSlots{{i}}" [(ngModel)]="slotAssignment.randomSlots" type="number" (change)="checkSlots()"/>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <label for="username">Slots For: </label>
-                <input id="username" [(ngModel)]="slotAssignment.username" type="text"/>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label for="calledSlots">Called Slots (e.g. 2,7,9): {{unavailableSlots.toString()}}</label>
-                <input id="calledSlots" [(ngModel)]="slotAssignment.calledSlots" type="text" (change)="checkSlots()"/>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <label for="randomSlots">Number of Random Slots: </label>
-                <input id="randomSlots" [(ngModel)]="slotAssignment.randomSlots" type="number" (change)="checkSlots()"/>
+            <div class="col-lg-6">
+                <a (click)="addSlotAssignment()" style="cursor: default">
+                    Add user to assign slots for +
+                </a>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" (click)="assignSlots()">Assign Slots</button>
-        <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
+        <button *ngIf="context.numOpenSlots > 0" type="button" class="btn btn-default" [disabled] = "numRequestedSlots === 0 || hasDuplicateSlots || requestedTooManySlots || unavailableSlots.length !== 0" (click)="assignSlots()">Assign Slots</button>
+        <button *ngIf="context.numOpenSlots === 0" type="button" class="btn btn-default" [disabled] = "!confirmationMessageText" (click)="postWaitlistCommentAndClose()">Post Waitlist Comment</button>
+        <button type="button" class="btn btn-default" (click)="skipComment()">Skip Comment</button>
+        <button type="button" class="btn btn-default" (click)="closeModal(null)">Close</button>
     </div>
 </div>
