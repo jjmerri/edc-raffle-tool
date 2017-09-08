@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit {
     private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below:\n\n';
     private popUpTimer: any;
     private skippedPms = [];
-    private lastConfirmedCommentIndex: number = -1;
+    private confirmedComments = [];
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService, private modal: Modal) {
@@ -465,13 +465,20 @@ export class HomeComponent implements OnInit {
     private slotAssignmentWizard() {
         this.redditService.getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name).subscribe(comments => {
             for (let x = 0; x < comments.length; x++) {
-                if (comments[x].data.stickied || comments[x].data.author === 'AutoModerator') {
+                if (comments[x].data.author === 'AutoModerator') {
                     comments.splice(x, 1);
                 }
             }
 
-            if (this.lastConfirmedCommentIndex < comments.length - 1) {
-                this.showSlotAssignmentModal(comments.reverse(), this.lastConfirmedCommentIndex + 1);
+            let nextCommentIndex = -1;
+            for (let x = 0; x < comments.length; x++) {
+                if (this.confirmedComments.indexOf(comments[x].data.name) === -1) {
+                    nextCommentIndex = x;
+                    break;
+                }
+            }
+            if (nextCommentIndex >= 0) {
+                this.showSlotAssignmentModal(comments, nextCommentIndex);
             } else {
                 swal('',
                     'No more slot requests at this time. Check back later.',
@@ -499,8 +506,9 @@ export class HomeComponent implements OnInit {
                     }
 
                     if (result) {
-                        this.lastConfirmedCommentIndex = commentIndex;
-                        localStorage.setItem(this.currentRaffle.name + '_lastConfirmedCommentIndex', JSON.stringify(this.lastConfirmedCommentIndex));
+                        this.confirmedComments.push(comments[commentIndex].data.name);
+
+                        localStorage.setItem(this.currentRaffle.name + '_confirmedComments', JSON.stringify(this.confirmedComments));
                         if (commentIndex < comments.length - 1) {
                             this.showSlotAssignmentModal(comments, commentIndex + 1);
                         } else {
@@ -576,19 +584,19 @@ export class HomeComponent implements OnInit {
         let updatedText = commentText;
         for (let x = 0; x < slotAssignments.length; x++) {
             const slotAssignment = slotAssignments[x];
-            const allSlots = slotAssignment.calledSlots.join(',') + (slotAssignment.calledSlots.length ? ',' : '') + slotAssignment.randomSlots.join(',');
+            const allSlots = slotAssignment.calledSlots.join(', ') + (slotAssignment.calledSlots.length ? ', ' : '') + slotAssignment.randomSlots.join(', ');
             updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_ALL_SLOTS' + '}', 'ig'), allSlots);
-            updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_CALLED_SLOTS' + '}', 'ig'), slotAssignment.calledSlots.join(','));
-            updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_RANDOM_SLOTS' + '}', 'ig'), slotAssignment.randomSlots.join(','));
+            updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_CALLED_SLOTS' + '}', 'ig'), slotAssignment.calledSlots.join(', '));
+            updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_RANDOM_SLOTS' + '}', 'ig'), slotAssignment.randomSlots.join(', '));
         }
 
         return updatedText;
     }
 
     private loadStorage(raffleName: string) {
-        const lastConfirmedIndex = JSON.parse(localStorage.getItem(raffleName + '_lastConfirmedCommentIndex'));
-        if (lastConfirmedIndex !== null) {
-            this.lastConfirmedCommentIndex = lastConfirmedIndex;
+        const confirmedComments = JSON.parse(localStorage.getItem(raffleName + '_confirmedComments'));
+        if (confirmedComments !== null) {
+            this.confirmedComments = confirmedComments;
         }
 
         const skippedPms = JSON.parse(localStorage.getItem(raffleName + '_skippedPms'));

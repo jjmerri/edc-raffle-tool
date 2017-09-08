@@ -322,7 +322,7 @@ export class RedditService {
                         if (comment.kind === 'more') {
                             return this.getComments('', true, comment.data.children, link_id, comment.data.name);
                         } else {
-                            observer.next(topLevelComments);
+                            observer.next(topLevelComments.sort(function(a, b){return a.data.created_utc - b.data.created_utc; } ));
                             observer.complete();
                             return Observable.empty();
                         }

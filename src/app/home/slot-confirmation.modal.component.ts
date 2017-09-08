@@ -131,4 +131,25 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         this.requestedTooManySlots = this.numRequestedSlots > this.context.numOpenSlots;
     }
 
+    _keyPress(event: any) {
+        const pattern = /[0-9\+,]/;
+        let inputChar = String.fromCharCode(event.charCode);
+
+        if (!pattern.test(inputChar)) {
+            // invalid character, prevent input
+            event.preventDefault();
+        }
+    }
+
+    private updateReplyText(event: any, index: number) {
+        const updatedName = event.replace(new RegExp(' ', 'g'), '');
+        this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('{' + this.slotAssignments[index].username + '_ALL_SLOTS' + '}', 'ig'),
+            '{' + updatedName + '_ALL_SLOTS' + '}');
+        this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('{' + this.slotAssignments[index].username + '_CALLED_SLOTS' + '}', 'ig'),
+            '{' + updatedName + '_ALL_SLOTS' + '}');
+        this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('{' + this.slotAssignments[index].username + '_RANDOM_SLOTS' + '}', 'ig'),
+            '{' + updatedName + '_ALL_SLOTS' + '}');
+        this.slotAssignments[index].username = updatedName;
+    }
+
 }
