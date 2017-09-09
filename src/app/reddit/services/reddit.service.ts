@@ -142,9 +142,9 @@ export class RedditService {
     }
 
     public sendPm(recipient: string, subject: string, messageText: string) {
-            if (!messageText) {
-                return Observable.throw({error: 'cannot send empty PM!'});
-            }
+        if (!messageText) {
+            return Observable.throw({error: 'cannot send empty PM!'});
+        }
 
         return Observable.create(observer => {
             this.oauthService.getAccessToken().subscribe(response => {
@@ -355,17 +355,17 @@ export class RedditService {
                     let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     return this.http.post(this.childrenUrl, form, {headers: headers})
-                    .map(res => res.json())
-                    .subscribe(childrenResponse => {
-                            observer.next(childrenResponse.json.data.things);
-                            observer.complete();
-                        },
-                        err => {
-                            console.error(err);
-                            observer.error(err);
-                            observer.complete();
-                        }
-                    );
+                        .map(res => res.json())
+                        .subscribe(childrenResponse => {
+                                observer.next(childrenResponse.json.data.things);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
 
                 },
                 err => {
@@ -381,14 +381,14 @@ export class RedditService {
         return Observable.create(observer => {
             if (!getChildren) {
                 this.getPostComments(permalink).subscribe(comments => {
-                    observer.next(comments);
-                    observer.complete();
-                },
-                err => {
-                    console.error(err);
-                    observer.error(err);
-                    observer.complete();
-                }
+                        observer.next(comments);
+                        observer.complete();
+                    },
+                    err => {
+                        console.error(err);
+                        observer.error(err);
+                        observer.complete();
+                    }
                 );
             } else {
                 this.getChildComments(child_ids, link_id, more_Id).subscribe(comments => {

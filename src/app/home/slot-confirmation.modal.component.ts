@@ -21,6 +21,7 @@ export class SlotConfirmationModalContext extends BSModalContext {
 })
 export class SlotConfirmationModalComponent implements OnInit, CloseGuard, ModalComponent<SlotConfirmationModalContext> {
     private static numOpenModals = 0;
+    private static waitlistMessageSent = false;
 
     private context: SlotConfirmationModalContext;
     private unavailableSlots: any = [];
@@ -76,6 +77,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
 
     private postWaitlistCommentAndClose() {
         this.redditService.postComment(this.confirmationMessageText, this.context.comment.data.name).subscribe();
+        SlotConfirmationModalComponent.waitlistMessageSent = true;
         this.closeModal(null);
     }
 
@@ -150,6 +152,10 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('{' + this.slotAssignments[index].username + '_RANDOM_SLOTS' + '}', 'ig'),
             '{' + updatedName + '_ALL_SLOTS' + '}');
         this.slotAssignments[index].username = updatedName;
+    }
+
+    public get waitlistMessageSent() {
+        return SlotConfirmationModalComponent.waitlistMessageSent;
     }
 
 }

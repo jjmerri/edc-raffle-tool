@@ -33,10 +33,13 @@ export class HomeComponent implements OnInit {
     private closePopOver = false;
     private numOpenSlots = this.numSlots;
     private payPalInfo: string;
-    private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below:\n\n';
+    private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below.\n\n' +
+        '**Please reply to this message with the name on your paypal account and the number of slots you received.**\n\n';
     private popUpTimer: any;
     private skippedPms = [];
     private confirmedComments = [];
+    private shownNewFeatureMessageSlotAssignmentHelper = false;
+    private isModtober = false;
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService, private modal: Modal) {
@@ -58,6 +61,9 @@ export class HomeComponent implements OnInit {
                                               this.importRaffleSlots(submissionResponse);
 
                                               this.loadStorage(submissionResponse.name);
+
+                                              this.showNewFeatureMessage();
+                                              this.showModAppreciationMessage();
                                           }
                                         },
                                         err => {
@@ -577,7 +583,16 @@ export class HomeComponent implements OnInit {
     }
 
     private sendConfirmationReply(slotAssignments: any, confirmationMessage: string, commentId: string) {
-        this.redditService.postComment(this.getCommentText(slotAssignments, confirmationMessage), commentId).subscribe();
+        this.redditService.postComment(this.getCommentText(slotAssignments, confirmationMessage), commentId).subscribe( response => {
+            if (!response || !response.json || !response.json.data || !response.json.errors || response.json.errors.length) {
+                console.error('error sending confirmation response', response);
+                alert('Unable to send confirmation message. please do so manually.');
+            }
+        },
+            error => {
+                console.error('error sending confirmation response', error);
+                alert('Unable to send confirmation message. please do so manually.');
+            });
     }
 
     private getCommentText(slotAssignments: any, commentText: string): string {
@@ -602,6 +617,57 @@ export class HomeComponent implements OnInit {
         const skippedPms = JSON.parse(localStorage.getItem(raffleName + '_skippedPms'));
         if (skippedPms !== null) {
             this.skippedPms = skippedPms;
+        }
+        const shownNewFeatureMessageSlotAssignmentHelper = JSON.parse(localStorage.getItem('shownNewFeatureMessageSlotAssignmentHelper'));
+        if (shownNewFeatureMessageSlotAssignmentHelper !== null) {
+            this.shownNewFeatureMessageSlotAssignmentHelper = shownNewFeatureMessageSlotAssignmentHelper;
+        }
+    }
+
+    private showNewFeatureMessage() {
+        if (!this.shownNewFeatureMessageSlotAssignmentHelper) {
+            swal({
+                    title: 'New Feature Available!',
+                    html:   '<h3><span style="font-weight: 400;">' +
+                                'Slot Assignment Helper' +
+                            '</span></h3>' +
+                            '<p><span style="font-weight: 400;">' +
+                                'Clicking the "Slot Assignment Helper" button will cycle you through top level comments and provide ' +
+                                'you with an interface to assign slots and reply to the request with a confirmation message ' +
+                                'all without having to leave The Raffle Tool.' +
+                            '</span></p>' +
+                            '<p><span style="font-weight: 400;">' +
+                                'See the <a href="https://docs.google.com/document/d/1lz07G4-So9sUXgp46FWY-i7DSJ_RCfGfrBtIU1xNQbw/edit#heading=h.sg5104iphu6x" target="_blank" rel="noopener">complete documentation</a>&nbsp;for more info.' +
+                            '</span></p>',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                }
+            ).then(() => {
+                localStorage.setItem('shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
+            }, (dismiss) => { localStorage.setItem(this.currentRaffle.name + '_shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
+            });
+        }
+    }
+
+    private showModAppreciationMessage() {
+        if (this.isModtober) {
+            swal({
+                    title: 'Modtober is here!',
+                    html: '<h3><span style="font-weight: 400;">October is mod appreciation month!</span></h3>\n' +
+                    '<p><span style="font-weight: 400;">' +
+                    '   <strong>The mods donate a lot of their time</strong> to ensure the community we have here is safe, fun, and fair.' +
+                    ' You can <strong>show your appreciation</strong> by donating a slot from your raffle to a random mod of /r/' +
+                    this.currentRaffle.subreddit +
+                    ' by clicking the button below. <br/> <br/>This will post a comment to your raffle stating you are donating a slot. You should process the request normally.',
+                    showCloseButton: true,
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Donate Slot!'
+                }
+            ).then(() => {
+            }, (dismiss) => {
+            });
         }
     }
 
