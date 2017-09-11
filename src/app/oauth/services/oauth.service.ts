@@ -57,7 +57,7 @@ export class OauthService {
     public requestPermission () {
         window.location.href = this.authUrl + '?client_id=' + this.client_id + '&response_type=code&' +
             'state=' + this.state + '&redirect_uri=' + this.redirectUri +
-            '&duration=permanent&scope=identity,edit,submit,privatemessages,read';
+            '&duration=permanent&scope=identity,edit,submit,privatemessages,read,history';
     }
 
     private retrieveAccessToken(authCode: string, state: string): Observable<any> {

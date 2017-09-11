@@ -11,7 +11,7 @@ export class RedditService {
     private secureRedditUrl = 'https://oauth.reddit.com';
 
     private userDetailsUrl = this.secureRedditUrl + '/api/v1/me';
-    private userSubmissionsPlaceholder = this.publicRedditUrl + '/user/{userName}/submitted.json?sort=new';
+    private userSubmissionsPlaceholder = this.secureRedditUrl + '/user/{userName}/submitted.json?sort=new';
     private editUrl = this.secureRedditUrl + '/api/editusertext';
     private composeUrl = this.secureRedditUrl + '/api/compose';
     private commentUrl = this.secureRedditUrl + '/api/comment';
@@ -51,12 +51,33 @@ export class RedditService {
     }
 
     public getUserSubmissions(userName: string): Observable<any> {
-        const re = /{userName}/;
-        const userSubmissionsUrl = this.userSubmissionsPlaceholder.replace(re, userName);
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    const re = /{userName}/;
+                    const userSubmissionsUrl = this.userSubmissionsPlaceholder.replace(re, userName);
 
-        return this.http.get(userSubmissionsUrl, {})
-            .map(res => res.json())
-            .catch(this.handleErrorObservable);
+                    const headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+
+                    return this.http.get(userSubmissionsUrl, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(getResponse => {
+                                observer.next(getResponse);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
     }
 
     public getCurrentRaffleSubmissions(userName: string) {
@@ -134,10 +155,31 @@ export class RedditService {
         });
     }
 
-    public getSubmission(submissionUrl: string): Observable<any> {
-        return this.http.get(submissionUrl, {})
-            .map(res => res.json())
-            .catch(this.handleErrorObservable);
+    public getSubmission(submissionPermalink: string): Observable<any> {
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+
+                return this.http.get(this.secureRedditUrl + submissionPermalink, {headers: headers})
+                    .map(res => res.json())
+                    .subscribe(getResponse => {
+                            observer.next(getResponse);
+                            observer.complete();
+                        },
+                        err => {
+                            console.error(err);
+                            observer.error(err);
+                            observer.complete();
+                        }
+                    );
+                    },
+                    err => {
+                        console.error(err);
+                        observer.error(err);
+                        observer.complete();
+                    }
+                    );
+            });
     }
 
     public sendPm(recipient: string, subject: string, messageText: string) {

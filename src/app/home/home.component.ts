@@ -156,7 +156,7 @@ export class HomeComponent implements OnInit {
 
 
         if (this.currentRaffle) {
-          this.redditService.getSubmission(this.currentRaffle.url + '.json').subscribe(getSubmissionResponse => {
+          this.redditService.getSubmission(this.currentRaffle.permalink + '.json').subscribe(getSubmissionResponse => {
                 this.currentRaffle = getSubmissionResponse[0].data.children[0].data;
                 const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
 
