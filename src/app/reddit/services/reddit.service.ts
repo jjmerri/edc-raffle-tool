@@ -18,7 +18,7 @@ export class RedditService {
     private inboxUrl = this.secureRedditUrl + '/message/inbox';
     private childrenUrl = this.secureRedditUrl + '/api/morechildren';
 
-    private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle'];
+    private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'raffleTest'];
 
     constructor(private http: Http, private oauthService: OauthService) {
     }
@@ -59,11 +59,11 @@ export class RedditService {
             .catch(this.handleErrorObservable);
     }
 
-    public getCurrentRaffleSubmission(userName: string) {
+    public getCurrentRaffleSubmissions(userName: string) {
         return Observable.create(observer => {
             this.getUserSubmissions(userName).subscribe(userSubmissionsResponse => {
-                    let currentRaffle: any;
-                    currentRaffle = {};
+                    let currentRaffles: any;
+                    currentRaffles = [];
                     if (userSubmissionsResponse && userSubmissionsResponse.data && userSubmissionsResponse.data.children) {
                         for (let i = 0; i < userSubmissionsResponse.data.children.length; i++) {
                             const submission = userSubmissionsResponse.data.children[i].data;
@@ -82,12 +82,11 @@ export class RedditService {
                                 }
                             } else if (this.approvedSubs.indexOf(submission.subreddit) !== -1 &&
                                 submission.link_flair_text !== 'Complete' && submission.link_flair_text !== 'Canceled') {
-                                currentRaffle = submission;
-                                break;
+                                currentRaffles.push(submission);
                             }
                         }
                     }
-                    observer.next(currentRaffle);
+                    observer.next(currentRaffles);
                     observer.complete();
                 },
                 err => {
@@ -322,7 +321,7 @@ export class RedditService {
                         if (comment.kind === 'more') {
                             return this.getComments('', true, comment.data.children, link_id, comment.data.name);
                         } else {
-                            observer.next(topLevelComments.sort(function(a, b){return a.data.created_utc - b.data.created_utc; } ));
+                            observer.next(topLevelComments.reverse());
                             observer.complete();
                             return Observable.empty();
                         }

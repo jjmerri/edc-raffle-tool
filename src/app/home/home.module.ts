@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { PopoverModule } from 'ng2-pop-over';
 import { SlotConfirmationModalComponent } from './slot-confirmation.modal.component';
+import { RafflePickerModalComponent } from './raffle-picker.modal.component';
 
 @NgModule({
     imports: [
@@ -12,8 +13,8 @@ import { SlotConfirmationModalComponent } from './slot-confirmation.modal.compon
         FormsModule,
         HttpModule,
         PopoverModule],
-    declarations: [HomeComponent, SlotConfirmationModalComponent],
+    declarations: [HomeComponent, SlotConfirmationModalComponent, RafflePickerModalComponent],
     exports: [HomeComponent],
-    entryComponents: [SlotConfirmationModalComponent]
+    entryComponents: [SlotConfirmationModalComponent, RafflePickerModalComponent]
 })
 export class HomeModule { }

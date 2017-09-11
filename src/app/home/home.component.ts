@@ -12,6 +12,7 @@ import swal from 'sweetalert2';
 import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
 import {SlotConfirmationModalComponent} from './slot-confirmation.modal.component';
+import { RafflePickerModalComponent } from './raffle-picker.modal.component';
 
 @Component({
     selector: 'app-home',
@@ -54,16 +55,18 @@ export class HomeComponent implements OnInit {
                                 if (userDetailsResponse.name) {
                                     this.userName = userDetailsResponse.name;
 
-                                    this.redditService.getCurrentRaffleSubmission(userDetailsResponse.name)
-                                        .subscribe(submissionResponse => {
-                                          if (Object.keys(submissionResponse).length !== 0 && submissionResponse.constructor === Object) {
-                                              this.currentRaffle = submissionResponse;
-                                              this.importRaffleSlots(submissionResponse);
+                                    this.redditService.getCurrentRaffleSubmissions(userDetailsResponse.name)
+                                        .subscribe(submissionsResponse => {
+                                          if (submissionsResponse && submissionsResponse.length > 0) {
+                                              this.selectRaffle(submissionsResponse).subscribe(submission => {
+                                                  this.currentRaffle = submission;
+                                                  this.importRaffleSlots(submission);
 
-                                              this.loadStorage(submissionResponse.name);
+                                                  this.loadStorage(submission.name);
 
-                                              this.showNewFeatureMessage();
-                                              this.showModAppreciationMessage();
+                                                  this.showNewFeatureMessage();
+                                                  this.showModAppreciationMessage();
+                                              });
                                           }
                                         },
                                         err => {
@@ -669,6 +672,37 @@ export class HomeComponent implements OnInit {
             }, (dismiss) => {
             });
         }
+    }
+
+    private selectRaffle(raffles: any): any {
+        return Observable.create(observer => {
+            if (raffles && raffles.length > 1) {
+                this.modal.open(RafflePickerModalComponent,
+                    overlayConfigFactory({
+                            isBlocking: true,
+                            raffles: raffles
+                        },
+                        BSModalContext))
+                    .then(dialogRef => {
+                        dialogRef.result.then(raffle => {
+                            observer.next(raffle);
+                            observer.complete();
+                        }).catch(err => {
+                            console.error(err);
+                            observer.error(err);
+                            observer.complete();
+                        });
+                    });
+            } else if (raffles && raffles.length === 1) {
+                observer.next(raffles[0]);
+                observer.complete();
+            } else {
+                observer.next({});
+                observer.complete();
+            }
+
+        });
+
     }
 
 }
