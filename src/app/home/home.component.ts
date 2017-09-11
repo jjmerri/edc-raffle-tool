@@ -544,7 +544,7 @@ export class HomeComponent implements OnInit {
                 for (let x = 0; x < slotsToAssign.length; x++) {
                     const calledSlot = slotsToAssign[x];
                     assignedSlots[i].calledSlots.push(+calledSlot);
-                    this.assignSlot(slotAssignment.username, calledSlot, false);
+                    this.assignSlot(slotAssignment.username, calledSlot, false, false);
                 }
             }
         }
@@ -556,12 +556,15 @@ export class HomeComponent implements OnInit {
                     this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
                         if (randomSlot) {
                             assignedSlots[i].randomSlots.push(randomSlot);
-                            this.assignSlot(slotAssignment.username, randomSlot, false);
+                            this.assignSlot(slotAssignment.username, randomSlot, false, false);
                         }
                     });
                 }
             }
         }
+
+        this.updateCommentText();
+
         return assignedSlots;
     }
 
@@ -577,10 +580,12 @@ export class HomeComponent implements OnInit {
         return true;
     }
 
-    private assignSlot(username: string, slotNumber: number, forceAssignment: boolean) {
+    private assignSlot(username: string, slotNumber: number, forceAssignment: boolean, updateText: boolean) {
         if (this.isSlotAvailable(slotNumber) || forceAssignment) {
             this.raffleParticipants[slotNumber - 1].name = username;
-            this.updateCommentText();
+            if (updateText) {
+                this.updateCommentText();
+            }
             this.sendPayPalPm(username);
         }
     }
@@ -668,8 +673,8 @@ export class HomeComponent implements OnInit {
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'Donate Slot!'
                 }
-            ).then(() => {
-            }, (dismiss) => {
+            ).then(() => { console.log('DONATE');
+            }, (dismiss) => {console.log('CANCEL');
             });
         }
     }
