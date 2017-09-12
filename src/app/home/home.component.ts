@@ -42,6 +42,12 @@ export class HomeComponent implements OnInit {
     private shownNewFeatureMessageSlotAssignmentHelper = false;
     private isModtober = false;
 
+    private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
+                            testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
+                            KnifeRaffle: ['Plazzed', 'accidentlyporn', 'twolfcale', 'theoddjosh', 'Fbolanos', 'cda555', 'Gimli_The_Drunk'],
+                            raffleTest: ['BoyAndHisBlob']
+                    };
+
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService, private modal: Modal) {
     }
@@ -663,7 +669,7 @@ export class HomeComponent implements OnInit {
                     title: 'Modtober is here!',
                     html: '<h3><span style="font-weight: 400;">October is mod appreciation month!</span></h3>\n' +
                     '<p><span style="font-weight: 400;">' +
-                    '   <strong>The mods donate a lot of their time</strong> to ensure the community we have here is safe, fun, and fair.' +
+                    '   <strong>The mods donate a lot of their time</strong> to ensure the community we have here is fun, fair, and safe.' +
                     ' You can <strong>show your appreciation</strong> by donating a slot from your raffle to a random mod of /r/' +
                     this.currentRaffle.subreddit +
                     ' by clicking the button below. <br/> <br/>This will post a comment to your raffle stating you are donating a slot. You should process the request normally.',
@@ -673,8 +679,9 @@ export class HomeComponent implements OnInit {
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'Donate Slot!'
                 }
-            ).then(() => { console.log('DONATE');
-            }, (dismiss) => {console.log('CANCEL');
+            ).then(() => {
+                this.donateModSlot();
+            }, (dismiss) => {
             });
         }
     }
@@ -708,6 +715,33 @@ export class HomeComponent implements OnInit {
 
         });
 
+    }
+
+    private donateModSlot() {
+        const subredditMods = this.mods[this.currentRaffle.subreddit];
+
+        const min = 0;
+        const max = subredditMods.length - 1;
+        const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const mod = subredditMods[randomNum];
+
+        const commentText = '#Modtober Is Here!!!\n\n' +
+            '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
+            'are encouraged to show appreciation for a mod by donating a slot to them.\n\n' +
+            'In the spirit of Modtober I am donating a random slot to /u/' + mod + ' as a thank you for all the time and effort ' +
+            'they donate to make /r/' + this.currentRaffle.subreddit + ' a fun, fair, and safe community for everyone.' +
+            '\n\nThis slot request will be processed in the order it was received in the queue.';
+
+        this.redditService.postComment(commentText, this.currentRaffle.name).subscribe(response => {
+            swal(
+                'Donation Comment Posted!',
+                'Please process the slot request in the order it was recieved in the queue and thank you for your generosity!',
+                'success'
+            ).then(() => {
+            }, (dismiss) => {
+            });
+        });
     }
 
 }
