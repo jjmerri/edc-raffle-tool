@@ -773,7 +773,7 @@ export class HomeComponent implements OnInit {
             swal({
                     title: 'Modtober is here!',
                     html: '<h3 class="text-left"><span style="font-weight: 400;">' + randomMod + ' is your random mod! ' +
-                    'Click the "Copy And Close" button to copy suggested comment text to your clipboard so you can paste it into a Reddit comment.</span></h3>\n',
+                    'Click the "Copy And Close" button to copy suggested slot donation comment text to your clipboard so you can paste it into a Reddit comment.</span></h3>\n',
                     showCloseButton: true,
                     showCancelButton: true,
                     cancelButtonText: 'Cancel',
