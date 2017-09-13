@@ -4,7 +4,7 @@ import { Modal, BSModalContext} from 'ngx-modialog/plugins/bootstrap';
 import { overlayConfigFactory } from 'ngx-modialog';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
-
+import {environment} from '../../environments/environment';
 
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
@@ -41,6 +41,7 @@ export class HomeComponent implements OnInit {
     private confirmedComments = [];
     private shownNewFeatureMessageSlotAssignmentHelper = false;
     private isModtober = false;
+    private raffleToolUri = environment.redirectUri;
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
                             testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
@@ -57,39 +58,16 @@ export class HomeComponent implements OnInit {
             if (params['code']) {
                 this.oauthSerice.requestAccessToken(params['code'], params['state']).subscribe(res => {
                     if (res.success === true) {
-                        this.redditService.getUserDetails().subscribe(userDetailsResponse => {
-                                if (userDetailsResponse.name) {
-                                    this.userName = userDetailsResponse.name;
-
-                                    this.redditService.getCurrentRaffleSubmissions(userDetailsResponse.name)
-                                        .subscribe(submissionsResponse => {
-                                          if (submissionsResponse && submissionsResponse.length > 0) {
-                                              this.selectRaffle(submissionsResponse).subscribe(submission => {
-                                                  this.currentRaffle = submission;
-                                                  this.importRaffleSlots(submission);
-
-                                                  this.loadStorage(submission.name);
-
-                                                  this.showNewFeatureMessage();
-                                                  this.showModAppreciationMessage();
-                                              });
-                                          }
-                                        },
-                                        err => {
-                                            console.error(err);
-                                        }
-                                    );
-                                }
-                            },
-                            err => {
-                                console.error(err);
-                            }
-                        );
+                        this.loadRaffle();
                     } else {
                         console.error('error retrieving access token', res);
                     }
 
                 });
+            }
+
+            if (params['modtober_subreddit']) {
+                this.showModtoberModMessage(params['modtober_subreddit']);
             }
         });
         this.updateRaffleSlots(this.numSlots);
@@ -669,10 +647,11 @@ export class HomeComponent implements OnInit {
                     title: 'Modtober is here!',
                     html: '<h3><span style="font-weight: 400;">October is mod appreciation month!</span></h3>\n' +
                     '<p><span style="font-weight: 400;">' +
-                    '   <strong>The mods donate a lot of their time</strong> to ensure the community we have here is fun, fair, and safe.' +
-                    ' You can <strong>show your appreciation</strong> by donating a slot from your raffle to a random mod of /r/' +
-                    this.currentRaffle.subreddit +
-                    ' by clicking the button below. <br/> <br/>This will post a comment to your raffle stating you are donating a slot. You should process the request normally.',
+                        '   <strong>The mods donate a lot of their time</strong> to ensure the community we have here is fun, fair, and safe.' +
+                        ' You can <strong>show your appreciation</strong> by donating a slot from your raffle to a random mod of /r/' +
+                        this.currentRaffle.subreddit +
+                        ' by clicking the button below. <br/> <br/>This will post a comment to your raffle stating you are donating a slot. You should process the request normally.' +
+                    '</span></p>',
                     showCloseButton: true,
                     showCancelButton: true,
                     cancelButtonText: 'Cancel',
@@ -718,17 +697,13 @@ export class HomeComponent implements OnInit {
     }
 
     private donateModSlot() {
-        const subredditMods = this.mods[this.currentRaffle.subreddit];
+        const mod = this.getRandomMod(this.currentRaffle.subreddit);
 
-        const min = 0;
-        const max = subredditMods.length - 1;
-        const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-
-        const mod = subredditMods[randomNum];
+        const randomModUrl = this.raffleToolUri + '?modtober_subreddit=' + this.currentRaffle.subreddit;
 
         const commentText = '#Modtober Is Here!!!\n\n' +
             '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
-            'are encouraged to show appreciation for a mod by donating a slot to them.\n\n' +
+            'are encouraged to **show appreciation for a [random mod](' + randomModUrl + ')** by donating a slot to them.\n\n' +
             'In the spirit of Modtober I am donating a random slot to /u/' + mod + ' as a thank you for all the time and effort ' +
             'they donate to make /r/' + this.currentRaffle.subreddit + ' a fun, fair, and safe community for everyone.' +
             '\n\nThis slot request will be processed in the order it was received in the queue.';
@@ -741,6 +716,82 @@ export class HomeComponent implements OnInit {
             ).then(() => {
             }, (dismiss) => {
             });
+        });
+    }
+
+    private getRandomMod(subreddit: string): string {
+        const subredditMods = this.mods[subreddit];
+
+        const min = 0;
+        const max = subredditMods.length - 1;
+        const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        return subredditMods[randomNum];
+    }
+
+    private loadRaffle() {
+        this.redditService.getUserDetails().subscribe(userDetailsResponse => {
+                if (userDetailsResponse.name) {
+                    this.userName = userDetailsResponse.name;
+
+                    this.redditService.getCurrentRaffleSubmissions(userDetailsResponse.name)
+                        .subscribe(submissionsResponse => {
+                                if (submissionsResponse && submissionsResponse.length > 0) {
+                                    this.selectRaffle(submissionsResponse).subscribe(submission => {
+                                        this.currentRaffle = submission;
+                                        this.importRaffleSlots(submission);
+
+                                        this.loadStorage(submission.name);
+
+                                        this.showNewFeatureMessage();
+                                        this.showModAppreciationMessage();
+                                    });
+                                }
+                            },
+                            err => {
+                                console.error(err);
+                            }
+                        );
+                }
+            },
+            err => {
+                console.error(err);
+            }
+        );
+    }
+
+    private showModtoberModMessage(subreddit: string) {
+        const randomMod = this.getRandomMod(subreddit);
+
+        const randomModUrl = this.raffleToolUri + '?modtober_subreddit=' + subreddit;
+
+        swal({
+                title: 'Modtober is here!',
+                html: '<h3 class="text-left"><span style="font-weight: 400;">' + randomMod + ' is your random mod! ' +
+                'Click the "Copy And Close" button to copy suggested comment text to your clipboard so you can paste it into a Reddit comment.</span></h3>\n',
+                showCloseButton: true,
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Copy And Close'
+            }
+        ).then(() => {
+            const commentText = '#Modtober Is Here!!!\n\n' +
+                '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
+                'are encouraged to **show appreciation for a [random mod](' + randomModUrl + ')** by donating a slot to them.\n\n' +
+                'In the spirit of Modtober **I am requesting a random slot for /u/' + randomMod + '** as a thank you for all the time and effort ' +
+                'they donate to make /r/' + subreddit + ' a fun, fair, and safe community for everyone.';
+
+            let dummy = document.createElement('textarea');
+            document.body.appendChild(dummy);
+            dummy.setAttribute('id', 'dummy_id');
+            const commentControl: any = document.getElementById('dummy_id');
+            commentControl.value = commentText;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+        }, (dismiss) => {
         });
     }
 
