@@ -722,11 +722,15 @@ export class HomeComponent implements OnInit {
     private getRandomMod(subreddit: string): string {
         const subredditMods = this.mods[subreddit];
 
-        const min = 0;
-        const max = subredditMods.length - 1;
-        const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+        if(subredditMods && subredditMods.length) {
+            const min = 0;
+            const max = subredditMods.length - 1;
+            const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
 
-        return subredditMods[randomNum];
+            return subredditMods[randomNum];
+        } else {
+            return null;
+        }
     }
 
     private loadRaffle() {
@@ -765,34 +769,36 @@ export class HomeComponent implements OnInit {
 
         const randomModUrl = this.raffleToolUri + '?modtober_subreddit=' + subreddit;
 
-        swal({
-                title: 'Modtober is here!',
-                html: '<h3 class="text-left"><span style="font-weight: 400;">' + randomMod + ' is your random mod! ' +
-                'Click the "Copy And Close" button to copy suggested comment text to your clipboard so you can paste it into a Reddit comment.</span></h3>\n',
-                showCloseButton: true,
-                showCancelButton: true,
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Copy And Close'
-            }
-        ).then(() => {
-            const commentText = '#Modtober Is Here!!!\n\n' +
-                '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
-                'are encouraged to **show appreciation for a [random mod](' + randomModUrl + ')** by donating a slot to them.\n\n' +
-                'In the spirit of Modtober **I am requesting a random slot for /u/' + randomMod + '** as a thank you for all the time and effort ' +
-                'they donate to make /r/' + subreddit + ' a fun, fair, and safe community for everyone.';
+        if (randomMod) {
+            swal({
+                    title: 'Modtober is here!',
+                    html: '<h3 class="text-left"><span style="font-weight: 400;">' + randomMod + ' is your random mod! ' +
+                    'Click the "Copy And Close" button to copy suggested comment text to your clipboard so you can paste it into a Reddit comment.</span></h3>\n',
+                    showCloseButton: true,
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Copy And Close'
+                }
+            ).then(() => {
+                const commentText = '#Modtober Is Here!!!\n\n' +
+                    '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
+                    'are encouraged to **show appreciation for a [random mod](' + randomModUrl + ')** by donating a slot to them.\n\n' +
+                    'In the spirit of Modtober **I am requesting a random slot for /u/' + randomMod + '** as a thank you for all the time and effort ' +
+                    'they donate to make /r/' + subreddit + ' a fun, fair, and safe community for everyone.';
 
-            let dummy = document.createElement('textarea');
-            document.body.appendChild(dummy);
-            dummy.setAttribute('id', 'dummy_id');
-            const commentControl: any = document.getElementById('dummy_id');
-            commentControl.value = commentText;
-            dummy.select();
-            document.execCommand('copy');
-            document.body.removeChild(dummy);
+                let dummy = document.createElement('textarea');
+                document.body.appendChild(dummy);
+                dummy.setAttribute('id', 'dummy_id');
+                const commentControl: any = document.getElementById('dummy_id');
+                commentControl.value = commentText;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
 
-        }, (dismiss) => {
-        });
+            }, (dismiss) => {
+            });
+        }
     }
 
 }
