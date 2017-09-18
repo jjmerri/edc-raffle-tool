@@ -112,7 +112,7 @@
           <div class="col-xs-6">
             <div class="text-right">
               <label for="payPalInfo"><a href="https://www.paypal.com/paypalme/grab" target="_blank">Get a PayPal.Me link here</a><br/>PayPal Info: </label>
-              <input type="text" id="payPalInfo" [(ngModel)]="payPalInfo" (focus)="showPayPalWarning($event)"/>
+              <input type="text" id="payPalInfo" [(ngModel)]="payPalInfo" (focus)="showPayPalWarning($event)" (change)="modifyPayPalMe()"/>
             </div>
           </div>
 
@@ -145,7 +145,7 @@
         <div class="col-xs-6">
           <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
             <label [ngClass]="{'bg-success': raffleParticipant.name === undefined || raffleParticipant.name === ''}" for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
-            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="assignSlot(raffleParticipant.name, i + 1, true, true)" (focus)="checkCalledSpot($event)" />
+            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="assignSlot(raffleParticipant.name, i + 1, false, true, true)" (focus)="checkCalledSpot($event)" />
             <label for="paid{{i}}">Paid?</label>
             <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [disabled]="raffleParticipant.name === undefined || raffleParticipant.name === ''" [(ngModel)]="raffleParticipant.paid" (change)="updateAffectedSlots(raffleParticipant.name,$event); paidPopOver.toggle($event)"/>
           </div>

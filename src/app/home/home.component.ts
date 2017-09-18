@@ -509,7 +509,7 @@ export class HomeComponent implements OnInit {
                             this.slotAssignmentWizard();
                         }
                     }
-                }).catch(error => console.log(error));
+                }).catch(error => {});
         });
     }
 
@@ -528,7 +528,9 @@ export class HomeComponent implements OnInit {
                 for (let x = 0; x < slotsToAssign.length; x++) {
                     const calledSlot = slotsToAssign[x];
                     assignedSlots[i].calledSlots.push(+calledSlot);
-                    this.assignSlot(slotAssignment.username, calledSlot, false, false);
+                    this.assignSlot(slotAssignment.username, calledSlot, slotAssignment.donateSlot, false, false);
+
+                    slotAssignment.donateSlot = false;
                 }
             }
         }
@@ -540,7 +542,9 @@ export class HomeComponent implements OnInit {
                     this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
                         if (randomSlot) {
                             assignedSlots[i].randomSlots.push(randomSlot);
-                            this.assignSlot(slotAssignment.username, randomSlot, false, false);
+                            this.assignSlot(slotAssignment.username, randomSlot, slotAssignment.donateSlot, false, false);
+
+                            slotAssignment.donateSlot = false;
                         }
                     });
                 }
@@ -564,9 +568,10 @@ export class HomeComponent implements OnInit {
         return true;
     }
 
-    private assignSlot(username: string, slotNumber: number, forceAssignment: boolean, updateText: boolean) {
+    private assignSlot(username: string, slotNumber: number, paid: boolean, forceAssignment: boolean, updateText: boolean) {
         if (this.isSlotAvailable(slotNumber) || forceAssignment) {
             this.raffleParticipants[slotNumber - 1].name = username;
+            this.raffleParticipants[slotNumber - 1].paid = paid;
             if (updateText) {
                 this.updateCommentText();
             }
@@ -576,9 +581,24 @@ export class HomeComponent implements OnInit {
 
     private sendConfirmationReply(slotAssignments: any, confirmationMessage: string, commentId: string) {
         this.redditService.postComment(this.getCommentText(slotAssignments, confirmationMessage), commentId).subscribe( response => {
-            if (!response || !response.json || !response.json.data || !response.json.errors || response.json.errors.length) {
+            if (!response || !response.json || !response.json.data) {
                 console.error('error sending confirmation response', response);
-                alert('Unable to send confirmation message. please do so manually.');
+                let threadLocked = false;
+                if (response.json.errors && response.json.errors.length) {
+                    for (let x = 0; x < response.json.errors.length; x++) {
+                        let errors = response.json.errors[x];
+                        for (let i = 0; i < errors.length; i++) {
+                            if (errors[x] === 'THREAD_LOCKED') {
+                                threadLocked = true;
+                            }
+                        }
+                    }
+                }
+                if (threadLocked) {
+                    alert('YOUR RAFFLE HAS BEEN LOCKED BY THE MODS!!! Please go look at your post and work with the mods to resolve the issue.');
+                } else {
+                    alert('Unable to send confirmation message. please do so manually.');
+                }
             }
         },
             error => {
@@ -591,7 +611,7 @@ export class HomeComponent implements OnInit {
         let updatedText = commentText;
         for (let x = 0; x < slotAssignments.length; x++) {
             const slotAssignment = slotAssignments[x];
-            const allSlots = slotAssignment.calledSlots.join(', ') + (slotAssignment.calledSlots.length ? ', ' : '') + slotAssignment.randomSlots.join(', ');
+            const allSlots = slotAssignment.calledSlots.join(', ') + (slotAssignment.calledSlots.length && slotAssignment.randomSlots.length ? ', ' : '') + slotAssignment.randomSlots.join(', ');
             updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_ALL_SLOTS' + '}', 'ig'), allSlots);
             updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_CALLED_SLOTS' + '}', 'ig'), slotAssignment.calledSlots.join(', '));
             updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_RANDOM_SLOTS' + '}', 'ig'), slotAssignment.randomSlots.join(', '));
@@ -801,4 +821,16 @@ export class HomeComponent implements OnInit {
         }
     }
 
+    private modifyPayPalMe() {
+        if (this.payPalInfo) {
+            const ppRegEx = new RegExp('(paypal\.me)', 'i');
+            const httpsRegEx = new RegExp('(https://|www\.)paypal\.me', 'i');
+
+            if (ppRegEx.test(this.payPalInfo)) {
+                if (!httpsRegEx.test(this.payPalInfo)) {
+                    this.payPalInfo = this.payPalInfo.replace(ppRegEx, 'https://www.$1');
+                }
+            }
+        }
+    }
 }

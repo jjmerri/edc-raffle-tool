@@ -1,0 +1,60 @@
+@font-face {
+  font-family: moon;
+  src: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/707108/moon.ttf);
+}
+
+@font-face {
+  font-family: clipneon;
+  src: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/707108/clip.ttf);
+}
+
+@font-face {
+  font-family: lasenter;
+  src: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/707108/lasenter.ttf);
+}
+html,
+body {
+  background-color: black;
+  display: table;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  width: 100%;
+}
+
+#container {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+.jackpots {
+  animation: jackpots 1s 0s ease infinite;
+  -moz-animation: jackpots 1s 0s ease infinite;
+  /* Firefox */
+  -webkit-animation: jackpots 3s 0s ease infinite;
+  /* Safari and Chrome */
+  -o-animation: jackpots 1s 0s ease infinite;
+  /* Opera */
+}
+
+@keyframes jackpots {
+  0%,
+  100% {
+    text-shadow:
+            -.1vw 0vw .1vw #FED128, -.15vw 0vw .2vw #FED128, -.2vw 0vw .2vw #FED128,
+            -.1vw 0vw 3vw #F0130B, -.2vw 0vw 3vw #F0130B, -.4vw 0vw 3vw #F0130B,
+            -.1vw 0vw 5vw #F0130B, -.2vw 0vw 5vw #F0130B, -.4vw 0vw .8vw #F0130B, .2vw 0vw 10vw #F0130B;
+    color: #FED128;
+  }
+  50% {
+    text-shadow:
+            -.1vw 0vw .1vw #705C12, -.15vw 0vw .2vw #705C12, -.2vw 0vw .2vw #705C12,
+            -.1vw 0vw .1vw #5C0704, -.2vw 0vw .1vw #5C0704, -.4vw 0vw .1vw #5C0704,
+            -.1vw 0vw .2vw #5C0704, -.2vw 0vw .2vw #5C0704, -.4vw 0vw .2vw #5C0704, .2vw 0vw .5vw #5C0704;
+    color: #705C12;
+  }
+}
+
+
+
