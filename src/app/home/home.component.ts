@@ -13,6 +13,7 @@ import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
 import {SlotConfirmationModalComponent} from './slot-confirmation.modal.component';
 import { RafflePickerModalComponent } from './raffle-picker.modal.component';
+import { TermsOfServiceModalComponent } from './terms-of-service.modal.component';
 
 @Component({
     selector: 'app-home',
@@ -42,6 +43,7 @@ export class HomeComponent implements OnInit {
     private shownNewFeatureMessageSlotAssignmentHelper = false;
     private isModtober = false;
     private raffleToolUri = environment.redirectUri;
+    private tosKey = 'showTermsOfService_09182017';
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
                             testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
@@ -54,6 +56,11 @@ export class HomeComponent implements OnInit {
     }
 
     ngOnInit() {
+        const hasSeenTermsOfService = JSON.parse(localStorage.getItem(this.tosKey));
+        if (!hasSeenTermsOfService) {
+            this.showTermsOfService();
+        }
+
         this.activatedRoute.queryParams.subscribe((params: Params) => {
             if (params['code']) {
                 this.oauthSerice.requestAccessToken(params['code'], params['state']).subscribe(res => {
@@ -714,6 +721,21 @@ export class HomeComponent implements OnInit {
 
         });
 
+    }
+
+    private showTermsOfService() {
+        this.modal.open(TermsOfServiceModalComponent,
+            overlayConfigFactory({
+                    isBlocking: true
+                },
+                BSModalContext))
+            .then(dialogRef => {
+                dialogRef.result.then(userAgreementIndicator => {
+                    localStorage.setItem(this.tosKey, JSON.stringify(userAgreementIndicator));
+                }).catch(err => {
+                    console.error(err);
+                });
+            });
     }
 
     private donateModSlot() {
