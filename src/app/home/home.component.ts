@@ -855,4 +855,29 @@ export class HomeComponent implements OnInit {
             }
         }
     }
+
+    private shuffleSlots() {
+        swal({
+                title: 'Shuffle All Slots?',
+                text: 'This only ever makes sense in a random only raffle. If you really want to shuffle everyones slot ' +
+                'click the "Shuffle Slots" button below, otherwise click "Cancel"',
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Shuffle Slots'
+            }
+        ).then(() => {
+            this.shuffleAllSlots();
+        }, (dismiss) => {
+        });
+    }
+
+    private shuffleAllSlots() {
+        let participants = this.raffleParticipants;
+        for (let i = participants.length; i; i--) {
+            const j = Math.floor(Math.random() * i);
+            [participants[i - 1], participants[j]] = [participants[j], participants[i - 1]];
+        }
+        this.updateCommentText();
+    }
 }
