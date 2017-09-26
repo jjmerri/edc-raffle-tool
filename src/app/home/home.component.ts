@@ -82,6 +82,36 @@ export class HomeComponent implements OnInit {
 
     private updateRaffleSlots(updatedNumSlots: number) {
         const prevSpots = this.raffleParticipants.length;
+        let lossOfData = false;
+        for (let i = updatedNumSlots; i < prevSpots; i++) {
+            if (this.raffleParticipants[i].name) {
+                lossOfData = true;
+                break;
+            }
+        }
+
+        if (lossOfData && updatedNumSlots < prevSpots) {
+            swal({
+                title: 'Are You Sure You Want To Reduce The Number Of Slots?',
+                text: 'Reducing the number of slots right now will cause you to lose slots that have already been assigned. ' +
+                'To continue click "Reduce Slots" below, otherwise click "Cancel".',
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Reduce Slots'
+            }).then( () => {
+                this.updateNumberOfSlots(updatedNumSlots);
+            }, (dismiss) => {
+                this.numSlots = prevSpots;
+            });
+        } else {
+            this.updateNumberOfSlots(updatedNumSlots);
+        }
+    }
+
+    private updateNumberOfSlots(updatedNumSlots: number) {
+        const prevSpots = this.raffleParticipants.length;
+
         if (updatedNumSlots > prevSpots) {
             for ( let x = prevSpots; x < updatedNumSlots; x++) {
                 this.raffleParticipants[x] = {};
