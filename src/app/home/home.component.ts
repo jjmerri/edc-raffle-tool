@@ -41,9 +41,11 @@ export class HomeComponent implements OnInit {
     private skippedPms = [];
     private confirmedComments = [];
     private shownNewFeatureMessageSlotAssignmentHelper = false;
-    private isModtober = false;
+    private hasNewFeature = false;
+    private isModtober = true;
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
+    private numPayPmsProcessed = 0;
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
                             testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
@@ -360,9 +362,10 @@ export class HomeComponent implements OnInit {
     }
 
     private runPaymentConfirmer() {
+        this.numPayPmsProcessed = 0;
         this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(messages => {
             if (messages && messages.length) {
-                this.showPm(messages, messages.length -1);
+                this.showPm(messages, messages.length - 1);
             } else {
                 this.showNoUnpaidPms();
             }
@@ -371,6 +374,12 @@ export class HomeComponent implements OnInit {
 
     private showPm(messages: any, messageIndex: number) {
         if (messageIndex < 0) {
+            if (this.numPayPmsProcessed > 0) {
+                // check if we received any new pms since we started checking pms
+                this.runPaymentConfirmer();
+            } else {
+                this.showNoUnpaidPms();
+            }
             return;
         }
 
@@ -383,6 +392,7 @@ export class HomeComponent implements OnInit {
         txt.innerHTML = decodeURI(message.data.body_html);
 
         if (authorSlotCount && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
+            this.numPayPmsProcessed++;
             swal({
                 title: 'Unpaid Raffle Participant PMs',
                 html: '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + authorSlotCount + ' total slots)' +
@@ -395,26 +405,16 @@ export class HomeComponent implements OnInit {
                 confirmButtonText: 'Mark User As Paid'
             }).then(() => {
                 this.markAsPaid(message.data.author);
-                if (messageIndex !== 0) {
-                    this.showPm(messages, messageIndex - 1);
-                } else {
-                    this.showNoUnpaidPms();
-                }
+                this.showPm(messages, messageIndex - 1);
             }, (dismiss) => {
                 if (dismiss === 'cancel') {
                     this.skippedPms.push(message.data.name);
                     localStorage.setItem(this.currentRaffle.name + '_skippedPms', JSON.stringify(this.skippedPms));
-                    if (messageIndex !== 0) {
-                        this.showPm(messages, messageIndex - 1);
-                    } else {
-                        this.showNoUnpaidPms();
-                    }
+                    this.showPm(messages, messageIndex - 1);
                 }
             });
-        } else if (messageIndex !== 0) {
-            this.showPm(messages, messageIndex - 1);
         } else {
-            this.showNoUnpaidPms();
+            this.showPm(messages, messageIndex - 1);
         }
 
     }
@@ -819,7 +819,9 @@ export class HomeComponent implements OnInit {
 
                                         this.loadStorage(submission.name);
 
-                                        this.showNewFeatureMessage();
+                                        if (this.hasNewFeature) {
+                                            this.showNewFeatureMessage();
+                                        }
                                         this.showModAppreciationMessage();
                                     });
                                 }
