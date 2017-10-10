@@ -45,7 +45,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
     ngOnInit() {
         let txt: any;
         txt = document.createElement('temptxt');
-        txt.innerHTML = decodeURI(this.context.comment.data.body_html);
+        txt.innerHTML = this.context.comment.data.body_html;
         this.formattedMessage = txt.innerText;
         SlotConfirmationModalComponent.numOpenModals++;
         //only allow one open modal at a time

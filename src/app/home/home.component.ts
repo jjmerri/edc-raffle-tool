@@ -35,8 +35,13 @@ export class HomeComponent implements OnInit {
     private closePopOver = false;
     private numOpenSlots = this.numSlots;
     private payPalInfo: string;
-    private payPalPmMessage = 'Thank you for participating in the raffle. Please find my PayPal info below.\n\n' +
-        '**Please reply to this message with the name on your paypal account and the number of slots you received.**\n\n';
+    private payPalPmMessage = 'Thank you for participating in the raffle.\n\n' +
+        '**Please reply to this message in this format:**\n\n' +
+        '*Raffle:*\n\n' +
+        '*Spot Numbers:*\n\n' +
+        '*PayPal Name:*\n\n' +
+        '*PayPal Email:*\n\n' +
+        '**Please find my PayPal info below:**\n\n';
     private popUpTimer: any;
     private skippedPms = [];
     private confirmedComments = [];
