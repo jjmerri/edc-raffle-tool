@@ -41,6 +41,7 @@ export class HomeComponent implements OnInit {
         '*Spot Numbers:*\n\n' +
         '*PayPal Name:*\n\n' +
         '*PayPal Email:*\n\n' +
+        '**Please submit your payment using Friends and Family and leave nothing in the notes or comments.**\n\n' +
         '**Please find my PayPal info below:**\n\n';
     private popUpTimer: any;
     private skippedPms = [];
@@ -676,6 +677,11 @@ export class HomeComponent implements OnInit {
         if (shownNewFeatureMessageSlotAssignmentHelper !== null) {
             this.shownNewFeatureMessageSlotAssignmentHelper = shownNewFeatureMessageSlotAssignmentHelper;
         }
+
+        const payPalInfo = JSON.parse(localStorage.getItem('payPalInfo'));
+        if (payPalInfo !== null) {
+            this.payPalInfo = payPalInfo;
+        }
     }
 
     private showNewFeatureMessage() {
@@ -890,6 +896,7 @@ export class HomeComponent implements OnInit {
                     this.payPalInfo = this.payPalInfo.replace(ppRegEx, 'https://www.$1');
                 }
             }
+            localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
         }
     }
 
