@@ -103,7 +103,7 @@
 
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-3">
-            <p><a class="btn btn-md btn-primary" (click)="slotAssignmentWizard ()">Slot Assignment Helper...</a></p>
+            <p><a class="btn btn-md btn-primary" (click)="slotAssignmentWizard()">Slot Assignment Helper...</a></p>
           </div>
           <div class="col-xs-3">
             <p><a class="btn btn-md btn-primary" (click)="runPaymentConfirmer()">Payment Confirmation Helper...</a></p>
@@ -123,7 +123,7 @@
           <div class="col-xs-12">
             <label for="numSlots">Number of Raffle Slots:</label>
             <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSlots(numSlots)"/>
-            <input type="text" id="callTheBot" readonly value="/u/callthebot {{numSlots}}" (click)="copyText('callTheBot')" class="no-border">
+            <input type="text" id="callTheBot" readonly value="{{botUsername}} {{numSlots}}" (click)="copyText('callTheBot')" class="no-border">
           </div>
         </div>
 
@@ -148,7 +148,7 @@
         <div class="col-xs-6">
           <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
             <label [ngClass]="{'bg-success': raffleParticipant.name === undefined || raffleParticipant.name === ''}" for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
-            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="assignSlot(raffleParticipant.name, i + 1, false, true, true)" (focus)="checkCalledSpot($event)" />
+            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="assignSlot(raffleParticipant.name, raffleParticipant.name, i + 1, false, true, true)" (focus)="checkCalledSpot($event)" />
             <label for="paid{{i}}">Paid?</label>
             <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [disabled]="raffleParticipant.name === undefined || raffleParticipant.name === ''" [(ngModel)]="raffleParticipant.paid" (change)="updateAffectedSlots(raffleParticipant.name,$event); paidPopOver.toggle($event)"/>
           </div>

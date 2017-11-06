@@ -7,5 +7,6 @@ export const environment = {
     production: false,
     client_id: '',
     client_secret: '',
-    redirectUri: ''
+    redirectUri: '',
+    databaseUri: ''
 };

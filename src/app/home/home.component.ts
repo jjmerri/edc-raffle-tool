@@ -11,6 +11,7 @@ import swal from 'sweetalert2';
 
 import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
+import { DatabaseService} from '../database/services/database.service';
 import {SlotConfirmationModalComponent} from './slot-confirmation.modal.component';
 import { RafflePickerModalComponent } from './raffle-picker.modal.component';
 import { TermsOfServiceModalComponent } from './terms-of-service.modal.component';
@@ -27,6 +28,7 @@ export class HomeComponent implements OnInit {
     private commentText: string;
     private unpaidUsers: string;
     private userName: string;
+    private userId: string;
     private currentRaffle;
     private raffleImported = false;
     private calledSpotMessageShown = false;
@@ -48,10 +50,13 @@ export class HomeComponent implements OnInit {
     private confirmedComments = [];
     private shownNewFeatureMessageSlotAssignmentHelper = false;
     private hasNewFeature = false;
-    private isModtober = true;
+    private isModtober = false;
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
+    private botMap = {edc_raffle: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'}
+    private botUsername = '/u/unknownBot';
+
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
                             testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
@@ -60,7 +65,7 @@ export class HomeComponent implements OnInit {
                     };
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
-                private redditService: RedditService, private modal: Modal) {
+                private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService) {
     }
 
     ngOnInit() {
@@ -166,6 +171,7 @@ export class HomeComponent implements OnInit {
 
     public updateCommentText() {
         let numSlotsTaken = 0;
+        let numUnpaidUsers = 0;
         this.commentText = '';
         this.unpaidUsers = '';
 
@@ -178,7 +184,11 @@ export class HomeComponent implements OnInit {
                 numSlotsTaken++;
             }
             this.commentText += ( x + 1) + ' ' + (raffler.name ? '/u/' + raffler.name + ' ' : '') + (raffler.paid ? '**PAID**' : '') + '\n\n';
-            this.unpaidUsers += !raffler.paid && raffler.name && this.unpaidUsers.indexOf('/u/' + raffler.name + ' ' ) === -1 ? '/u/' + raffler.name + ' ' : '';
+
+            if (!raffler.paid && raffler.name && this.unpaidUsers.indexOf('/u/' + raffler.name + ' ' ) === -1) {
+                numUnpaidUsers++;
+                this.unpaidUsers += '/u/' + raffler.name + ' ';
+            }
         }
 
         this.numOpenSlots = this.numSlots - numSlotsTaken;
@@ -195,7 +205,10 @@ export class HomeComponent implements OnInit {
                 txt.innerHTML = this.currentRaffle.selftext;
                 let postText = txt.innerText;
 
-                let slotText = '<raffle-tool>\n\nThis slot list is created and updated by ' +
+                let slotText = '<raffle-tool>\n\n' +
+                    'Number of vacant slots: ' + this.numOpenSlots + '\n\n' +
+                    'Number of unpaid users: ' + numUnpaidUsers + '\n\n' +
+                    'This slot list is created and updated by ' +
                     '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' +
                     this.commentText + '\n\n</raffle-tool>';
 
@@ -395,7 +408,7 @@ export class HomeComponent implements OnInit {
 
         let txt: any;
         txt = document.createElement('temptxt');
-        txt.innerHTML = decodeURI(message.data.body_html);
+        txt.innerHTML = message.data.body_html;
 
         if (authorSlotCount && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
             this.numPayPmsProcessed++;
@@ -544,7 +557,7 @@ export class HomeComponent implements OnInit {
                     if (result) {
                         this.confirmedComments.push(comments[commentIndex].data.name);
 
-                        localStorage.setItem(this.currentRaffle.name + '_confirmedComments', JSON.stringify(this.confirmedComments));
+                        this.databaseService.storeProcessedComments(this.userId, this.currentRaffle.name, this.confirmedComments).subscribe(res=>{});
                         if (commentIndex < comments.length - 1) {
                             this.showSlotAssignmentModal(comments, commentIndex + 1);
                         } else {
@@ -571,7 +584,7 @@ export class HomeComponent implements OnInit {
                 for (let x = 0; x < slotsToAssign.length; x++) {
                     const calledSlot = slotsToAssign[x];
                     assignedSlots[i].calledSlots.push(+calledSlot);
-                    this.assignSlot(slotAssignment.username, calledSlot, slotAssignment.donateSlot, false, false);
+                    this.assignSlot(slotAssignment.username, slotAssignment.requester ? slotAssignment.requester : slotAssignment.username, calledSlot, slotAssignment.donateSlot, false, false);
 
                     slotAssignment.donateSlot = false;
                 }
@@ -585,7 +598,7 @@ export class HomeComponent implements OnInit {
                     this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
                         if (randomSlot) {
                             assignedSlots[i].randomSlots.push(randomSlot);
-                            this.assignSlot(slotAssignment.username, randomSlot, slotAssignment.donateSlot, false, false);
+                            this.assignSlot(slotAssignment.username, slotAssignment.requester ? slotAssignment.requester : slotAssignment.username, randomSlot, slotAssignment.donateSlot, false, false);
 
                             slotAssignment.donateSlot = false;
                         }
@@ -611,9 +624,10 @@ export class HomeComponent implements OnInit {
         return true;
     }
 
-    private assignSlot(username: string, slotNumber: number, paid: boolean, forceAssignment: boolean, updateText: boolean) {
+    private assignSlot(username: string, requester: string, slotNumber: number, paid: boolean, forceAssignment: boolean, updateText: boolean) {
         if (this.isSlotAvailable(slotNumber) || forceAssignment) {
             this.raffleParticipants[slotNumber - 1].name = username;
+            this.raffleParticipants[slotNumber - 1].requester = requester;
             this.raffleParticipants[slotNumber - 1].paid = paid;
             if (updateText) {
                 this.updateCommentText();
@@ -664,11 +678,6 @@ export class HomeComponent implements OnInit {
     }
 
     private loadStorage(raffleName: string) {
-        const confirmedComments = JSON.parse(localStorage.getItem(raffleName + '_confirmedComments'));
-        if (confirmedComments !== null) {
-            this.confirmedComments = confirmedComments;
-        }
-
         const skippedPms = JSON.parse(localStorage.getItem(raffleName + '_skippedPms'));
         if (skippedPms !== null) {
             this.skippedPms = skippedPms;
@@ -820,6 +829,7 @@ export class HomeComponent implements OnInit {
         this.redditService.getUserDetails().subscribe(userDetailsResponse => {
                 if (userDetailsResponse.name) {
                     this.userName = userDetailsResponse.name;
+                    this.userId = userDetailsResponse.id;
 
                     this.redditService.getCurrentRaffleSubmissions(userDetailsResponse.name)
                         .subscribe(submissionsResponse => {
@@ -828,7 +838,14 @@ export class HomeComponent implements OnInit {
                                         this.currentRaffle = submission;
                                         this.importRaffleSlots(submission);
 
+                                        this.botUsername = this.botMap[submission.subreddit];
+
                                         this.loadStorage(submission.name);
+                                        this.databaseService.getProcessedComments(this.userId, submission.name).subscribe(comments => {
+                                        if (comments) {
+                                            this.confirmedComments = comments;
+                                        }
+                                        });
 
                                         if (this.hasNewFeature) {
                                             this.showNewFeatureMessage();

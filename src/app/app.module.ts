@@ -14,6 +14,7 @@ import {HomeModule} from './home/home.module';
 
 import { AppComponent } from './app.component';
 import {RedditService} from './reddit/services/reddit.service';
+import {DatabaseService} from './database/services/database.service';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,7 @@ import {RedditService} from './reddit/services/reddit.service';
       ModalModule.forRoot(),
       BootstrapModalModule
   ],
-  providers: [OauthService, RedditService],
+  providers: [OauthService, RedditService, DatabaseService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
