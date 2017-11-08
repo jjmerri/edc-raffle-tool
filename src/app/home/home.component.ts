@@ -57,6 +57,8 @@ export class HomeComponent implements OnInit {
     private botMap = {edc_raffle: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'}
     private botUsername = '/u/unknownBot';
     private charityMode = false;
+    private autoUpdateFlair = false;
+    private collectingPaymentsFlairId = '72f30c18-3016-11e7-9e15-0ea5c241c190';
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -202,6 +204,8 @@ export class HomeComponent implements OnInit {
 
 
                 let txt: any;
+                let flairText = '';
+                let flairId = '';
                 txt = document.createElement("textareatmp");
                 txt.innerHTML = this.currentRaffle.selftext;
                 let postText = txt.innerText;
@@ -225,6 +229,9 @@ export class HomeComponent implements OnInit {
                             console.error(err);
                         }
                     );
+
+                if (this.numOpenSlots === 0 && numUnpaidUsers === 0) {
+                    flairText = 'Ready To Summon RNGesus!';
               },
               err => {
                   console.error(err);
@@ -943,4 +950,7 @@ export class HomeComponent implements OnInit {
         }
         this.updateCommentText();
     }
+
+    private updateFlair(flairId: string, flairText: string) {
+        if (this.autoUpdateFlair && this.currentRaffle.link_flair_text !== flairText) {
 }
