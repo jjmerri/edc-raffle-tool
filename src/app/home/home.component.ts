@@ -56,6 +56,7 @@ export class HomeComponent implements OnInit {
     private numPayPmsProcessed = 0;
     private botMap = {edc_raffle: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'}
     private botUsername = '/u/unknownBot';
+    private charityMode = false;
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -545,7 +546,8 @@ export class HomeComponent implements OnInit {
                             isBlocking: false,
                             comment: comments[commentIndex],
                             callingComponent: this,
-                            numOpenSlots: this.numOpenSlots
+                            numOpenSlots: this.numOpenSlots,
+                            charityMode: this.charityMode
                         },
                         BSModalContext))
             .then( dialogRef => {
