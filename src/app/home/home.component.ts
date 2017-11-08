@@ -54,11 +54,12 @@ export class HomeComponent implements OnInit {
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
-    private botMap = {edc_raffle: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'}
+    private botMap = {edc_raffle: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
     private botUsername = '/u/unknownBot';
     private charityMode = false;
     private autoUpdateFlair = false;
     private collectingPaymentsFlairId = '72f30c18-3016-11e7-9e15-0ea5c241c190';
+    private customRainbowFlairId = '92632382-59c7-11e7-9ee8-0edabaac5850';
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -232,6 +233,17 @@ export class HomeComponent implements OnInit {
 
                 if (this.numOpenSlots === 0 && numUnpaidUsers === 0) {
                     flairText = 'Ready To Summon RNGesus!';
+                    flairId = this.customRainbowFlairId;
+                } else if (this.numOpenSlots === 0 && numUnpaidUsers !== 0) {
+                    flairText = 'Collecting Payments';
+                    flairId = this.collectingPaymentsFlairId;
+                } else {
+                    flairText = this.numOpenSlots + ' Slots Left';
+                    flairId = this.customRainbowFlairId;
+                }
+
+                this.updateFlair(flairId, flairText);
+
               },
               err => {
                   console.error(err);
@@ -953,4 +965,7 @@ export class HomeComponent implements OnInit {
 
     private updateFlair(flairId: string, flairText: string) {
         if (this.autoUpdateFlair && this.currentRaffle.link_flair_text !== flairText) {
+            this.redditService.updateFlair(this.currentRaffle.name, flairId, flairText).subscribe(resp => {});
+        }
+    }
 }
