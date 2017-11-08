@@ -17,6 +17,7 @@ export class RedditService {
     private commentUrl = this.secureRedditUrl + '/api/comment';
     private inboxUrl = this.secureRedditUrl + '/message/inbox';
     private childrenUrl = this.secureRedditUrl + '/api/morechildren';
+    private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
 
     private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'raffleTest'];
 
@@ -443,6 +444,43 @@ export class RedditService {
                     }
                 );
             }
+        });
+    }
+
+
+
+    public updateFlair(thingId: string, flairId: string, flairText: string): Observable<any> {
+        return Observable.create(observer => {
+            this.oauthService.getAccessToken().subscribe(response => {
+                    let form = new FormData();
+                    form.append('api_type', 'json');
+                    if (flairText) {
+                        form.append('text', flairText);
+                    }
+                    form.append('link', thingId );
+                    form.append('flair_template_id', flairId );
+
+                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    headers.append('Accept', 'application/json');
+                    return this.http.post(this.selectFlairUrl, form, {headers: headers})
+                        .map(res => res.json())
+                        .subscribe(flairResponse => {
+                                observer.next(flairResponse);
+                                observer.complete();
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
         });
     }
 
