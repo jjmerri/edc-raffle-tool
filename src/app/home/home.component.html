@@ -118,12 +118,16 @@
 
         </div>
 
-        <div class="row">
-          <div class="col-xs-3">
+        <div class="row" *ngIf="currentRaffle">
+          <div class="col-xs-3" *ngIf="false">
             <label for="paid{{i}}">Charity Mode?</label>
             <input type="checkbox" id="charityMode" name="charityMode" [(ngModel)]="charityMode"/>
           </div>
-          <div class="col-xs-9"></div>
+          <div class="col-xs-3" *ngIf="canEditFlair">
+            <label for="paid{{i}}">Auto-Update Flair?</label>
+            <input type="checkbox" id="autoUpdateFlair" name="autoUpdateFlair" [(ngModel)]="autoUpdateFlair"/>
+          </div>
+          <div class="col-xs-6"></div>
           <div class="col-xs-12" style="height:10px;"></div>
         </div>
 
@@ -131,7 +135,7 @@
           <div class="col-xs-12">
             <label for="numSlots">Number of Raffle Slots:</label>
             <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSlots(numSlots)"/>
-            <input type="text" id="callTheBot" readonly value="{{botUsername}} {{numSlots}}" (click)="copyText('callTheBot')" class="no-border">
+            <button *ngIf="currentRaffle" class="btn btn-sm btn-primary" [disabled] = "botCalled" (click)="callTheBot()">Call {{botUsername}}...</button>
           </div>
         </div>
 

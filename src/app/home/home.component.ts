@@ -55,11 +55,17 @@ export class HomeComponent implements OnInit {
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
     private botMap = {edc_raffle: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
-    private botUsername = '/u/unknownBot';
+    private botUsername = '/u/callthebot';
     private charityMode = false;
     private autoUpdateFlair = false;
+
+    //raffleTest values
+    //private collectingPaymentsFlairId = '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6';
+    //private customRainbowFlairId = '93c6af96-c4f7-11e7-90e7-0eaf69165a10';
     private collectingPaymentsFlairId = '72f30c18-3016-11e7-9e15-0ea5c241c190';
     private customRainbowFlairId = '92632382-59c7-11e7-9ee8-0edabaac5850';
+    private canEditFlair = false;
+    private botCalled = false;
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -859,7 +865,7 @@ export class HomeComponent implements OnInit {
                                         this.currentRaffle = submission;
                                         this.importRaffleSlots(submission);
 
-                                        this.botUsername = this.botMap[submission.subreddit];
+                                        this.setSubredditSettings(submission.subreddit);
 
                                         this.loadStorage(submission.name);
                                         this.databaseService.getProcessedComments(this.userId, submission.name).subscribe(comments => {
@@ -966,6 +972,44 @@ export class HomeComponent implements OnInit {
     private updateFlair(flairId: string, flairText: string) {
         if (this.autoUpdateFlair && this.currentRaffle.link_flair_text !== flairText) {
             this.redditService.updateFlair(this.currentRaffle.name, flairId, flairText).subscribe(resp => {});
+        }
+    }
+
+    private setSubredditSettings(subreddit: string) {
+        this.botUsername = this.botMap[subreddit];
+        if (subreddit === 'edc_raffle' || subreddit === 'raffleTest' ) {
+            this.canEditFlair = true;
+            this.autoUpdateFlair = true;
+        }
+    }
+
+    private callTheBot() {
+        if (this.numOpenSlots === 0 && !this.unpaidUsers) {
+            swal({
+                    title: 'Call The Bot?',
+                    text: 'Click "Call The Bot" to post a comment that will summon the bot to pick a winner.',
+                    type: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Call The Bot'
+                }
+            ).then(() => {
+                this.redditService.postComment(this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {});
+                this.updateFlair(this.customRainbowFlairId, 'RNGesus Summoned!');
+                this.botCalled = true;
+            }, (dismiss) => {
+            });
+        } else {
+            swal({
+                    title: 'You Cant Call The Bot Yet!',
+                    text: 'You can only call the bot when all slots are filled and everyone is paid.',
+                    type: 'info',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                }
+            ).then(() => {
+            }, (dismiss) => {
+            });
         }
     }
 }
