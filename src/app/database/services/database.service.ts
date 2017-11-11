@@ -9,6 +9,7 @@ export class DatabaseService {
     private databaseUri = environment.databaseUri;
 
     private processedCommentsUrl = this.databaseUri + '/processed_comments';
+    private paypalPmRecipientsUrl = this.databaseUri + '/paypal_pm_recipients';
 
     constructor(private http: Http) {
     }
@@ -24,6 +25,24 @@ export class DatabaseService {
 
     public getProcessedComments(userId: string, submissionName: string): Observable<any> {
         let fullUri = this.processedCommentsUrl + '/' + userId + '/' + submissionName + '.json';
+        let headers = new Headers({});
+        headers.append('Accept', 'application/json');
+        return this.http.get(fullUri, {headers: headers})
+            .map(res =>  res.json())
+            .catch(this.handleErrorObservable);
+    }
+
+    public storePaypalPmRecipients(userId: string, submissionName: string, paypalPmRecipients: string[]): Observable<any> {
+        let fullUri = this.paypalPmRecipientsUrl + '/' + userId + '/' + submissionName + '.json';
+        let headers = new Headers({});
+        headers.append('Accept', 'application/json');
+        return this.http.put(fullUri, paypalPmRecipients, {headers: headers})
+            .map(res =>  res.json())
+            .catch(this.handleErrorObservable);
+    }
+
+    public getPaypalPmRecipients(userId: string, submissionName: string): Observable<any> {
+        let fullUri = this.paypalPmRecipientsUrl + '/' + userId + '/' + submissionName + '.json';
         let headers = new Headers({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})

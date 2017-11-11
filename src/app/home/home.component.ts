@@ -66,6 +66,7 @@ export class HomeComponent implements OnInit {
     private customRainbowFlairId = '92632382-59c7-11e7-9ee8-0edabaac5850';
     private canEditFlair = false;
     private botCalled = false;
+    private paypalPmRecipients = [];
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -371,11 +372,13 @@ export class HomeComponent implements OnInit {
             }
         }
 
-        if (recipient && recipientNumSlots === 1 && this.payPalInfo) {
+        if (recipient && this.payPalInfo && this.paypalPmRecipients.indexOf(recipient.toUpperCase()) === -1) {
             const subject = 'PayPal Info For: ' + this.currentRaffle.title;
             this.redditService.sendPm(recipient, subject.substr(0, 100),
                 this.payPalPmMessage + this.payPalInfo +
                 '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe();
+            this.paypalPmRecipients.push(recipient.toUpperCase());
+            this.databaseService.storePaypalPmRecipients(this.userId, this.currentRaffle.name, this.paypalPmRecipients).subscribe(res => {});
         }
     }
 
@@ -704,11 +707,12 @@ export class HomeComponent implements OnInit {
         return updatedText;
     }
 
-    private loadStorage(raffleName: string) {
+    private loadStorage(raffleName: string, userId: string) {
         const skippedPms = JSON.parse(localStorage.getItem(raffleName + '_skippedPms'));
         if (skippedPms !== null) {
             this.skippedPms = skippedPms;
         }
+
         const shownNewFeatureMessageSlotAssignmentHelper = JSON.parse(localStorage.getItem('shownNewFeatureMessageSlotAssignmentHelper'));
         if (shownNewFeatureMessageSlotAssignmentHelper !== null) {
             this.shownNewFeatureMessageSlotAssignmentHelper = shownNewFeatureMessageSlotAssignmentHelper;
@@ -718,6 +722,19 @@ export class HomeComponent implements OnInit {
         if (payPalInfo !== null) {
             this.payPalInfo = payPalInfo;
         }
+
+
+        this.databaseService.getProcessedComments(userId, raffleName).subscribe(comments => {
+            if (comments) {
+                this.confirmedComments = comments;
+            }
+        });
+
+        this.databaseService.getPaypalPmRecipients(userId, raffleName).subscribe(paypalPmRecipients => {
+            if (paypalPmRecipients) {
+                this.paypalPmRecipients = paypalPmRecipients;
+            }
+        });
     }
 
     private showNewFeatureMessage() {
@@ -867,12 +884,7 @@ export class HomeComponent implements OnInit {
 
                                         this.setSubredditSettings(submission.subreddit);
 
-                                        this.loadStorage(submission.name);
-                                        this.databaseService.getProcessedComments(this.userId, submission.name).subscribe(comments => {
-                                        if (comments) {
-                                            this.confirmedComments = comments;
-                                        }
-                                        });
+                                        this.loadStorage(submission.name, this.userId);
 
                                         if (this.hasNewFeature) {
                                             this.showNewFeatureMessage();

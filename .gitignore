@@ -41,3 +41,4 @@ Thumbs.db
 .firebaserc
 firebase.json
 src/assets/.gitkeep
+firebase-debug.log
