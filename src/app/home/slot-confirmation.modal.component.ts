@@ -12,6 +12,7 @@ export class SlotConfirmationModalContext extends BSModalContext {
     public comment: any;
     public callingComponent: any;
     public numOpenSlots: number;
+    public inOrderMode: boolean;
 }
 
 /**
@@ -32,6 +33,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
     private requestedTooManySlots = false;
     private hasDuplicateSlots = false;
     private invalidRandom = false;
+    private invalidinOrder = false;
     private numRequestedSlots = 0;
     private confirmationMessageText = '';
     private formattedMessage = '';
@@ -51,7 +53,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         //only allow one open modal at a time
         if (SlotConfirmationModalComponent.numOpenModals === 1) {
             this.isCommentFromBoyAndHisBlob = this.context.comment.data.author === 'BoyAndHisBlob';
-            if (this.context.numOpenSlots > 0) {
+            if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
                 this.confirmationMessageText = 'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
             } else {
                 this.confirmationMessageText = 'Waitlist starts here.';
@@ -61,6 +63,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
             this.slotAssignments[0].username = this.context.comment.data.author;
             this.slotAssignments[0].rquester = this.context.comment.data.author;
             this.slotAssignments[0].randomSlots = 0;
+            this.slotAssignments[0].inOrderSlots = 0;
             this.slotAssignments[0].swappedSlots = 0;
         } else {
             this.closeModal(null);
@@ -112,7 +115,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
     }
 
     private addSlotAssignment() {
-        this.slotAssignments.push({randomSlots: 0, swappedSlots: 0, requester: this.context.comment.data.author});
+        this.slotAssignments.push({randomSlots: 0, inOrderSlots: 0, swappedSlots: 0, requester: this.context.comment.data.author});
     }
 
     private removeSlotAssignment(index: number) {
@@ -129,10 +132,15 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         this.numRequestedSlots = 0;
         this.hasDuplicateSlots = false;
         this.invalidRandom = false;
+        this.invalidinOrder = false;
 
         for (let i = 0; i < this.slotAssignments.length; i++) {
-            if (this.slotAssignments[i].randomSlots < 0){
+            if (this.slotAssignments[i].randomSlots < 0) {
                 this.invalidRandom = true;
+            }
+
+            if (this.slotAssignments[i].inOrderSlots < 0) {
+                this.invalidinOrder = true;
             }
 
             let slotsToCheck = this.slotAssignments[i].calledSlots;
@@ -154,10 +162,10 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
                     }
                 }
             }
-            this.numRequestedSlots += this.slotAssignments[i].randomSlots;
+            this.numRequestedSlots += this.slotAssignments[i].randomSlots + this.slotAssignments[i].inOrderSlots;
         }
 
-        this.requestedTooManySlots = this.numRequestedSlots > this.context.numOpenSlots;
+        this.requestedTooManySlots = this.numRequestedSlots > this.context.numOpenSlots && !this.context.inOrderMode;
     }
 
     _keyPress(event: any) {

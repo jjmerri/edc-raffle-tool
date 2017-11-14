@@ -12,8 +12,8 @@
     </div>
 
     <div class="modal-body" *ngIf="!waitlistMessageSent">
-        <label *ngIf="context.numOpenSlots > 0" for="confirmationMessage">Confirmation Reply:</label>
-        <label *ngIf="context.numOpenSlots === 0" for="confirmationMessage">Waitlist Reply: </label>
+        <label *ngIf="context.numOpenSlots > 0 || context.inOrderMode" for="confirmationMessage">Confirmation Reply:</label>
+        <label *ngIf="context.numOpenSlots === 0 && !context.inOrderMode" for="confirmationMessage">Waitlist Reply: </label>
         <div class="input-group">
             <span class="input-group-addon"><i style="font-size:1.5em;" class="glyphicon glyphicon-info-sign" title="The following text can be used and will be replaced with actual values:
 {{'{slotOwner_ALL_SLOTS}'}}
@@ -26,7 +26,7 @@
         </div>
 
     </div>
-    <div *ngIf="context.numOpenSlots > 0" class="modal-body">
+    <div *ngIf="context.numOpenSlots > 0 || context.inOrderMode" class="modal-body">
 
         <div class="row" *ngIf="requestedTooManySlots">
             <div class="col-lg-12">
@@ -77,14 +77,19 @@
                     <input id="username{{i}}" type="text" [ngModel]="slotAssignment.username" (ngModelChange)="updateReplyText($event, i)"/>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" *ngIf="!context.inOrderMode">
                     <label for="calledSlots{{i}}">Called Slots (e.g. 2,7,9): </label>
                     <input id="calledSlots{{i}}" [(ngModel)]="slotAssignment.calledSlots" type="text" (ngModelChange)="checkSlots()" (keypress)="_keyPress($event)"/>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" *ngIf="!context.inOrderMode">
                     <label for="randomSlots{{i}}">Number of Random Slots: </label>
                     <input id="randomSlots{{i}}" [(ngModel)]="slotAssignment.randomSlots" type="number" (change)="checkSlots()"/>
+                </div>
+
+                <div class="form-group" *ngIf="context.inOrderMode">
+                    <label for="inOrderSlots{{i}}">Number of In Order Slots: </label>
+                    <input id="inOrderSlots{{i}}" [(ngModel)]="slotAssignment.inOrderSlots" type="number" (change)="checkSlots()"/>
                 </div>
             </div>
         </div>
@@ -98,9 +103,9 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-success" *ngIf="slotAssignments[0].username === 'BoyAndHisBlob' && context.numOpenSlots > 0" [disabled] = "waitlistMessageSent || !confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom" (click)="donateSlot()">Donate Slot to /u/BoyAndHisBlob...</button>
-        <button *ngIf="context.numOpenSlots > 0" type="button" class="btn btn-default" [disabled] = "waitlistMessageSent || !confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom" (click)="assignSlots()">Assign Slots</button>
-        <button *ngIf="context.numOpenSlots === 0" type="button" class="btn btn-default" [disabled] = "waitlistMessageSent || !confirmationMessageText" (click)="postWaitlistCommentAndClose()">Post Waitlist Comment</button>
+        <button type="button" class="btn btn-sm btn-success" *ngIf="slotAssignments[0].username === 'BoyAndHisBlob' && context.numOpenSlots > 0 && !context.inOrderMode" [disabled] = "waitlistMessageSent || !confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom" (click)="donateSlot()">Donate Slot to /u/BoyAndHisBlob...</button>
+        <button *ngIf="context.numOpenSlots > 0 || context.inOrderMode" type="button" class="btn btn-default" [disabled] = "waitlistMessageSent || !confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom || invalidinOrder" (click)="assignSlots()">Assign Slots</button>
+        <button *ngIf="context.numOpenSlots === 0 && !context.inOrderMode" type="button" class="btn btn-default" [disabled] = "waitlistMessageSent || !confirmationMessageText" (click)="postWaitlistCommentAndClose()">Post Waitlist Comment</button>
         <button type="button" class="btn btn-default" [disabled] = "waitlistMessageSent" (click)="skipComment()">Skip Comment</button>
         <button type="button" class="btn btn-default" (click)="closeModal(null)">Close</button>
     </div>

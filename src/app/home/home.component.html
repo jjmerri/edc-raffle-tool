@@ -119,9 +119,9 @@
         </div>
 
         <div class="row" *ngIf="currentRaffle">
-          <div class="col-xs-3" *ngIf="false">
-            <label for="paid{{i}}">Charity Mode?</label>
-            <input type="checkbox" id="charityMode" name="charityMode" [(ngModel)]="charityMode"/>
+          <div class="col-xs-3">
+            <label for="paid{{i}}">In Order Mode?</label>
+            <input type="checkbox" id="inOrderMode" name="inOrderMode" [(ngModel)]="inOrderMode"/>
           </div>
           <div class="col-xs-3" *ngIf="canEditFlair">
             <label for="paid{{i}}">Auto-Update Flair?</label>
