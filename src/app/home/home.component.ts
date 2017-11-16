@@ -305,9 +305,9 @@ export class HomeComponent implements OnInit {
         const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
         let txt: any;
         txt = document.createElement('textareatmp');
-        txt.innerHTML = raffle.selftext;
+        let doc = new DOMParser().parseFromString(raffle.selftext_html, 'text/html');
+        txt.innerHTML = doc.documentElement.textContent;
         const postText = txt.innerText;
-
         const matches = postText.match(re);
 
         if (matches) {
@@ -315,6 +315,7 @@ export class HomeComponent implements OnInit {
             const slotList = matches[0];
             const slots = slotList.split('\n');
             let numSlots = 0;
+
             for (let i = 0; i < slots.length; i++) {
                 if (slots[i].match(/^[\d]+ /)) {
                     numSlots++;
