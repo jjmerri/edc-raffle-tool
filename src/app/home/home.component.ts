@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit {
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
-    private botMap = {edc_raffle: '/u/callthebot', lego_raffles: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
+    private botMap = {edc_raffle: '/u/callthebot', lego_raffles: '/u/raffle_rng', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
     private botUsername = '/u/callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
