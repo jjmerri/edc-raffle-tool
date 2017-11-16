@@ -8,5 +8,11 @@ export const environment = {
     client_id: '',
     client_secret: '',
     redirectUri: '',
-    databaseUri: ''
+    databaseUri: '',
+
+    firebaseApiKey: '',
+    firebaseAuthDomain: '',
+    firebaseDatabaseUrl: '',
+    firebaseStorageBucket: '',
+    firebaseSenderId: ''
 };
