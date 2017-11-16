@@ -19,7 +19,7 @@ export class RedditService {
     private childrenUrl = this.secureRedditUrl + '/api/morechildren';
     private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
 
-    private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'raffleTest'];
+    private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'raffleTest', 'lego_raffles'];
 
     constructor(private http: Http, private oauthService: OauthService) {
     }

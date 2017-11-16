@@ -8,6 +8,7 @@ import {environment} from '../../environments/environment';
 
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
+import he from 'he';
 
 import { OauthService } from '../oauth/services/oauth.service';
 import { RedditService} from '../reddit/services/reddit.service';
@@ -55,7 +56,7 @@ export class HomeComponent implements OnInit {
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
-    private botMap = {edc_raffle: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
+    private botMap = {edc_raffle: '/u/callthebot', lego_raffles: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
     private botUsername = '/u/callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
@@ -305,11 +306,10 @@ export class HomeComponent implements OnInit {
         const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
         let txt: any;
         txt = document.createElement('textareatmp');
-        let doc = new DOMParser().parseFromString(raffle.selftext_html, 'text/html');
-        txt.innerHTML = doc.documentElement.textContent;
+
+        txt.innerHTML = he.decode(raffle.selftext_html);//doc.documentElement.textContent;
         const postText = txt.innerText;
         const matches = postText.match(re);
-
         if (matches) {
             this.raffleParticipants = [];
             const slotList = matches[0];
@@ -322,15 +322,34 @@ export class HomeComponent implements OnInit {
                     const slotParts = slots[i].split(' ');
 
                     if (slotParts[1]) {
-                       this.raffleParticipants.push({name: slotParts[1].substr(3), paid: slotParts[2] === '**PAID**'});
+                        let paidString = '';
+                        if (slotParts[2]) {
+                            paidString = (slotParts[2]).substring(0, 4);
+                        }
+
+                        this.raffleParticipants.push({name: slotParts[1].substr(3), paid: paidString === 'PAID'});
                     } else {
                         this.raffleParticipants.push({});
                     }
                 }
             }
-            this.numSlots = numSlots;
-            this.updateRaffleSlots(numSlots);
-            this.raffleImported = true;
+
+            if (numSlots <= 1) {
+                swal('Raffle failed to import!',
+                    'The raffle importer detected < 2 slots which is not a valid raffle! ' +
+                    'This could be due to browser compatibility issues. ' +
+                    'Please try to link again and if you get the same error try a different browser. ' +
+                    'DO NOT UPDATE YOUR RAFFLE BEFORE RELINKING! You could delete your slot list!',
+                    'error'
+                ).then(() => {
+                }, (dismiss) => {
+                });
+            } else {
+                this.numSlots = numSlots;
+
+                this.updateRaffleSlots(numSlots);
+                this.raffleImported = true;
+            }
         }
 
 
