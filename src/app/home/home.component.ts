@@ -1,3 +1,5 @@
+declare var fuckAdBlock: FuckAdBlock;
+
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router';
 import { Modal, BSModalContext} from 'ngx-modialog/plugins/bootstrap';
@@ -5,6 +7,8 @@ import { overlayConfigFactory } from 'ngx-modialog';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
+import { LogglyService } from 'ngx-loggly-logger';
+import { FuckAdBlock } from 'fuckadblock';
 
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
@@ -56,7 +60,7 @@ export class HomeComponent implements OnInit {
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
-    private botMap = {edc_raffle: '/u/callthebot', lego_raffles: '/u/raffle_rng', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
+    private botMap = {edc_raffle: '/u/callthebot', lego_raffles: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
     private botUsername = '/u/callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
@@ -69,6 +73,8 @@ export class HomeComponent implements OnInit {
     private canEditFlair = false;
     private botCalled = false;
     private paypalPmRecipients = [];
+    private showAdBlockerMessage = true;
+    private hasSeenTermsOfService = false;
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -78,14 +84,17 @@ export class HomeComponent implements OnInit {
                     };
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
-                private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService) {
+                private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService, private logglyService: LogglyService) {
     }
 
     ngOnInit() {
-        const hasSeenTermsOfService = JSON.parse(localStorage.getItem(this.tosKey));
-        if (!hasSeenTermsOfService) {
+        this.loadStorage();
+        if (!this.hasSeenTermsOfService) {
             this.showTermsOfService();
         }
+
+        this.configureLoggingService();
+        this.configureAdblockerCheck();
 
         this.activatedRoute.queryParams.subscribe((params: Params) => {
             if (params['code']) {
@@ -282,6 +291,9 @@ export class HomeComponent implements OnInit {
                   }
 
                   this.updateFlair(flairId, flairText);
+
+
+                  this.logglyService.push({slotList: this.commentText, raffleId: this.currentRaffle.name, userName: this.userName});
 
               },
               err => {
@@ -767,22 +779,11 @@ export class HomeComponent implements OnInit {
         return updatedText;
     }
 
-    private loadStorage(raffleName: string, userId: string) {
+    private loadRaffleStorage(raffleName: string, userId: string) {
         const skippedPms = JSON.parse(localStorage.getItem(raffleName + '_skippedPms'));
         if (skippedPms !== null) {
             this.skippedPms = skippedPms;
         }
-
-        const shownNewFeatureMessageSlotAssignmentHelper = JSON.parse(localStorage.getItem('shownNewFeatureMessageSlotAssignmentHelper'));
-        if (shownNewFeatureMessageSlotAssignmentHelper !== null) {
-            this.shownNewFeatureMessageSlotAssignmentHelper = shownNewFeatureMessageSlotAssignmentHelper;
-        }
-
-        const payPalInfo = JSON.parse(localStorage.getItem('payPalInfo'));
-        if (payPalInfo !== null) {
-            this.payPalInfo = payPalInfo;
-        }
-
 
         this.databaseService.getProcessedComments(userId, raffleName).subscribe(comments => {
             if (comments) {
@@ -795,6 +796,30 @@ export class HomeComponent implements OnInit {
                 this.paypalPmRecipients = paypalPmRecipients;
             }
         });
+    }
+
+
+    private loadStorage() {
+
+        const hasSeenTermsOfService = JSON.parse(localStorage.getItem(this.tosKey));
+        if (hasSeenTermsOfService !== null) {
+            this.hasSeenTermsOfService = hasSeenTermsOfService;
+        }
+
+        const shownNewFeatureMessageSlotAssignmentHelper = JSON.parse(localStorage.getItem('shownNewFeatureMessageSlotAssignmentHelper'));
+        if (shownNewFeatureMessageSlotAssignmentHelper !== null) {
+            this.shownNewFeatureMessageSlotAssignmentHelper = shownNewFeatureMessageSlotAssignmentHelper;
+        }
+
+        const showAdBlockerMessage = JSON.parse(localStorage.getItem('showAdBlockerMessage'));
+        if (showAdBlockerMessage !== null) {
+            this.showAdBlockerMessage = showAdBlockerMessage;
+        }
+
+        const payPalInfo = JSON.parse(localStorage.getItem('payPalInfo'));
+        if (payPalInfo !== null) {
+            this.payPalInfo = payPalInfo;
+        }
     }
 
     private showNewFeatureMessage() {
@@ -944,7 +969,7 @@ export class HomeComponent implements OnInit {
 
                                         this.setSubredditSettings(submission.subreddit);
 
-                                        this.loadStorage(submission.name, this.userId);
+                                        this.loadRaffleStorage(submission.name, this.userId);
 
                                         if (this.hasNewFeature) {
                                             this.showNewFeatureMessage();
@@ -1083,5 +1108,65 @@ export class HomeComponent implements OnInit {
             }, (dismiss) => {
             });
         }
+    }
+
+    private configureAdblockerCheck() {
+        const adBlockNotDetected = this.adBlockNotDetected;
+        const adBlockDetected = this.adBlockDetected;
+        // We look at whether FuckAdBlock already exists.
+        if (typeof FuckAdBlock !== 'undefined') {
+            // If this is the case, it means that something tries to usurp are identity
+            // So, considering that it is a detection
+            this.adBlockDetected();
+        } else {
+            // Otherwise, you import the script FuckAdBlock
+            const importFAB = document.createElement('script');
+            importFAB.onload = function() {
+                // If all goes well, we configure FuckAdBlock
+                fuckAdBlock.onDetected(adBlockDetected)
+                fuckAdBlock.onNotDetected(adBlockNotDetected);
+            };
+            importFAB.onerror = function() {
+                // If the script does not load (blocked, integrity error, ...)
+                // Then a detection is triggered
+                adBlockDetected();
+            };
+            importFAB.integrity = 'sha256-xjwKUY/NgkPjZZBOtOxRYtK20GaqTwUCf7WYCJ1z69w=';
+            importFAB.crossOrigin = 'anonymous';
+            importFAB.src = 'https://cdnjs.cloudflare.com/ajax/libs/fuckadblock/3.2.1/fuckadblock.min.js';
+            document.head.appendChild(importFAB);
+        }
+    }
+
+    // Function called if AdBlock is not detected
+    private adBlockNotDetected() {
+        //Do nothing, this is ideal state
+        //alert('AdBlock is not enabled');
+    }
+    // Function called if AdBlock is detected
+    private adBlockDetected() {
+        //adblockers prevent Loggly from working so fuck 'em
+        swal('Ad Blockers Prevent Slot List Logging!',
+            'The Raffle Tool uses Loggly to log your slot list every time it updates. Some ad blockers prevent Loggly from working. ' +
+            'It is in your best interest to disable ad blockers on The Raffle Tool so this feature can be used. ' +
+            'This will allow us to recover your raffle\'s slot list history. ' +
+            'I am sure you would rather have history and not need it than need it and not have it! ' +
+            '<strong>THERE ARE NOT ANY ADS ON THIS SITE SO YOU GAIN NOTHING WITH THE AD BLOCKERS ENABLED.</strong> ' +
+            'You won\'t get this message again.',
+            'info'
+        ).then(() => {
+            localStorage.setItem('showAdBlockerMessage', JSON.stringify(false));
+        }, (dismiss) => {
+        });
+    }
+
+    private configureLoggingService() {
+        // Init to set key and tag and sendConsoleErrors boolean
+        this.logglyService.push({
+            'logglyKey': 'c533a0e8-2a33-4aeb-8a76-fbf26387621e',
+            'sendConsoleErrors' : true, // Optional set true to send uncaught console errors
+            'tag' : 'raffletool'
+        });
+
     }
 }

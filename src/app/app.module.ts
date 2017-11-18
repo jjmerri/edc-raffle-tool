@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 import { PopoverModule } from 'ng2-pop-over';
 import { ModalModule } from 'ngx-modialog';
 import { BootstrapModalModule } from 'ngx-modialog/plugins/bootstrap';
+import { NgxLogglyModule } from 'ngx-loggly-logger';
 
 import { OauthService} from './oauth/services/oauth.service';
 
@@ -28,7 +29,8 @@ import {DatabaseService} from './database/services/database.service';
     HomeModule,
       PopoverModule,
       ModalModule.forRoot(),
-      BootstrapModalModule
+      BootstrapModalModule,
+      NgxLogglyModule.forRoot()
   ],
   providers: [OauthService, RedditService, DatabaseService],
   bootstrap: [AppComponent]
