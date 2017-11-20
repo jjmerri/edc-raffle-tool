@@ -11,11 +11,17 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label>Input Username: </label>
-                    <input type="text">
+                <div *ngIf="!username" class="panel-footer">
+                    <div class="input-group">
+                        <input #updatedUsername id="btn-input" type="text" class="form-control input-sm"
+                               placeholder="Enter Mod Username For Chat" (keyup.enter)="updateUsername($event.target.value)"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-warning btn-sm" id="btn-chat" (click)="updateUsername(updatedUsername.value)">
+                                Enter Name</button>
+                        </span>
+                    </div>
                 </div>
-                <div class="panel-collapse collapse in" id="collapseOne">
+                <div *ngIf="username" class="panel-collapse collapse in" id="collapseOne">
                     <div #chatScroll name="chatBody" class="panel-body">
                         <ul class="chat">
                             <li [ngClass]="{'left clearfix': chatMessage.username !== username, 'right clearfix': chatMessage.username === username}" *ngFor="let chatMessage of chatMessages | async; let i = index">
@@ -43,10 +49,10 @@
                     </div>
                     <div class="panel-footer">
                         <div class="input-group">
-                            <input id="btn-input" type="text" class="form-control input-sm"
+                            <input #messageToSend id="btn-input" type="text" class="form-control input-sm"
                                    placeholder="Type your message here..." (keyup.enter)="chatSend($event.target.value)" [(ngModel)]="msgVal"/>
                             <span class="input-group-btn">
-                            <button class="btn btn-warning btn-sm" id="btn-chat">
+                            <button class="btn btn-warning btn-sm" id="btn-chat" (click)="chatSend(messageToSend.value)">
                                 Send</button>
                         </span>
                         </div>

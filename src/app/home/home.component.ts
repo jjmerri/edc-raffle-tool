@@ -319,7 +319,7 @@ export class HomeComponent implements OnInit {
         let txt: any;
         txt = document.createElement('textareatmp');
 
-        txt.innerHTML = he.decode(raffle.selftext_html);//doc.documentElement.textContent;
+        txt.innerHTML = he.decode(raffle.selftext_html);
         const postText = txt.innerText;
         const matches = postText.match(re);
         if (matches) {
@@ -971,6 +971,8 @@ export class HomeComponent implements OnInit {
 
                                         this.loadRaffleStorage(submission.name, this.userId);
 
+                                        this.setModToolsId();
+
                                         if (this.hasNewFeature) {
                                             this.showNewFeatureMessage();
                                         }
@@ -1171,4 +1173,20 @@ export class HomeComponent implements OnInit {
         });
 
     }
+
+    private guid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    }
+
+    private setModToolsId() {
+        //this.databaseService.get
+        console.log(this.guid());
+    }
+
 }

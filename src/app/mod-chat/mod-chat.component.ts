@@ -10,7 +10,7 @@ import {Observable} from 'rxjs/Observable';
 export class ModChatComponent implements OnInit, AfterViewChecked {
     @ViewChild('chatScroll') private myScrollContainer: ElementRef;
 
-    @Input() username = 'testName';
+    @Input() username = '';
     @Input() userRole = 'MOD';
 
     chatMessagesRef: AngularFireList<any>;
@@ -31,13 +31,22 @@ export class ModChatComponent implements OnInit, AfterViewChecked {
 
     private scrollToBottom() {
         let panel: any = document.getElementsByName('chatBody')[0];
-        panel.scrollTop = panel.scrollHeight;
+
+        if (panel) {
+            panel.scrollTop = panel.scrollHeight;
+        }
     }
 
     chatSend(message: string) {
         if (message) {
             this.chatMessagesRef.push({message: message, username: this.username, userRole: this.userRole, timeSent: Date.now()});
             this.msgVal = '';
+        }
+    }
+
+    updateUsername(updatedUsername: string) {
+        if (updatedUsername) {
+            this.username = updatedUsername;
         }
     }
 

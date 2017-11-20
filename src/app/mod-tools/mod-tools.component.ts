@@ -12,7 +12,6 @@ import { DatabaseService} from '../database/services/database.service';
     templateUrl: './mod-tools.component.html'
 })
 export class ModToolsComponent implements OnInit {
-    private username = 'username';
     constructor(private activatedRoute: ActivatedRoute, private databaseService: DatabaseService) {
     }
 

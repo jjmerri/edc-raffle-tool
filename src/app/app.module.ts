@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { PopoverModule } from 'ng2-pop-over';
 import { ModalModule } from 'ngx-modialog';
 import { BootstrapModalModule } from 'ngx-modialog/plugins/bootstrap';
@@ -25,7 +25,8 @@ import {DatabaseService} from './database/services/database.service';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule,
+      HttpClientModule,
+      HttpClient,
     routing,
     HomeModule,
       ModToolsModule,
