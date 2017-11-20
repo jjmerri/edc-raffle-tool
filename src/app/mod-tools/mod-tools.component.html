@@ -1,0 +1,39 @@
+<div class="container">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="navbar-brand">EDC Raffle Tool</div><div class="navbar-brand" style="font-size: small">by /u/BoyAndHisBlob</div>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a>Home <span class="sr-only">(current)</span></a></li>
+                    <li><a style="cursor: pointer;" (click)="showTermsOfService()">Terms of Service</a></li>
+                    <li><a href="https://docs.google.com/document/d/1lz07G4-So9sUXgp46FWY-i7DSJ_RCfGfrBtIU1xNQbw/edit?usp=sharing" target="_blank">Raffle Tool Guide</a></li>
+                    <li>
+                        <a href="https://www.reddit.com/message/compose/?to=BoyAndHisBlob&subject=EDC%20Raffle%20Tool" target="_blank">Give Feedback or Request Feature</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a>
+                            <strong>Mod Tools</strong>
+                        </a>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="col-xs-12 -align-center well" style="background: rgb(252, 252, 252);">
+        <app-mod-chat *ngIf="username" [username]="username" userRole="MOD"></app-mod-chat>
+    </div>
+</div>

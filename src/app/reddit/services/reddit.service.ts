@@ -20,6 +20,8 @@ export class RedditService {
     private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
 
     private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'raffleTest', 'lego_raffles'];
+    private subSubmissionAgeDays = {edc_raffle: 2, testingground4bots: 2, KnifeRaffle: 4, raffleTest: 2, lego_raffles: 2};
+    private maxSubmissionAgeDays = 4;
 
     constructor(private http: Http, private oauthService: OauthService) {
     }
@@ -90,19 +92,23 @@ export class RedditService {
                         for (let i = 0; i < userSubmissionsResponse.data.children.length; i++) {
                             const submission = userSubmissionsResponse.data.children[i].data;
 
+                            const secondsInDay = 24 * 60 * 60;
                             const currentDate = new Date();
                             const currentDateSeconds = currentDate.getTime() / 1000;
                             const submissionAge = currentDateSeconds - submission.created_utc;
 
+                            const allowedSubSubmissionAgeDays = this.subSubmissionAgeDays[submission.subreddit];
+
                             // submissions are ordered by age
-                            // if submissionAge > 48 hours nothing beyond this will be current
-                            if (submissionAge > (48 * 60 * 60)) {
+                            // if submissionAge > maxSubmissionAgeDays nothing beyond this will be current
+                            if (submissionAge > (this.maxSubmissionAgeDays * secondsInDay)) {
                                 if (submission.stickied) {
                                     continue;
                                 } else {
                                     break;
                                 }
                             } else if (this.approvedSubs.indexOf(submission.subreddit) !== -1 &&
+                                submissionAge <= allowedSubSubmissionAgeDays * secondsInDay &&
                                 submission.link_flair_text !== 'Complete' && submission.link_flair_text !== 'Canceled') {
                                 currentRaffles.push(submission);
                             }

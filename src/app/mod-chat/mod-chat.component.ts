@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import {AfterViewChecked, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AngularFireDatabase, AngularFireList} from 'angularfire2/database';
 import {Observable} from 'rxjs/Observable';
 
 @Component({
-  selector: 'app-mod-chat',
-  templateUrl: './mod-chat.component.html',
-  styleUrls: ['./mod-chat.component.css']
+    selector: 'app-mod-chat',
+    templateUrl: './mod-chat.component.html',
+    styleUrls: ['./mod-chat.component.css']
 })
-export class ModChatComponent implements OnInit {
+export class ModChatComponent implements OnInit, AfterViewChecked {
+    @ViewChild('chatScroll') private myScrollContainer: ElementRef;
+
+    @Input() username = 'testName';
+    @Input() userRole = 'MOD';
+
     chatMessagesRef: AngularFireList<any>;
     chatMessages: Observable<any[]>;
-    username = 'testName';
     msgVal = '';
 
     constructor(public afdb: AngularFireDatabase) {
@@ -19,12 +22,23 @@ export class ModChatComponent implements OnInit {
         this.chatMessages = this.chatMessagesRef.valueChanges();
     }
 
-    chatSend(theirMessage: string) {
-        this.chatMessagesRef.push({ message: theirMessage, name: this.username});
-        this.msgVal = '';
+    ngOnInit() {
     }
 
-  ngOnInit() {
-  }
+    ngAfterViewChecked() {
+        this.scrollToBottom();
+    }
+
+    private scrollToBottom() {
+        let panel: any = document.getElementsByName('chatBody')[0];
+        panel.scrollTop = panel.scrollHeight;
+    }
+
+    chatSend(message: string) {
+        if (message) {
+            this.chatMessagesRef.push({message: message, username: this.username, userRole: this.userRole, timeSent: Date.now()});
+            this.msgVal = '';
+        }
+    }
 
 }

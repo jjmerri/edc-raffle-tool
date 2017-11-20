@@ -2,6 +2,8 @@ import { NgModule} from '@angular/core';
 import {environment} from 'environments/environment';
 import { AngularFireModule } from 'angularfire2';
 import {AngularFireDatabase} from 'angularfire2/database';
+import {CommonModule} from "@angular/common";
+import {AsyncPipe} from '@angular/common';
 
 export const firebaseConfig = {
     apiKey: environment.firebaseApiKey,
@@ -13,7 +15,7 @@ export const firebaseConfig = {
 
 @NgModule({
     imports: [
-        AngularFireModule.initializeApp(firebaseConfig)],
+        AngularFireModule.initializeApp(firebaseConfig), CommonModule],
     declarations: [],
     exports: [],
     entryComponents: [],

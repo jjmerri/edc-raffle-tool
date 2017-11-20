@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit {
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
-    private botMap = {edc_raffle: '/u/callthebot', lego_raffles: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/raffle_rng', raffleTest: '/u/raffleTestBot'};
+    private botMap = {edc_raffle: '/u/callthebot', lego_raffles: '/u/callthebot', testingground4bots: '/u/callthebot', KnifeRaffle: '/u/callthebot', raffleTest: '/u/raffleTestBot'};
     private botUsername = '/u/callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
@@ -1145,19 +1145,21 @@ export class HomeComponent implements OnInit {
     }
     // Function called if AdBlock is detected
     private adBlockDetected() {
-        //adblockers prevent Loggly from working so fuck 'em
-        swal('Ad Blockers Prevent Slot List Logging!',
-            'The Raffle Tool uses Loggly to log your slot list every time it updates. Some ad blockers prevent Loggly from working. ' +
-            'It is in your best interest to disable ad blockers on The Raffle Tool so this feature can be used. ' +
-            'This will allow us to recover your raffle\'s slot list history. ' +
-            'I am sure you would rather have history and not need it than need it and not have it! ' +
-            '<strong>THERE ARE NOT ANY ADS ON THIS SITE SO YOU GAIN NOTHING WITH THE AD BLOCKERS ENABLED.</strong> ' +
-            'You won\'t get this message again.',
-            'info'
-        ).then(() => {
-            localStorage.setItem('showAdBlockerMessage', JSON.stringify(false));
-        }, (dismiss) => {
-        });
+        if (this.showAdBlockerMessage) {
+            //adblockers prevent Loggly from working so fuck 'em
+            swal('Ad Blockers Prevent Slot List Logging!',
+                'The Raffle Tool uses Loggly to log your slot list every time it updates. Some ad blockers prevent Loggly from working. ' +
+                'It is in your best interest to disable ad blockers on The Raffle Tool so this feature can be used. ' +
+                'This will allow us to recover your raffle\'s slot list history. ' +
+                'I am sure you would rather have history and not need it than need it and not have it! ' +
+                '<strong>THERE ARE NOT ANY ADS ON THIS SITE SO YOU GAIN NOTHING WITH THE AD BLOCKERS ENABLED.</strong> ' +
+                'You won\'t get this message again.',
+                'info'
+            ).then(() => {
+                localStorage.setItem('showAdBlockerMessage', JSON.stringify(false));
+            }, (dismiss) => {
+            });
+        }
     }
 
     private configureLoggingService() {

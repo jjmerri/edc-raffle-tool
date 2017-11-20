@@ -12,6 +12,7 @@ import { OauthService} from './oauth/services/oauth.service';
 import {routing} from './app.routes';
 
 import {HomeModule} from './home/home.module';
+import {ModToolsModule} from './mod-tools/mod-tools.module';
 
 import { AppComponent } from './app.component';
 import {RedditService} from './reddit/services/reddit.service';
@@ -27,6 +28,7 @@ import {DatabaseService} from './database/services/database.service';
     HttpModule,
     routing,
     HomeModule,
+      ModToolsModule,
       PopoverModule,
       ModalModule.forRoot(),
       BootstrapModalModule,

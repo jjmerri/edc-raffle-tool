@@ -37,6 +37,7 @@
     "ngx-modialog": "^3.0.3",
     "rxjs": "^5.0.1",
     "sweetalert2": "^6.6.8",
+    "time-ago-pipe": "^1.2.1",
     "ts-helpers": "^1.1.1",
     "typescript": "^2.4.2",
     "zone.js": "^0.8.17"
