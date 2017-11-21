@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Http, Headers, Response} from '@angular/http';
+import {HttpHeaders, HttpClient} from '@angular/common/http';
+import {Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
 import {OauthService} from '../../oauth/services/oauth.service';
@@ -23,16 +24,15 @@ export class RedditService {
     private subSubmissionAgeDays = {edc_raffle: 2, testingground4bots: 2, KnifeRaffle: 4, raffleTest: 2, lego_raffles: 2};
     private maxSubmissionAgeDays = 4;
 
-    constructor(private http: Http, private oauthService: OauthService) {
+    constructor(private http: HttpClient, private oauthService: OauthService) {
     }
 
     public getUserDetails(): Observable<any> {
         return Observable.create(observer => {
             this.oauthService.getAccessToken().subscribe(response => {
-                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     this.http.get(this.userDetailsUrl, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(userDetailsResponse => {
                                 observer.next(userDetailsResponse);
                                 observer.complete();
@@ -59,10 +59,9 @@ export class RedditService {
                     const re = /{userName}/;
                     const userSubmissionsUrl = this.userSubmissionsPlaceholder.replace(re, userName);
 
-                    const headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    const headers = new HttpHeaders({ 'Authorization': 'Bearer ' + response.access_token});
 
                     return this.http.get(userSubmissionsUrl, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(getResponse => {
                                 observer.next(getResponse);
                                 observer.complete();
@@ -138,10 +137,9 @@ export class RedditService {
                     form.append('text', postText);
                     form.append('thing_id', thing_id );
 
-                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     return this.http.post(this.editUrl, form, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(editResponse => {
                                 observer.next(editResponse);
                                 observer.complete();
@@ -165,10 +163,9 @@ export class RedditService {
     public getSubmission(submissionPermalink: string): Observable<any> {
         return Observable.create(observer => {
             this.oauthService.getAccessToken().subscribe(response => {
-                let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + response.access_token});
 
                 return this.http.get(this.secureRedditUrl + submissionPermalink, {headers: headers})
-                    .map(res => res.json())
                     .subscribe(getResponse => {
                             observer.next(getResponse);
                             observer.complete();
@@ -202,10 +199,9 @@ export class RedditService {
                     form.append('subject', subject );
                     form.append('to', recipient );
 
-                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     return this.http.post(this.composeUrl, form, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(composeResponse => {
                                 observer.next(composeResponse);
                                 observer.complete();
@@ -238,10 +234,9 @@ export class RedditService {
                     form.append('text', commentText);
                     form.append('thing_id', thing_id);
 
-                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     return this.http.post(this.commentUrl, form, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(composeResponse => {
                                 observer.next(composeResponse);
                                 observer.complete();
@@ -268,10 +263,9 @@ export class RedditService {
             this.oauthService.getAccessToken().subscribe(response => {
                     let params = '?after=' + after + '&count=' + count + '&limit=100';
 
-                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     return this.http.get(this.inboxUrl + params, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(pmResponse => {
                                 observer.next(pmResponse);
                                 observer.complete();
@@ -297,10 +291,9 @@ export class RedditService {
             this.oauthService.getAccessToken().subscribe(response => {
                     const params = '.json?sort=new';
 
-                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     this.http.get(this.secureRedditUrl + permalink + params, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(commentsResponse => {
                                 observer.next(commentsResponse[1].data.children);
                                 observer.complete();
@@ -400,11 +393,10 @@ export class RedditService {
                     form.append('depth', <any>0);
                     form.append('id', <any>more_Id);
 
-                    let headers = new Headers({'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     return this.http.post(this.childrenUrl, form, {headers: headers})
-                        .map(res => res.json())
-                        .subscribe(childrenResponse => {
+                        .subscribe((childrenResponse: any) => {
                                 observer.next(childrenResponse.json.data.things);
                                 observer.complete();
                             },
@@ -466,10 +458,9 @@ export class RedditService {
                     form.append('link', thingId );
                     form.append('flair_template_id', flairId );
 
-                    let headers = new Headers({ 'Authorization': 'Bearer ' + response.access_token});
+                    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + response.access_token});
                     headers.append('Accept', 'application/json');
                     return this.http.post(this.selectFlairUrl, form, {headers: headers})
-                        .map(res => res.json())
                         .subscribe(flairResponse => {
                                 observer.next(flairResponse);
                                 observer.complete();

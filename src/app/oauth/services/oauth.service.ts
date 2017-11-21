@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Http, Headers, Response} from '@angular/http';
+import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
+import {Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
 import {environment} from '../../../environments/environment';
@@ -21,7 +22,7 @@ export class OauthService {
     private refreshToken = '';
     private expireTime: number;
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
         this.accessTokenObservable = new Observable(observer => this.accessTokenObserver = observer).share();
     }
 
@@ -71,10 +72,9 @@ export class OauthService {
         form.append('grant_type', 'authorization_code');
         form.append('redirect_uri', this.redirectUri );
 
-        let headers = new Headers({ 'Authorization': 'Basic ' + btoa(this.client_id + ':' + this.client_secret) });
+        let headers = new HttpHeaders({ 'Authorization': 'Basic ' + btoa(this.client_id + ':' + this.client_secret) });
         headers.append('Accept', 'application/json');
         return this.http.post(this.accessTokenUrl, form, {headers: headers})
-        .map(res =>  res.json())
         .catch(this.handleErrorObservable);
     }
 
@@ -84,20 +84,30 @@ export class OauthService {
     }
 
     private refreshAccessToken(): Observable<any> {
-        let form = new FormData();
-        form.append('grant_type', 'refresh_token');
-        form.append('refresh_token', this.refreshToken );
+        return Observable.create(observer => {
+            let form = new FormData();
+            form.append('grant_type', 'refresh_token');
+            form.append('refresh_token', this.refreshToken);
 
-        let headers = new Headers({ 'Authorization': 'Basic ' + btoa(this.client_id + ':' + this.client_secret) });
-        headers.append('Accept', 'application/json');
-        return this.http.post(this.accessTokenUrl, form, {headers: headers})
-            .map(res =>  this.extractToken(res))
-            .catch(this.handleErrorObservable);
+            let headers = new HttpHeaders({'Authorization': 'Basic ' + btoa(this.client_id + ':' + this.client_secret)});
+            headers.append('Accept', 'application/json');
+            this.http.post(this.accessTokenUrl, form, {headers: headers}).subscribe(
+                (res: any) => {
+                    observer.next(this.extractToken(res));
+                    observer.complete();
+                },
+                (err: HttpErrorResponse) => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
     }
 
     private extractToken(response: Response) {
         const currentDate = new Date();
-        let body = response.json();
+        const body: any = response;
 
         this.accessToken = body.access_token;
         this.expireTime = (Math.round(currentDate.getTime() / 1000)) + body.expires_in - 30;

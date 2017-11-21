@@ -4,10 +4,8 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params} from '@angular/router';
 import { Modal, BSModalContext} from 'ngx-modialog/plugins/bootstrap';
 import { overlayConfigFactory } from 'ngx-modialog';
-import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
-import { LogglyService } from 'ngx-loggly-logger';
 import { FuckAdBlock } from 'fuckadblock';
 
 import 'rxjs/Rx';
@@ -20,7 +18,6 @@ import { DatabaseService} from '../database/services/database.service';
 import {SlotConfirmationModalComponent} from './slot-confirmation.modal.component';
 import { RafflePickerModalComponent } from './raffle-picker.modal.component';
 import { TermsOfServiceModalComponent } from './terms-of-service.modal.component';
-import {forEach} from "@angular/router/src/utils/collection";
 
 @Component({
     selector: 'app-home',
@@ -84,7 +81,7 @@ export class HomeComponent implements OnInit {
                     };
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
-                private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService, private logglyService: LogglyService) {
+                private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService) {
     }
 
     ngOnInit() {
@@ -292,8 +289,6 @@ export class HomeComponent implements OnInit {
 
                   this.updateFlair(flairId, flairText);
 
-
-                  this.logglyService.push({slotList: this.commentText, raffleId: this.currentRaffle.name, userName: this.userName});
 
               },
               err => {
@@ -1165,12 +1160,6 @@ export class HomeComponent implements OnInit {
     }
 
     private configureLoggingService() {
-        // Init to set key and tag and sendConsoleErrors boolean
-        this.logglyService.push({
-            'logglyKey': 'c533a0e8-2a33-4aeb-8a76-fbf26387621e',
-            'sendConsoleErrors' : true, // Optional set true to send uncaught console errors
-            'tag' : 'raffletool'
-        });
 
     }
 
