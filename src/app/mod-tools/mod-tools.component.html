@@ -32,7 +32,15 @@
         </div><!-- /.container-fluid -->
     </nav>
 
-    <div class="col-xs-12 -align-center well" style="background: rgb(252, 252, 252);">
-        <app-mod-chat userRole="MOD"></app-mod-chat>
+
+    <div class="container" *ngIf="!modToolsId">
+        <div class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>Mod Tools are disabled because no Mod Tool ID was provided in the URL!</strong>
+        </div>
+    </div>
+
+    <div *ngIf="modToolsId" class="col-md-12 -align-center well" style="background: rgb(252, 252, 252);">
+        <app-mod-chat [modToolsId]="modToolsId" userRole="MOD"></app-mod-chat>
     </div>
 </div>

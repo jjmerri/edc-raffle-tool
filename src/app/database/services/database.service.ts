@@ -11,6 +11,7 @@ export class DatabaseService {
 
     private processedCommentsUrl = this.databaseUri + '/processed_comments';
     private paypalPmRecipientsUrl = this.databaseUri + '/paypal_pm_recipients';
+    private modToolsUrl = this.databaseUri + '/mod_tools';
 
     constructor(private http: HttpClient) {
     }
@@ -44,6 +45,22 @@ export class DatabaseService {
         let headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})
+            .catch(this.handleErrorObservable);
+    }
+
+    public getModTools(modToolsId: string): Observable<any> {
+        let fullUri = this.modToolsUrl + '/' + modToolsId + '.json';
+        let headers = new HttpHeaders({});
+        headers.append('Accept', 'application/json');
+        return this.http.get(fullUri, {headers: headers})
+            .catch(this.handleErrorObservable);
+    }
+
+    public createModTools(modToolsId: string): Observable<any> {
+        let fullUri = this.modToolsUrl + '/' + modToolsId + '.json';
+        let headers = new HttpHeaders({});
+        headers.append('Accept', 'application/json');
+        return this.http.put(fullUri, {created: true}, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 

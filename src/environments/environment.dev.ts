@@ -3,6 +3,7 @@ export const environment = {
     client_id: 'UWap4qOFI6uYgw',
     client_secret: 'PwroVMyw3nRPEHHjTVxxUPed_tw',
     redirectUri: 'http://localhost:4200/home',
+    baseUri: 'http://localhost:4200',
     databaseUri: 'https://dev-edc-raffle-tool.firebaseio.com',
 
     firebaseApiKey: 'AIzaSyAi6_CqaO23NrJfsOSRGBzXOtY8VUSJncE',

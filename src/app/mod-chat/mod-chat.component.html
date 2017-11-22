@@ -1,6 +1,6 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-xs-5">
             <div class="panel panel-primary">
                 <div class="panel-heading" id="accordion">
                     <span class="glyphicon glyphicon-comment"></span> Mod Chat
@@ -24,23 +24,23 @@
                 <div *ngIf="username" class="panel-collapse collapse in" id="collapseOne">
                     <div #chatScroll name="chatBody" class="panel-body">
                         <ul class="chat">
-                            <li [ngClass]="{'left clearfix': chatMessage.username !== username, 'right clearfix': chatMessage.username === username}" *ngFor="let chatMessage of chatMessages | async; let i = index">
-                                <span [ngClass]="{'chat-img pull-left': chatMessage.username !== username, 'chat-img pull-right': chatMessage.username === username}">
+                            <li [ngClass]="{'left clearfix': chatMessage.username.toUpperCase() !== username.toUpperCase(), 'right clearfix': chatMessage.username.toUpperCase() === username.toUpperCase()}" *ngFor="let chatMessage of chatMessages | async; let i = index">
+                                <span [ngClass]="{'chat-img pull-left': chatMessage.username.toUpperCase() !== username.toUpperCase(), 'chat-img pull-right': chatMessage.username.toUpperCase() === username.toUpperCase()}">
                                     <img src="http://placehold.it/50/{{chatMessage.userRole === 'MOD' ? '55e75e' : '55C1E7'}}/fff&text={{chatMessage.userRole}}" alt="User Avatar" class="img-circle"/>
                                 </span>
                                 <div class="chat-body clearfix">
-                                    <div *ngIf="chatMessage.username !== username" class="header">
+                                    <div *ngIf="chatMessage.username.toUpperCase() !== username.toUpperCase()" class="header">
                                         <strong  class="primary-font">{{chatMessage.username}}</strong>
                                         <small class="pull-right text-muted">
                                             <span class="glyphicon glyphicon-time"></span>{{chatMessage.timeSent | timeAgo}}
                                         </small>
                                     </div>
-                                    <div *ngIf="chatMessage.username === username" class="header">
+                                    <div *ngIf="chatMessage.username.toUpperCase() === username.toUpperCase()" class="header">
                                         <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>{{chatMessage.timeSent | timeAgo}}
                                         </small>
                                         <strong class="pull-right primary-font">{{chatMessage.username}}</strong>
                                     </div>
-                                    <p [ngClass]="{'pull-right': chatMessage.username === username}">
+                                    <p [ngClass]="{'pull-right': chatMessage.username.toUpperCase() === username.toUpperCase()}">
                                         {{chatMessage.message}}
                                     </p>
                                 </div>

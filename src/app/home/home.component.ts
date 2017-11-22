@@ -7,6 +7,7 @@ import { overlayConfigFactory } from 'ngx-modialog';
 import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
 import { FuckAdBlock } from 'fuckadblock';
+import {Md5} from 'ts-md5/dist/md5';
 
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
@@ -19,6 +20,7 @@ import {SlotConfirmationModalComponent} from './slot-confirmation.modal.componen
 import { RafflePickerModalComponent } from './raffle-picker.modal.component';
 import { TermsOfServiceModalComponent } from './terms-of-service.modal.component';
 import {LogglyService} from 'ngx-loggly-logger';
+import {NotificationService} from '../notification/services/notification.service';
 
 @Component({
     selector: 'app-home',
@@ -73,6 +75,7 @@ export class HomeComponent implements OnInit {
     private paypalPmRecipients = [];
     private showAdBlockerMessage = true;
     private hasSeenTermsOfService = false;
+    private modToolsId = '';
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -82,7 +85,8 @@ export class HomeComponent implements OnInit {
                     };
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
-                private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService, private logglyService: LogglyService) {
+                private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService,
+                private logglyService: LogglyService, private notificationService: NotificationService) {
     }
 
     ngOnInit() {
@@ -316,10 +320,12 @@ export class HomeComponent implements OnInit {
         const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
         let txt: any;
         txt = document.createElement('textareatmp');
-
-        txt.innerHTML = he.decode(raffle.selftext_html);
-        const postText = txt.innerText;
-        const matches = postText.match(re);
+        let matches: any;
+        if (raffle.selftext_html) {
+            txt.innerHTML = he.decode(raffle.selftext_html);
+            const postText = txt.innerText;
+            matches = postText.match(re);
+        }
         if (matches) {
             this.raffleParticipants = [];
             const slotList = matches[0];
@@ -969,7 +975,7 @@ export class HomeComponent implements OnInit {
 
                                         this.loadRaffleStorage(submission.name, this.userId);
 
-                                        this.setModToolsId();
+                                        this.createModTools();
 
                                         if (this.hasNewFeature) {
                                             this.showNewFeatureMessage();
@@ -1172,19 +1178,35 @@ export class HomeComponent implements OnInit {
 
     }
 
-    private guid() {
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
+    private createModTools() {
+        this.modToolsId = Md5.hashStr(this.userId + this.currentRaffle.name) + '_' + this.currentRaffle.id;
+
+        this.databaseService.getModTools(this.modToolsId).subscribe( modTools => {
+            if (!modTools || !modTools.created) {
+                this.databaseService.createModTools(this.modToolsId).subscribe( createModToolsResponse => {
+                    if (createModToolsResponse.created) {
+                        this.sendModToolsUri(this.currentRaffle.subreddit, this.modToolsId);
+                    }
+                });
+            }
+        });
     }
 
-    private setModToolsId() {
-        //this.databaseService.get
-        console.log(this.guid());
+    private sendModToolsUri(subreddit: string) {
+        if (environment.production) {
+            const modToolsUri = environment.baseUri + '/mod-tools?modToolsId=' + this.modToolsId;
+            let notification = 'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
+            switch (subreddit) {
+                case 'edc_raffle':
+                case 'testingground4bots':
+                case 'raffleTest':
+                    this.notificationService.sendEdcRaffleNotification(notification, 'Raffle Tool').subscribe(res => {});
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
 }

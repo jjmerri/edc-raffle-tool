@@ -10,6 +10,7 @@ import {Observable} from 'rxjs/Observable';
 export class ModChatComponent implements OnInit, AfterViewChecked {
     @ViewChild('chatScroll') private myScrollContainer: ElementRef;
 
+    @Input() modToolsId = '';
     @Input() username = '';
     @Input() userRole = 'MOD';
 
@@ -17,12 +18,12 @@ export class ModChatComponent implements OnInit, AfterViewChecked {
     chatMessages: Observable<any[]>;
     msgVal = '';
 
-    constructor(public afdb: AngularFireDatabase) {
-        this.chatMessagesRef = afdb.list('/messages');
-        this.chatMessages = this.chatMessagesRef.valueChanges();
+    constructor(private afdb: AngularFireDatabase) {
     }
 
     ngOnInit() {
+        this.chatMessagesRef = this.afdb.list('/mod_tools/' + this.modToolsId + '/messages');
+        this.chatMessages = this.chatMessagesRef.valueChanges();
     }
 
     ngAfterViewChecked() {
