@@ -18,6 +18,7 @@ import {HomeModule} from './home/home.module';
 import {ModToolsModule} from './mod-tools/mod-tools.module';
 
 import { AppComponent } from './app.component';
+import {LogglyService} from 'ngx-loggly-logger';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,7 @@ import { AppComponent } from './app.component';
       ModalModule.forRoot(),
       BootstrapModalModule
   ],
-  providers: [OauthService, RedditService, DatabaseService],
+  providers: [OauthService, RedditService, DatabaseService, LogglyService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

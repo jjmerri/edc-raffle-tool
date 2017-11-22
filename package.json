@@ -33,7 +33,7 @@
     "he": "^1.1.1",
     "jquery": "^3.2.1",
     "ng2-pop-over": "^0.9.37",
-    "ngx-loggly-logger": "^4.0.6",
+    "ngx-loggly-logger": "^5.0.0",
     "ngx-modialog": "^3.0.3",
     "rxjs": "^5.5.2",
     "sweetalert2": "^6.6.8",
