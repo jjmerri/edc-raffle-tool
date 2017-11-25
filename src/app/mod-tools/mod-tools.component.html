@@ -40,7 +40,11 @@
         </div>
     </div>
 
-    <div *ngIf="modToolsId" class="col-md-12 -align-center well" style="background: rgb(252, 252, 252);">
-        <app-mod-chat [modToolsId]="modToolsId" userRole="MOD"></app-mod-chat>
+    <div class="container" *ngIf="modToolsId">
+        <div class="col-md-12 -align-center well" style="background: rgb(252, 252, 252);">
+            <div class="col-md-5">
+                <app-mod-chat [modToolsId]="modToolsId" userRole="MOD"></app-mod-chat>
+            </div>
+        </div>
     </div>
 </div>

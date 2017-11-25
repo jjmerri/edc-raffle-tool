@@ -1,3 +1,11 @@
+
+<div class="container" [hidden] = "!chatMessages || !chatMessages.length">
+    <div class="col-md-5 navbar-fixed-top">
+      <app-mod-chat *ngIf="userName && modToolsId" (messageEventEmitter)="messageUpdate($event)" [modToolsId]="modToolsId" [username]="userName" userRole="RFLR"></app-mod-chat>
+    </div>
+</div>
+
+
 <div class="container">
   <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -71,8 +79,6 @@
   </div>
 
 
-
-
   <pop-over
           #paidPopOver [my]="'top left'" [at]="'bottom right'"
           [anchor-to]="true" [x-offset]="5" [y-offset]="5">
@@ -80,8 +86,6 @@
       <div><strong>{{paidPopoverProperties.numAffected}} slot(s)</strong> set to {{paidPopoverProperties.paid ? 'paid' : 'unpaid'}}</div>
     </div>
   </pop-over>
-
-  <app-mod-chat *ngIf="userName && modToolsId" [modToolsId]="modToolsId" [username]="userName" userRole="RFLR"></app-mod-chat>
 
   <div *ngIf="currentRaffle" class="col-xs-6">
     <div class="well-sm">

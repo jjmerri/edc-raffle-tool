@@ -8,6 +8,7 @@ import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
 import { FuckAdBlock } from 'fuckadblock';
 import {Md5} from 'ts-md5/dist/md5';
+import {AngularFireDatabase, AngularFireList} from 'angularfire2/database';
 
 import 'rxjs/Rx';
 import swal from 'sweetalert2';
@@ -76,6 +77,7 @@ export class HomeComponent implements OnInit {
     private showAdBlockerMessage = true;
     private hasSeenTermsOfService = false;
     private modToolsId = '';
+    private chatMessages: any[];
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -1185,18 +1187,18 @@ export class HomeComponent implements OnInit {
             if (!modTools || !modTools.created) {
                 this.databaseService.createModTools(this.modToolsId).subscribe( createModToolsResponse => {
                     if (createModToolsResponse.created) {
-                        this.sendModToolsUri(this.currentRaffle.subreddit, this.modToolsId);
+                        this.sendModToolsUri();
                     }
                 });
             }
         });
     }
 
-    private sendModToolsUri(subreddit: string) {
+    private sendModToolsUri() {
         if (environment.production) {
             const modToolsUri = environment.baseUri + '/mod-tools?modToolsId=' + this.modToolsId;
             let notification = 'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
-            switch (subreddit) {
+            switch (this.currentRaffle.subreddit) {
                 case 'edc_raffle':
                 case 'testingground4bots':
                 case 'raffleTest':
@@ -1206,6 +1208,12 @@ export class HomeComponent implements OnInit {
                 default:
                     break;
             }
+        }
+    }
+
+    private messageUpdate(messages: any[]) {
+        if (messages) {
+            this.chatMessages = messages;
         }
     }
 

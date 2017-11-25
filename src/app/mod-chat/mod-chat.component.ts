@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {AfterViewChecked, Component, ElementRef, EventEmitter, Input, Output, OnInit, ViewChild} from '@angular/core';
 import {AngularFireDatabase, AngularFireList} from 'angularfire2/database';
 import {Observable} from 'rxjs/Observable';
 
@@ -9,6 +9,8 @@ import {Observable} from 'rxjs/Observable';
 })
 export class ModChatComponent implements OnInit, AfterViewChecked {
     @ViewChild('chatScroll') private myScrollContainer: ElementRef;
+
+    @Output() messageEventEmitter = new EventEmitter();
 
     @Input() modToolsId = '';
     @Input() username = '';
@@ -24,6 +26,9 @@ export class ModChatComponent implements OnInit, AfterViewChecked {
     ngOnInit() {
         this.chatMessagesRef = this.afdb.list('/mod_tools/' + this.modToolsId + '/messages');
         this.chatMessages = this.chatMessagesRef.valueChanges();
+        this.chatMessages.subscribe(updatedMessages => {
+            this.messageEventEmitter.emit(updatedMessages);
+        });
     }
 
     ngAfterViewChecked() {
