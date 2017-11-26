@@ -1,8 +1,6 @@
 
-<div class="container" [hidden] = "!chatMessages || !chatMessages.length">
-    <div class="col-md-5 navbar-fixed-top">
-      <app-mod-chat *ngIf="userName && modToolsId" (messageEventEmitter)="messageUpdate($event)" [modToolsId]="modToolsId" [username]="userName" userRole="RFLR"></app-mod-chat>
-    </div>
+<div class="mod-chat" [hidden] = "!chatMessages || !chatMessages.length">
+  <app-mod-chat *ngIf="userName && modToolsId" (messageEventEmitter)="messageUpdate($event)" [modToolsId]="modToolsId" [username]="userName" userRole="RFLR"></app-mod-chat>
 </div>
 
 

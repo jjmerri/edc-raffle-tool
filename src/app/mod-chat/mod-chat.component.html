@@ -1,9 +1,9 @@
 <div class="panel panel-primary">
     <div class="panel-heading" id="accordion">
-        <span class="glyphicon glyphicon-comment"></span> Mod Chat
+        <span class="glyphicon glyphicon-comment"></span> Mod Chat <span *ngIf="showNewMessageText" id="newMessageText" class="blink_me" style="color: orange; font-weight: bold"> New Message!</span>
         <div class="btn-group pull-right">
             <a id="collapseButton" type="button" class="btn btn-default btn-xs" data-toggle="collapse" data-parent="#accordion"
-               href="#collapseOne">
+               href="#collapseOne" (click)="collapse()">
                 <span class="glyphicon glyphicon-chevron-down"></span>
             </a>
         </div>

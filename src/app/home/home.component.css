@@ -16,3 +16,11 @@ body {
   border: 0;
   box-shadow: none; /* You may want to include this as bootstrap applies these styles too */
 }
+
+.mod-chat {
+  position: fixed;
+  z-index: 1050;
+  bottom: -17px;
+  right: 20px;
+  width: 400px;
+}

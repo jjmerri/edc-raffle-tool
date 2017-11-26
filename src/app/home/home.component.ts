@@ -78,6 +78,9 @@ export class HomeComponent implements OnInit {
     private hasSeenTermsOfService = false;
     private modToolsId = '';
     private chatMessages: any[];
+    private isSlotAssignmentHelperRunning = false
+    private interuptSlotAssignmentHelper = false
+    private haveShownModChatMessage = false
 
 
     private mods = {  edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
@@ -620,45 +623,66 @@ export class HomeComponent implements OnInit {
             if (nextCommentIndex >= 0) {
                 this.showSlotAssignmentModal(comments, nextCommentIndex);
             } else {
-                swal('',
-                    'No more slot requests at this time. Check back later.',
-                    'info'
-                ).then(() => {
-                }, (dismiss) => {
-                });
+                if (this.interuptSlotAssignmentHelper) {
+                    this.showModChatMessage();
+                } else {
+                    swal('',
+                        'No more slot requests at this time. Check back later.',
+                        'info'
+                    ).then(() => {
+                    }, (dismiss) => {
+                    });
+                }
+
+                this.isSlotAssignmentHelperRunning = false;
+                this.interuptSlotAssignmentHelper = false;
             }
         });
     }
 
     private showSlotAssignmentModal(comments: any, commentIndex: number) {
-        this.modal.open(SlotConfirmationModalComponent,
-            overlayConfigFactory({
-                            isBlocking: false,
-                            comment: comments[commentIndex],
-                            callingComponent: this,
-                            numOpenSlots: this.numOpenSlots,
-                            inOrderMode: this.inOrderMode
-                        },
-                        BSModalContext))
-            .then( dialogRef => {
-                dialogRef.result.then( result => {
-                    if (result && result.slotAssignments && result.slotAssignments.length > 0) {
-                        this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name);
-                    }
+        this.isSlotAssignmentHelperRunning = true;
+        if (this.interuptSlotAssignmentHelper) {
+            this.interuptSlotAssignmentHelper = false;
 
-                    if (result) {
-                        this.confirmedComments.push(comments[commentIndex].data.name);
-
-                        this.databaseService.storeProcessedComments(this.userId, this.currentRaffle.name, this.confirmedComments).subscribe(res=>{});
-                        if (commentIndex < comments.length - 1) {
-                            this.showSlotAssignmentModal(comments, commentIndex + 1);
-                        } else {
-                            //check if more comments since start of wizard
-                            this.slotAssignmentWizard();
+            this.showModChatMessage();
+        } else {
+            this.modal.open(SlotConfirmationModalComponent,
+                overlayConfigFactory({
+                        isBlocking: false,
+                        comment: comments[commentIndex],
+                        callingComponent: this,
+                        numOpenSlots: this.numOpenSlots,
+                        inOrderMode: this.inOrderMode
+                    },
+                    BSModalContext))
+                .then(dialogRef => {
+                    dialogRef.result.then(result => {
+                        if (result && result.slotAssignments && result.slotAssignments.length > 0) {
+                            this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name);
                         }
-                    }
-                }).catch(error => {});
-        });
+
+                        if (result) {
+                            this.confirmedComments.push(comments[commentIndex].data.name);
+
+                            this.databaseService.storeProcessedComments(this.userId, this.currentRaffle.name, this.confirmedComments).subscribe(res => {
+                            });
+                            if (commentIndex < comments.length - 1) {
+                                this.showSlotAssignmentModal(comments, commentIndex + 1);
+                            } else {
+                                //check if more comments since start of wizard
+                                this.slotAssignmentWizard();
+                            }
+                        } else {
+                            this.isSlotAssignmentHelperRunning = false;
+                            this.interuptSlotAssignmentHelper = false;
+                        }
+                    }).catch(error => {
+                        this.isSlotAssignmentHelperRunning = false;
+                        this.interuptSlotAssignmentHelper = false;
+                    });
+                });
+        }
     }
 
     private assignSlots(slotAssignments: any): any {
@@ -1212,9 +1236,32 @@ export class HomeComponent implements OnInit {
     }
 
     private messageUpdate(messages: any[]) {
-        if (messages) {
+        if (messages && messages.length) {
             this.chatMessages = messages;
+
+            if (this.isSlotAssignmentHelperRunning) {
+                this.interuptSlotAssignmentHelper = true;
+            }
+
+            if (!this.haveShownModChatMessage) {
+                this.showModChatMessage();
+            }
         }
+    }
+
+    private showModChatMessage() {
+        this.haveShownModChatMessage = true;
+
+        swal({
+                title: 'You Have A New Mod Chat Message!',
+                text: 'Please read the new message in the Mod Chat in the bottom right of the tool before continuing with your raffle. It could be time sensitive.',
+                type: 'info',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            }
+        ).then(() => {
+        }, (dismiss) => {
+        });
     }
 
 }
