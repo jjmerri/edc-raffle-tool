@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit {
     //raffleTest values
     //private collectingPaymentsFlairId = '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6';
     //private customRainbowFlairId = '93c6af96-c4f7-11e7-90e7-0eaf69165a10';
-    private collectingPaymentsFlairId = '72f30c18-3016-11e7-9e15-0ea5c241c190';
+    private collectingPaymentsFlairId = '72f30c 18-3016-11e7-9e15-0ea5c241c190';
     private customRainbowFlairId = '92632382-59c7-11e7-9ee8-0edabaac5850';
     private canEditFlair = false;
     private botCalled = false;
@@ -765,6 +765,10 @@ export class HomeComponent implements OnInit {
                 this.updateCommentText();
             }
             this.sendPayPalPm(username);
+
+            if (username !== requester) {
+                this.sendPayPalPm(requester);
+            }
         }
     }
 
@@ -1060,17 +1064,16 @@ export class HomeComponent implements OnInit {
     }
 
     private modifyPayPalMe() {
-        if (this.payPalInfo) {
-            const ppRegEx = new RegExp('(paypal\.me)', 'i');
-            const httpsRegEx = new RegExp('(https://|www\.)paypal\.me', 'i');
+        const ppRegEx = new RegExp('(paypal\.me)', 'i');
+        const httpsRegEx = new RegExp('(https://|www\.)paypal\.me', 'i');
 
-            if (ppRegEx.test(this.payPalInfo)) {
-                if (!httpsRegEx.test(this.payPalInfo)) {
-                    this.payPalInfo = this.payPalInfo.replace(ppRegEx, 'https://www.$1');
-                }
+        if (ppRegEx.test(this.payPalInfo)) {
+            if (!httpsRegEx.test(this.payPalInfo)) {
+                this.payPalInfo = this.payPalInfo.replace(ppRegEx, 'https://www.$1');
             }
-            localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
         }
+        localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
+
     }
 
     private shuffleSlots() {

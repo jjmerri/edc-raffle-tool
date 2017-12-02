@@ -61,7 +61,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
 
             this.slotAssignments[0] = {};
             this.slotAssignments[0].username = this.context.comment.data.author;
-            this.slotAssignments[0].rquester = this.context.comment.data.author;
+            this.slotAssignments[0].requester = this.context.comment.data.author;
             this.slotAssignments[0].randomSlots = 0;
             this.slotAssignments[0].inOrderSlots = 0;
             this.slotAssignments[0].swappedSlots = 0;

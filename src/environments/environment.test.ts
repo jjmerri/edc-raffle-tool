@@ -6,9 +6,9 @@ export const environment = {
     baseUri: 'https://test-edc-raffle-tool.firebaseapp.com',
     databaseUri: 'https://test-edc-raffle-tool.firebaseio.com',
 
-    firebaseApiKey: '',
-    firebaseAuthDomain: '',
-    firebaseDatabaseUrl: '',
-    firebaseStorageBucket: '',
-    firebaseSenderId: ''
+    firebaseApiKey: 'AIzaSyDKUorV2ohiL5BwSKzZ38OGv-QKtxHVwZY',
+    firebaseAuthDomain: 'test-edc-raffle-tool.firebaseapp.com',
+    firebaseDatabaseUrl: 'https://test-edc-raffle-tool.firebaseio.com',
+    firebaseStorageBucket: 'test-edc-raffle-tool.appspot.com',
+    firebaseSenderId: '706389352579'
 };
