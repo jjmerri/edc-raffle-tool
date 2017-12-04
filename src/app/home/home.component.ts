@@ -77,6 +77,7 @@ export class HomeComponent implements OnInit {
     //private customRainbowFlairId = '93c6af96-c4f7-11e7-90e7-0eaf69165a10';
     private collectingPaymentsFlairId = '72f30c 18-3016-11e7-9e15-0ea5c241c190';
     private customRainbowFlairId = '92632382-59c7-11e7-9ee8-0edabaac5850';
+    private completeFlairId = '03384ebe-3017-11e7-8b56-0e1946add8dc';
     private canEditFlair = false;
     private botCalled = false;
     private paypalPmRecipients = [];
@@ -313,6 +314,8 @@ export class HomeComponent implements OnInit {
                         userName: this.userName
                     });
 
+                    this.databaseService.storeRaffleParticipants(this.userId, this.currentRaffle.name, this.raffleParticipants).subscribe();
+
 
                 },
                 err => {
@@ -362,7 +365,7 @@ export class HomeComponent implements OnInit {
 
                         this.raffleParticipants.push({name: slotParts[1].substr(3), paid: paidString === 'PAID'});
                     } else {
-                        this.raffleParticipants.push({});
+                        this.raffleParticipants.push({paid: false});
                     }
                 }
             }
@@ -383,6 +386,8 @@ export class HomeComponent implements OnInit {
                 this.updateRaffleSlots(numSlots);
                 this.raffleImported = true;
             }
+
+            this.setRequesters();
         }
 
 
@@ -1144,7 +1149,7 @@ export class HomeComponent implements OnInit {
             ).then(() => {
                 this.redditService.postComment(this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
                 });
-                this.updateFlair(this.customRainbowFlairId, 'RNGesus Summoned!');
+                this.updateFlair(this.completeFlairId, 'Complete');
                 this.botCalled = true;
             }, (dismiss) => {
             });
@@ -1283,6 +1288,18 @@ export class HomeComponent implements OnInit {
             }
         ).then(() => {
         }, (dismiss) => {
+        });
+    }
+
+    private setRequesters() {
+        this.databaseService.getRaffleParticipants(this.userId, this.currentRaffle.name).subscribe( savedRaffleParticipants => {
+            if (savedRaffleParticipants && savedRaffleParticipants.length === this.raffleParticipants.length) {
+                for (let i = 0; i < savedRaffleParticipants.length; i++) {
+                    if (savedRaffleParticipants[i].name && savedRaffleParticipants[i].name === this.raffleParticipants[i].name) {
+                        this.raffleParticipants[i].requester = savedRaffleParticipants[i].requester;
+                    }
+                }
+            }
         });
     }
 

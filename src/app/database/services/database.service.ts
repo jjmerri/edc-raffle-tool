@@ -12,6 +12,7 @@ export class DatabaseService {
     private processedCommentsUrl = this.databaseUri + '/processed_comments';
     private paypalPmRecipientsUrl = this.databaseUri + '/paypal_pm_recipients';
     private modToolsUrl = this.databaseUri + '/mod_tools';
+    private raffleParticipantsUrl = this.databaseUri + '/raffle_participants';
 
     constructor(private http: HttpClient) {
     }
@@ -42,6 +43,22 @@ export class DatabaseService {
 
     public getPaypalPmRecipients(userId: string, submissionName: string): Observable<any> {
         let fullUri = this.paypalPmRecipientsUrl + '/' + userId + '/' + submissionName + '.json';
+        let headers = new HttpHeaders({});
+        headers.append('Accept', 'application/json');
+        return this.http.get(fullUri, {headers: headers})
+            .catch(this.handleErrorObservable);
+    }
+
+    public storeRaffleParticipants(userId: string, submissionName: string, raffleParticipants: string[]): Observable<any> {
+        let fullUri = this.raffleParticipantsUrl + '/' + userId + '/' + submissionName + '.json';
+        let headers = new HttpHeaders({});
+        headers.append('Accept', 'application/json');
+        return this.http.put(fullUri, raffleParticipants, {headers: headers})
+            .catch(this.handleErrorObservable);
+    }
+
+    public getRaffleParticipants(userId: string, submissionName: string): Observable<any> {
+        let fullUri = this.raffleParticipantsUrl + '/' + userId + '/' + submissionName + '.json';
         let headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})
