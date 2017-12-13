@@ -75,7 +75,7 @@ export class HomeComponent implements OnInit {
     //raffleTest values
     //private collectingPaymentsFlairId = '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6';
     //private customRainbowFlairId = '93c6af96-c4f7-11e7-90e7-0eaf69165a10';
-    private collectingPaymentsFlairId = '72f30c 18-3016-11e7-9e15-0ea5c241c190';
+    private collectingPaymentsFlairId = '72f30c18-3016-11e7-9e15-0ea5c241c190';
     private customRainbowFlairId = '92632382-59c7-11e7-9ee8-0edabaac5850';
     private completeFlairId = '03384ebe-3017-11e7-8b56-0e1946add8dc';
     private canEditFlair = false;
