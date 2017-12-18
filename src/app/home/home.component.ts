@@ -516,18 +516,29 @@ export class HomeComponent implements OnInit {
         }
 
         const message = messages[messageIndex];
-        const authorSlotCount = this.getNumberSlots(message.data.author);
+        const slotNumberMap = this.getSlotNumberMap(message.data.author);
         const authorPaid = this.isUserPaid(message.data.author);
 
         let txt: any;
         txt = document.createElement('temptxt');
         txt.innerHTML = message.data.body_html;
 
-        if (authorSlotCount && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
+        let dialogText = '';
+        let numTotalSlotsRequested = 0;
+
+        for (const slotOwner of Array.from( slotNumberMap.keys()) ) {
+            const numSlotsForOwner = slotNumberMap.get(slotOwner);
+            dialogText += '<br />Requested ' + numSlotsForOwner + ' slots for ' + slotOwner;
+
+            numTotalSlotsRequested += numSlotsForOwner;
+        }
+
+        if (slotNumberMap.size && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
             this.numPayPmsProcessed++;
             swal({
                 title: 'Unpaid Raffle Participant PMs',
-                html: '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + authorSlotCount + ' total slots)' +
+                html: '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + numTotalSlotsRequested + ' total requested slots)' +
+                dialogText +
                 '<br />Subject: ' + message.data.subject + ' </b>' +
                 '</h3> <div class="well text-left">' + txt.innerText + '</div>',
                 showCloseButton: true,
@@ -565,10 +576,33 @@ export class HomeComponent implements OnInit {
         }
     }
 
+    private getSlotNumberMap(userName: string): Map<string, number> {
+        let slotNumberMap = new Map();
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if ((raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
+                    (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
+                )  {
+                if (slotNumberMap.has(raffler.name)) {
+                    slotNumberMap.set(raffler.name, slotNumberMap.get(raffler.name) + 1);
+                } else {
+                    slotNumberMap.set(raffler.name, 1);
+                }
+            }
+
+            if (x + 1 === this.raffleParticipants.length) {
+                return slotNumberMap;
+            }
+        }
+    }
+
     private isUserPaid(userName: string): boolean {
         for (let x = 0; x < this.raffleParticipants.length; x++) {
             const raffler = this.raffleParticipants[x];
-            if (raffler.name && !raffler.paid && (raffler.name.toUpperCase() === userName.toUpperCase())) {
+            if (raffler.name && !raffler.paid &&
+                (raffler.name.toUpperCase() === userName.toUpperCase() ||
+                    (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
+                )) {
                 return false;
             }
 
