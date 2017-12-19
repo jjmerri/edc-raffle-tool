@@ -315,7 +315,10 @@ export class HomeComponent implements OnInit {
                         userName: this.userName
                     });
 
-                    this.databaseService.storeRaffleParticipants(this.userId, this.currentRaffle.name, this.raffleParticipants).subscribe();
+                    //prevents overwriting the saved participant list when it hasn't been fully loaded from an import yet
+                    if (hasRequesters(this.raffleParticipants)) {
+                        this.databaseService.storeRaffleParticipants(this.userId, this.currentRaffle.name, this.raffleParticipants).subscribe();
+                    }
 
 
                 },
@@ -520,6 +523,9 @@ export class HomeComponent implements OnInit {
         const slotNumberMap = this.getSlotNumberMap(message.data.author);
         const authorPaid = this.isUserPaid(message.data.author);
 
+        let authorHasSlots = false;
+        let authorRequestedForAnother = false;
+
         let txt: any;
         txt = document.createElement('temptxt');
         txt.innerHTML = message.data.body_html;
@@ -529,31 +535,79 @@ export class HomeComponent implements OnInit {
 
         for (const slotOwner of Array.from( slotNumberMap.keys()) ) {
             const numSlotsForOwner = slotNumberMap.get(slotOwner);
-            dialogText += '<br />Requested ' + numSlotsForOwner + ' slots for ' + slotOwner;
+
+            if (slotOwner.toUpperCase() === message.data.author.toUpperCase()) {
+                authorHasSlots = true;
+            } else {
+                authorRequestedForAnother = true;
+            }
+
+            dialogText += '<li class="list-group-item text-left">' + slotOwner +
+                '<span class="badge badge-default badge-pill">' + numSlotsForOwner + '</span>' +
+                '</li>';
 
             numTotalSlotsRequested += numSlotsForOwner;
         }
 
-        let contentDiv = document.createElement('div');
-        contentDiv.innerHTML = '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + numTotalSlotsRequested + ' total requested slots)' +
-            dialogText +
-            '<br />Subject: ' + message.data.subject + ' </b>' +
-            '</h3> <div class="well text-left">' + txt.innerText + '</div>';
+        let requestedSlotHtml = '<h3 class="text-left">From: ' + message.data.author + ' (' + numTotalSlotsRequested + ' total requested slots)</h3>' +
+        '<h3 class="text-left">Subject: ' + message.data.subject + '</h3>';
+
+        if (authorRequestedForAnother) {
+            requestedSlotHtml +=  '<h4 class="text-left"> Requested Slots:</h4>' +
+            '<ul class="list-group col-xs-9">' + dialogText + '</ul>';
+        }
+
+        requestedSlotHtml += ' <div class="well text-left col-xs-12">' + txt.innerText + '</div>';
+
+        const contentDiv: any = document.createElement('div');
+        contentDiv.innerHTML = requestedSlotHtml;
 
         if (slotNumberMap.size && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
             this.numPayPmsProcessed++;
             swal({
                 title: 'Unpaid Raffle Participant PMs',
-                content: contentDiv
-            }).then(() => {
-                this.markAsPaid(message.data.author);
-                this.showPm(messages, messageIndex - 1);
-            }, (dismiss) => {
-                if (dismiss === 'cancel') {
-                    this.skippedPms.push(message.data.name);
-                    localStorage.setItem(this.currentRaffle.name + '_skippedPms', JSON.stringify(this.skippedPms));
-                    this.showPm(messages, messageIndex - 1);
+                content: contentDiv,
+                className: 'payment-confirmation-modal',
+                buttons: {
+                    markAll: {
+                        text: 'Mark All ' + numTotalSlotsRequested + ' Requested Slots Paid',
+                        value: 'markAll',
+                        visible: authorRequestedForAnother,
+                        className: 'btn-primary',
+                        closeModal: true,
+                    },
+                    markUser: {
+                        text: 'Mark User Paid',
+                        value: 'markUser',
+                        visible: authorHasSlots,
+                        className: 'btn-primary',
+                        closeModal: true,
+                    },
+                    skip: {
+                        text: 'Skip PM',
+                        value: 'skip',
+                        visible: true,
+                        className: 'swal-button--cancel btn-secondary',
+                        closeModal: true
+                    }
                 }
+            }).then((value) => {
+                switch (value) {
+                    case 'markAll':
+                        //this.markAllRequestedAsPaid(message.data.author);
+                        break;
+                    case 'markUser':
+                        this.markAsPaid(message.data.author);
+                        break;
+                    case 'skip':
+                        this.skippedPms.push(message.data.name);
+                        localStorage.setItem(this.currentRaffle.name + '_skippedPms', JSON.stringify(this.skippedPms));
+                        break;
+                    default: // dont show any more PMs
+                        return;
+                }
+
+                this.showPm(messages, messageIndex - 1);
             });
         } else {
             this.showPm(messages, messageIndex - 1);
@@ -1334,6 +1388,17 @@ export class HomeComponent implements OnInit {
                 }
             }
         });
+    }
+
+    private hasRequesters(participantList: any[]): boolean {
+
+        for (let i = 0; i < this.raffleParticipants.length; i++) {
+            if (this.raffleParticipants[i].requester) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
