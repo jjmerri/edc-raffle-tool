@@ -11,7 +11,8 @@ import {Md5} from 'ts-md5/dist/md5';
 import {AngularFireDatabase, AngularFireList} from 'angularfire2/database';
 
 import 'rxjs/Rx';
-import swal from 'sweetalert2';
+import swal2 from 'sweetalert2';
+import swal from 'sweetalert';
 import he from 'he';
 
 import {OauthService} from '../oauth/services/oauth.service';
@@ -141,7 +142,7 @@ export class HomeComponent implements OnInit {
         }
 
         if (lossOfData && updatedNumSlots < prevSpots) {
-            swal({
+            swal2({
                 title: 'Are You Sure You Want To Reduce The Number Of Slots?',
                 text: 'Reducing the number of slots right now will cause you to lose slots that have already been assigned. ' +
                 'To continue click "Reduce Slots" below, otherwise click "Cancel".',
@@ -371,7 +372,7 @@ export class HomeComponent implements OnInit {
             }
 
             if (numSlots <= 1) {
-                swal('Raffle failed to import!',
+                swal2('Raffle failed to import!',
                     'The raffle importer detected < 2 slots which is not a valid raffle! ' +
                     'This could be due to browser compatibility issues. ' +
                     'Please try to link again and if you get the same error try a different browser. ' +
@@ -398,7 +399,7 @@ export class HomeComponent implements OnInit {
             event.target.value === '' && (!this.randomSlot ||
                 (event.target.id !== 'raffleParticipant' + (this.randomSlot - 1)))) {
 
-            swal('Are Called Slots Allowed?',
+            swal2('Are Called Slots Allowed?',
                 'It looks like you are trying to fill a slot that isnt random. ' +
                 'Please double check that your raffle allows called slots. You wont get this message again.',
                 'question'
@@ -440,7 +441,7 @@ export class HomeComponent implements OnInit {
 
     private showPayPalWarning(event: any) {
         if (!this.payPalMessageShown) {
-            swal('',
+            swal2('',
                 'Entering your PayPal info will cause <strong>PMs to be sent</strong> to participants as you add them to the slot list. ' +
                 'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
                 '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>https://www.paypal.me/yourname',
@@ -471,7 +472,7 @@ export class HomeComponent implements OnInit {
             '\n\nThis slot request will be processed in the order it was received in the queue.';
 
         if (this.currentRaffle) {
-            swal({
+            swal2({
                 title: 'Donate Slot?',
                 html: 'This will post the below comment to your raffle. Thank you for donating!<br /><br />' + '<i>' + commentText + '</i>',
                 type: 'info',
@@ -481,7 +482,7 @@ export class HomeComponent implements OnInit {
             }).then(() => {
                 this.redditService.postComment(commentText, this.currentRaffle.name).subscribe();
 
-                swal(
+                swal2(
                     'Donation Comment Posted!',
                     'Please process the slot request in the order it was recieved in the queue and thank you again for your generosity!',
                     'success'
@@ -533,19 +534,17 @@ export class HomeComponent implements OnInit {
             numTotalSlotsRequested += numSlotsForOwner;
         }
 
+        let contentDiv = document.createElement('div');
+        contentDiv.innerHTML = '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + numTotalSlotsRequested + ' total requested slots)' +
+            dialogText +
+            '<br />Subject: ' + message.data.subject + ' </b>' +
+            '</h3> <div class="well text-left">' + txt.innerText + '</div>';
+
         if (slotNumberMap.size && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
             this.numPayPmsProcessed++;
             swal({
                 title: 'Unpaid Raffle Participant PMs',
-                html: '<h3 class="text-left"><b>From: ' + message.data.author + ' (' + numTotalSlotsRequested + ' total requested slots)' +
-                dialogText +
-                '<br />Subject: ' + message.data.subject + ' </b>' +
-                '</h3> <div class="well text-left">' + txt.innerText + '</div>',
-                showCloseButton: true,
-                showCancelButton: true,
-                cancelButtonText: 'No PayPal Info in PM',
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Mark User As Paid'
+                content: contentDiv
             }).then(() => {
                 this.markAsPaid(message.data.author);
                 this.showPm(messages, messageIndex - 1);
@@ -616,14 +615,14 @@ export class HomeComponent implements OnInit {
         const allPaid = this.isAllPaid();
 
         if (allPaid) {
-            swal('All slots are marked paid, congrats on a successful raffle!',
+            swal2('All slots are marked paid, congrats on a successful raffle!',
                 '',
                 'info'
             ).then(() => {
             }, (dismiss) => {
             });
         } else {
-            swal('No more PMs from unpaid raffle participants.',
+            swal2('No more PMs from unpaid raffle participants.',
                 '',
                 'info'
             ).then(() => {
@@ -679,7 +678,7 @@ export class HomeComponent implements OnInit {
                 if (this.interuptSlotAssignmentHelper) {
                     this.showModChatMessage();
                 } else {
-                    swal('',
+                    swal2('',
                         'No more slot requests at this time. Check back later.',
                         'info'
                     ).then(() => {
@@ -911,7 +910,7 @@ export class HomeComponent implements OnInit {
 
     private showNewFeatureMessage() {
         if (!this.shownNewFeatureMessageSlotAssignmentHelper) {
-            swal({
+            swal2({
                     title: 'New Feature Available!',
                     html: '<h3><span style="font-weight: 400;">' +
                     'Slot Assignment Helper' +
@@ -937,7 +936,7 @@ export class HomeComponent implements OnInit {
 
     private showModAppreciationMessage() {
         if (this.isModtober) {
-            swal({
+            swal2({
                     title: 'Modtober is here!',
                     html: '<h3><span style="font-weight: 400;">October is mod appreciation month!</span></h3>\n' +
                     '<p><span style="font-weight: 400;">' +
@@ -1018,7 +1017,7 @@ export class HomeComponent implements OnInit {
             '\n\nThis slot request will be processed in the order it was received in the queue.';
 
         this.redditService.postComment(commentText, this.currentRaffle.name).subscribe(response => {
-            swal(
+            swal2(
                 'Donation Comment Posted!',
                 'Please process the slot request in the order it was recieved in the queue and thank you for your generosity!',
                 'success'
@@ -1086,7 +1085,7 @@ export class HomeComponent implements OnInit {
         const randomModUrl = this.raffleToolUri + '?modtober_subreddit=' + subreddit;
 
         if (randomMod) {
-            swal({
+            swal2({
                     title: 'Modtober is here!',
                     html: '<h3 class="text-left"><span style="font-weight: 400;">' + randomMod + ' is your random mod! ' +
                     'Click the "Copy And Close" button to copy suggested slot donation comment text to your clipboard so you can paste it into a Reddit comment.</span></h3>\n',
@@ -1131,7 +1130,7 @@ export class HomeComponent implements OnInit {
     }
 
     private shuffleSlots() {
-        swal({
+        swal2({
                 title: 'Shuffle All Slots?',
                 text: 'This only ever makes sense in a random only raffle. If you really want to shuffle everyones slot ' +
                 'click the "Shuffle Slots" button below, otherwise click "Cancel"',
@@ -1172,7 +1171,7 @@ export class HomeComponent implements OnInit {
 
     private callTheBot() {
         if (this.numOpenSlots === 0 && !this.unpaidUsers) {
-            swal({
+            swal2({
                     title: 'Call The Bot?',
                     text: 'Click "Call The Bot" to post a comment that will summon the bot to pick a winner.',
                     type: 'question',
@@ -1188,7 +1187,7 @@ export class HomeComponent implements OnInit {
             }, (dismiss) => {
             });
         } else {
-            swal({
+            swal2({
                     title: 'You Cant Call The Bot Yet!',
                     text: 'You can only call the bot when all slots are filled and everyone is paid.',
                     type: 'info',
@@ -1239,7 +1238,7 @@ export class HomeComponent implements OnInit {
     private adBlockDetected() {
         if (this.showAdBlockerMessage) {
             //adblockers prevent Loggly from working so fuck 'em
-            swal('Ad Blockers Prevent Slot List Logging!',
+            swal2('Ad Blockers Prevent Slot List Logging!',
                 'The Raffle Tool uses Loggly to log your slot list every time it updates. Some ad blockers prevent Loggly from working. ' +
                 'It is in your best interest to disable ad blockers on The Raffle Tool so this feature can be used. ' +
                 'This will allow us to recover your raffle\'s slot list history. ' +
@@ -1313,7 +1312,7 @@ export class HomeComponent implements OnInit {
     private showModChatMessage() {
         this.haveShownModChatMessage = true;
 
-        swal({
+        swal2({
                 title: 'You Have A New Mod Chat Message!',
                 text: 'Please read the new message in the Mod Chat in the bottom right of the tool before continuing with your raffle. It could be time sensitive.',
                 type: 'info',
