@@ -30,7 +30,7 @@ import {NotificationService} from '../notification/services/notification.service
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-    private raffleParticipants = [];
+    private raffleParticipants = [{name: '', paid: false, requester: ''}];
     private numSlots = 1;
     private randomSlot: number;
     private commentText: string;
@@ -165,7 +165,7 @@ export class HomeComponent implements OnInit {
 
         if (updatedNumSlots > prevSpots) {
             for (let x = prevSpots; x < updatedNumSlots; x++) {
-                this.raffleParticipants[x] = {};
+                this.raffleParticipants[x] = {name: '', paid: false, requester: ''};
             }
         } else if (updatedNumSlots < prevSpots) {
             this.raffleParticipants.splice(updatedNumSlots, prevSpots - updatedNumSlots);
@@ -316,7 +316,7 @@ export class HomeComponent implements OnInit {
                     });
 
                     //prevents overwriting the saved participant list when it hasn't been fully loaded from an import yet
-                    if (hasRequesters(this.raffleParticipants)) {
+                    if (this.hasRequesters(this.raffleParticipants)) {
                         this.databaseService.storeRaffleParticipants(this.userId, this.currentRaffle.name, this.raffleParticipants).subscribe();
                     }
 
@@ -367,9 +367,9 @@ export class HomeComponent implements OnInit {
                             paidString = (slotParts[2]).substring(0, 4);
                         }
 
-                        this.raffleParticipants.push({name: slotParts[1].substr(3), paid: paidString === 'PAID'});
+                        this.raffleParticipants.push({name: slotParts[1].substr(3), paid: paidString === 'PAID',  requester: ''});
                     } else {
-                        this.raffleParticipants.push({paid: false});
+                        this.raffleParticipants.push({name: '', paid: false, requester: ''});
                     }
                 }
             }
@@ -594,7 +594,7 @@ export class HomeComponent implements OnInit {
             }).then((value) => {
                 switch (value) {
                     case 'markAll':
-                        //this.markAllRequestedAsPaid(message.data.author);
+                        this.markAllRequestedAsPaid(message.data.author);
                         break;
                     case 'markUser':
                         this.markAsPaid(message.data.author);
@@ -1399,6 +1399,17 @@ export class HomeComponent implements OnInit {
         }
 
         return false;
+    }
+
+    private markAllRequestedAsPaid(userName: string) {
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if ((raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
+                (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
+            )  {
+                raffler.paid = true;
+            }
+        }
     }
 
 }

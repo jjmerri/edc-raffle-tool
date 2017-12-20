@@ -49,7 +49,7 @@ export class DatabaseService {
             .catch(this.handleErrorObservable);
     }
 
-    public storeRaffleParticipants(userId: string, submissionName: string, raffleParticipants: string[]): Observable<any> {
+    public storeRaffleParticipants(userId: string, submissionName: string, raffleParticipants: any[]): Observable<any> {
         let fullUri = this.raffleParticipantsUrl + '/' + userId + '/' + submissionName + '.json';
         let headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
