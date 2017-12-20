@@ -557,7 +557,7 @@ export class HomeComponent implements OnInit {
             '<ul class="list-group col-xs-9">' + dialogText + '</ul>';
         }
 
-        requestedSlotHtml += ' <div class="well text-left col-xs-12">' + txt.innerText + '</div>';
+        requestedSlotHtml += ' <h4 class="text-left col-xs-12">Message Body:</h4> <div class="well text-left col-xs-12">' + txt.innerText + '</div>';
 
         const contentDiv: any = document.createElement('div');
         contentDiv.innerHTML = requestedSlotHtml;
@@ -600,12 +600,13 @@ export class HomeComponent implements OnInit {
                         this.markAsPaid(message.data.author);
                         break;
                     case 'skip':
-                        this.skippedPms.push(message.data.name);
-                        localStorage.setItem(this.currentRaffle.name + '_skippedPms', JSON.stringify(this.skippedPms));
                         break;
                     default: // dont show any more PMs
                         return;
                 }
+
+                this.skippedPms.push(message.data.name);
+                localStorage.setItem(this.currentRaffle.name + '_skippedPms', JSON.stringify(this.skippedPms));
 
                 this.showPm(messages, messageIndex - 1);
             });
@@ -1408,6 +1409,10 @@ export class HomeComponent implements OnInit {
                 (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
             )  {
                 raffler.paid = true;
+            }
+
+            if (x + 1 === this.raffleParticipants.length) {
+                this.updateCommentText();
             }
         }
     }
