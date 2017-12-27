@@ -34,6 +34,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
     private hasDuplicateSlots = false;
     private invalidRandom = false;
     private invalidinOrder = false;
+    private slotAssignmentMissingSlots = false;
     private numRequestedSlots = 0;
     private confirmationMessageText = '';
     private formattedMessage = '';
@@ -46,10 +47,13 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
 
     ngOnInit() {
         let txt: any;
+        const userMentionRegex = /\/?u\/([a-zA-Z0-9_\-]{3,20})/gi;
+
         txt = document.createElement('temptxt');
         txt.innerHTML = this.context.comment.data.body_html;
         this.formattedMessage = txt.innerText;
         SlotConfirmationModalComponent.numOpenModals++;
+
         //only allow one open modal at a time
         if (SlotConfirmationModalComponent.numOpenModals === 1) {
             this.isCommentFromBoyAndHisBlob = this.context.comment.data.author === 'BoyAndHisBlob';
@@ -59,12 +63,14 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
                 this.confirmationMessageText = 'Waitlist starts here.';
             }
 
-            this.slotAssignments[0] = {};
-            this.slotAssignments[0].username = this.context.comment.data.author;
-            this.slotAssignments[0].requester = this.context.comment.data.author;
-            this.slotAssignments[0].randomSlots = 0;
-            this.slotAssignments[0].inOrderSlots = 0;
-            this.slotAssignments[0].swappedSlots = 0;
+            this.addSlotAssignment(this.context.comment.data.author);
+
+            let match = userMentionRegex.exec(this.context.comment.data.body);
+            while (match != null) {
+                this.addSlotAssignment(match[1]);
+                match = userMentionRegex.exec(this.context.comment.data.body);
+            }
+
         } else {
             this.closeModal(null);
         }
@@ -114,12 +120,28 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         this.closeModal({slotAssignments: this.slotAssignments, confirmationMessageText: this.confirmationMessageText});
     }
 
-    private addSlotAssignment() {
-        this.slotAssignments.push({randomSlots: 0, inOrderSlots: 0, swappedSlots: 0, requester: this.context.comment.data.author});
+    private addSlotAssignment(username?: string) {
+        if (username && username !== this.context.comment.data.author) {
+            this.confirmationMessageText += '\n\n' + username + ' got {' + username + '_ALL_SLOTS}';
+        }
+
+        this.slotAssignments.push(
+            {   username: username,
+                randomSlots: 0,
+                inOrderSlots: 0,
+                swappedSlots: 0,
+                requester: this.context.comment.data.author
+            });
     }
 
     private removeSlotAssignment(index: number) {
         if (index >= 0 && index < this.slotAssignments.length) {
+            const removedUser = this.slotAssignments[index].username;
+            const isAuthor = removedUser === this.context.comment.data.author;
+            const regexText = (isAuthor ? 'You' : removedUser) + ' got {' + removedUser + '_ALL_SLOTS}';
+            const replyRegex = new RegExp((index === 0 ? regexText + '\n\n' : '\n\n' + regexText), 'i');
+            this.confirmationMessageText = this.confirmationMessageText.replace(replyRegex, '');
+
             this.slotAssignments.splice(index, 1);
         }
 
@@ -133,6 +155,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         this.hasDuplicateSlots = false;
         this.invalidRandom = false;
         this.invalidinOrder = false;
+        this.slotAssignmentMissingSlots = false;
 
         for (let i = 0; i < this.slotAssignments.length; i++) {
             if (this.slotAssignments[i].randomSlots < 0) {
@@ -162,6 +185,11 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
                     }
                 }
             }
+
+            if (!this.slotAssignments[i].calledSlots && !this.slotAssignments[i].randomSlots && !this.slotAssignments[i].inOrderSlots) {
+                this.slotAssignmentMissingSlots = true;
+            }
+
             this.numRequestedSlots += this.slotAssignments[i].randomSlots + this.slotAssignments[i].inOrderSlots;
         }
 
@@ -186,6 +214,8 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
             '{' + updatedName + '_ALL_SLOTS' + '}');
         this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('{' + this.slotAssignments[index].username + '_RANDOM_SLOTS' + '}', 'ig'),
             '{' + updatedName + '_ALL_SLOTS' + '}');
+        this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('^' + this.slotAssignments[index].username + ' got', 'igm'),
+            updatedName + ' got');
         this.slotAssignments[index].username = updatedName;
     }
 
