@@ -458,7 +458,7 @@ export class HomeComponent implements OnInit {
 
     private sendPayPalPm(recipient: string) {
         if (recipient && this.payPalInfo && this.paypalPmRecipients.indexOf(recipient.toUpperCase()) === -1
-            && (this.currentRaffle.subreddit !== 'testingground4bots' || this.userName.toUpperCase() === recipient.toUpperCase())) {
+            && ((this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') || this.userName.toUpperCase() === recipient.toUpperCase())) {
             const subject = 'PayPal Info For: ' + this.currentRaffle.title;
             this.redditService.sendPm(recipient, subject.substr(0, 100),
                 this.payPalPmMessage + this.payPalInfo +
