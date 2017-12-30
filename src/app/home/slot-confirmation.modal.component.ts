@@ -39,6 +39,8 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
     private confirmationMessageText = '';
     private formattedMessage = '';
     private isCommentFromBoyAndHisBlob = false;
+    private isDonationComment = false;
+    private donatedCommentSnippet = 'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool';
 
     constructor(public dialog: DialogRef<SlotConfirmationModalContext>, private redditService: RedditService, private modal: Modal) {
         this.context = dialog.context;
@@ -56,19 +58,28 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
 
         //only allow one open modal at a time
         if (SlotConfirmationModalComponent.numOpenModals === 1) {
+            this.isDonationComment = this.context.comment.data.body.indexOf(this.donatedCommentSnippet) !== -1;
             this.isCommentFromBoyAndHisBlob = this.context.comment.data.author === 'BoyAndHisBlob';
             if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
-                this.confirmationMessageText = 'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
+                if (!this.isDonationComment) {
+                    this.confirmationMessageText = 'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
+                } else {
+                    this.confirmationMessageText = 'BoyAndHisBlob got {BoyAndHisBlob_ALL_SLOTS}';
+                }
             } else {
                 this.confirmationMessageText = 'Waitlist starts here.';
             }
 
-            this.addSlotAssignment(this.context.comment.data.author);
+            if (!this.isDonationComment) {
+                this.addSlotAssignment(this.context.comment.data.author);
 
-            let match = userMentionRegex.exec(this.context.comment.data.body);
-            while (match != null) {
-                this.addSlotAssignment(match[1]);
-                match = userMentionRegex.exec(this.context.comment.data.body);
+                let match = userMentionRegex.exec(this.context.comment.data.body);
+                while (match != null) {
+                    this.addSlotAssignment(match[1]);
+                    match = userMentionRegex.exec(this.context.comment.data.body);
+                }
+            } else {
+                this.addSlotAssignment('BoyAndHisBlob');
             }
 
         } else {
@@ -121,7 +132,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
     }
 
     private addSlotAssignment(username?: string) {
-        if (username && username !== this.context.comment.data.author) {
+        if (username && username !== this.context.comment.data.author && !this.isDonationComment) {
             this.confirmationMessageText += '\n\n' + username + ' got {' + username + '_ALL_SLOTS}';
         }
 
