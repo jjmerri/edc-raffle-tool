@@ -20,9 +20,9 @@ export class RedditService {
     private childrenUrl = this.secureRedditUrl + '/api/morechildren';
     private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
 
-    private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'raffleTest', 'lego_raffles'];
-    private subSubmissionAgeDays = {edc_raffle: 2, testingground4bots: 2, KnifeRaffle: 4, raffleTest: 2, lego_raffles: 2};
-    private maxSubmissionAgeDays = 4;
+    private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'WrestlingRaffle', 'raffleTest', 'lego_raffles'];
+    private subSubmissionAgeDays = {edc_raffle: 7, testingground4bots: 2, WrestlingRaffle: 2, KnifeRaffle: 4, raffleTest: 2, lego_raffles: 2};
+    private maxSubmissionAgeDays = 7;
 
     constructor(private http: HttpClient, private oauthService: OauthService) {
     }

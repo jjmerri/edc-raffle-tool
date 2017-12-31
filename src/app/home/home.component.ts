@@ -67,6 +67,7 @@ export class HomeComponent implements OnInit {
         lego_raffles: '/u/callthebot',
         testingground4bots: '/u/callthebot',
         KnifeRaffle: '/u/callthebot',
+        WrestlingRaffle: '/u/callthebot',
         raffleTest: '/u/raffleTestBot'
     };
     private botUsername = '/u/callthebot';
