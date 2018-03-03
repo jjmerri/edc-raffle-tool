@@ -77,9 +77,9 @@ export class HomeComponent implements OnInit {
     //raffleTest values
     //private collectingPaymentsFlairId = '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6';
     //private customRainbowFlairId = '93c6af96-c4f7-11e7-90e7-0eaf69165a10';
-    private collectingPaymentsFlairId = '72f30c18-3016-11e7-9e15-0ea5c241c190';
-    private customRainbowFlairId = '92632382-59c7-11e7-9ee8-0edabaac5850';
-    private completeFlairId = '03384ebe-3017-11e7-8b56-0e1946add8dc';
+    private collectingPaymentsFlairId = '244259e8-1e68-11e8-87a3-0e345376c318';
+    private customRainbowFlairId = 'f5e546d2-1e67-11e8-a8e1-0ed67a61ed10';
+    private completeFlairId = '29e50c10-1e68-11e8-94ca-0ea1d686d0ec';
     private canEditFlair = false;
     private botCalled = false;
     private paypalPmRecipients = [];
