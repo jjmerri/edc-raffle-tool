@@ -68,6 +68,7 @@ export class HomeComponent implements OnInit {
         testingground4bots: '/u/callthebot',
         KnifeRaffle: '/u/callthebot',
         WrestlingRaffle: '/u/callthebot',
+        ssbm: '/u/callthebot',
         raffleTest: '/u/raffleTestBot'
     };
     private botUsername = '/u/callthebot';
@@ -96,6 +97,7 @@ export class HomeComponent implements OnInit {
         edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
         KnifeRaffle: ['Plazzed', 'accidentlyporn', 'twolfcale', 'theoddjosh', 'Fbolanos', 'cda555', 'Gimli_The_Drunk'],
+        ssbm: ['UNKNOWN'],
         raffleTest: ['BoyAndHisBlob']
     };
 
