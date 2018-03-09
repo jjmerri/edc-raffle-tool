@@ -177,7 +177,9 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
                 this.invalidinOrder = true;
             }
 
-            this.slotAssignments[i].calledSlots = this.slotAssignments[i].calledSlots.replace(/[^0-9,]+/g, '');
+            if (this.slotAssignments[i].calledSlots) {
+                this.slotAssignments[i].calledSlots = this.slotAssignments[i].calledSlots.replace(/[^0-9,]+/g, '');
+            }
             const slotsToCheck = this.slotAssignments[i].calledSlots;
             if (slotsToCheck) {
                 const calledSlots = slotsToCheck.split(',');
