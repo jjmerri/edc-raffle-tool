@@ -450,7 +450,7 @@ export class HomeComponent implements OnInit {
             swal2('',
                 'Entering your PayPal info will cause <strong>PMs to be sent</strong> to participants as you add them to the slot list. ' +
                 'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
-                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>https://www.paypal.me/yourname',
+                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>paypal.me/yourname',
                 'info'
             ).then(() => {
             }, (dismiss) => {
@@ -963,6 +963,7 @@ export class HomeComponent implements OnInit {
         const payPalInfo = JSON.parse(localStorage.getItem('payPalInfo'));
         if (payPalInfo !== null) {
             this.payPalInfo = payPalInfo;
+            this.modifyPayPalMe()
         }
     }
 
@@ -1175,16 +1176,12 @@ export class HomeComponent implements OnInit {
     }
 
     private modifyPayPalMe() {
-        const ppRegEx = new RegExp('(paypal\.me)', 'i');
-        const httpsRegEx = new RegExp('(https://|www\.)paypal\.me', 'i');
+        const ppRegEx = new RegExp('.*(paypal\.me/.+)', 'i');
 
         if (ppRegEx.test(this.payPalInfo)) {
-            if (!httpsRegEx.test(this.payPalInfo)) {
-                this.payPalInfo = this.payPalInfo.replace(ppRegEx, 'https://www.$1');
-            }
+            this.payPalInfo = this.payPalInfo.replace(ppRegEx, '$1');
         }
         localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
-
     }
 
     private shuffleSlots() {
