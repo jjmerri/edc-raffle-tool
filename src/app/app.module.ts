@@ -20,6 +20,7 @@ import {ModToolsModule} from './mod-tools/mod-tools.module';
 import { AppComponent } from './app.component';
 import {LogglyService} from 'ngx-loggly-logger';
 import {NotificationService} from './notification/services/notification.service';
+import {RedirectModule} from "./redirect/redirect.module";
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import {NotificationService} from './notification/services/notification.service'
     routing,
     HomeModule,
       ModToolsModule,
+      RedirectModule,
       PopoverModule,
       ModalModule.forRoot(),
       BootstrapModalModule

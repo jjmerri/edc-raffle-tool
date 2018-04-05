@@ -88,9 +88,10 @@ export class HomeComponent implements OnInit {
     private hasSeenTermsOfService = false;
     private modToolsId = '';
     private chatMessages: any[];
-    private isSlotAssignmentHelperRunning = false
-    private interuptSlotAssignmentHelper = false
-    private haveShownModChatMessage = false
+    private isSlotAssignmentHelperRunning = false;
+    private interuptSlotAssignmentHelper = false;
+    private haveShownModChatMessage = false;
+    private redirectUrl = environment.baseUri + '/redirect?redirectUrl=';
 
 
     private mods = {
@@ -450,7 +451,7 @@ export class HomeComponent implements OnInit {
             swal2('',
                 'Entering your PayPal info will cause <strong>PMs to be sent</strong> to participants as you add them to the slot list. ' +
                 'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
-                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>paypal.me/yourname',
+                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>https://www.paypal.me/yourname',
                 'info'
             ).then(() => {
             }, (dismiss) => {
@@ -462,9 +463,16 @@ export class HomeComponent implements OnInit {
     private sendPayPalPm(recipient: string) {
         if (recipient && this.payPalInfo && this.paypalPmRecipients.indexOf(recipient.toUpperCase()) === -1
             && ((this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') || this.userName.toUpperCase() === recipient.toUpperCase())) {
+
+            let payPalFormatted = this.payPalInfo;
+            const ppRegEx = new RegExp('(paypal\.me)', 'i');
+            if (ppRegEx.test(this.payPalInfo)) {
+                payPalFormatted = '[' + this.payPalInfo + '](' + this.redirectUrl + this.payPalInfo + ')';
+            }
+
             const subject = 'PayPal Info For: ' + this.currentRaffle.title;
             this.redditService.sendPm(recipient, subject.substr(0, 100),
-                this.payPalPmMessage + this.payPalInfo +
+                this.payPalPmMessage + payPalFormatted +
                 '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe(res => {
             });
             this.paypalPmRecipients.push(recipient.toUpperCase());
@@ -553,11 +561,11 @@ export class HomeComponent implements OnInit {
         }
 
         let requestedSlotHtml = '<h3 class="text-left">From: ' + message.data.author + ' (' + numTotalSlotsRequested + ' total requested slots)</h3>' +
-        '<h3 class="text-left">Subject: ' + message.data.subject + '</h3>';
+            '<h3 class="text-left">Subject: ' + message.data.subject + '</h3>';
 
         if (authorRequestedForAnother) {
             requestedSlotHtml +=  '<h4 class="text-left"> Requested Slots:</h4>' +
-            '<ul class="list-group col-xs-9">' + dialogText + '</ul>';
+                '<ul class="list-group col-xs-9">' + dialogText + '</ul>';
         }
 
         requestedSlotHtml += ' <h4 class="text-left col-xs-12">Message Body:</h4> <div class="well text-left col-xs-12">' + txt.innerText + '</div>';
@@ -638,8 +646,8 @@ export class HomeComponent implements OnInit {
         for (let x = 0; x < this.raffleParticipants.length; x++) {
             const raffler = this.raffleParticipants[x];
             if ((raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
-                    (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
-                )  {
+                (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
+            )  {
                 if (slotNumberMap.has(raffler.name)) {
                     slotNumberMap.set(raffler.name, slotNumberMap.get(raffler.name) + 1);
                 } else {
@@ -963,7 +971,7 @@ export class HomeComponent implements OnInit {
         const payPalInfo = JSON.parse(localStorage.getItem('payPalInfo'));
         if (payPalInfo !== null) {
             this.payPalInfo = payPalInfo;
-            this.modifyPayPalMe()
+            this.modifyPayPalMe();
         }
     }
 
@@ -1176,12 +1184,16 @@ export class HomeComponent implements OnInit {
     }
 
     private modifyPayPalMe() {
-        const ppRegEx = new RegExp('.*(paypal\.me/.+)', 'i');
+        const ppRegEx = new RegExp('(paypal\.me)', 'i');
+        const httpsRegEx = new RegExp('(https://|www\.)paypal\.me', 'i');
 
         if (ppRegEx.test(this.payPalInfo)) {
-            this.payPalInfo = this.payPalInfo.replace(ppRegEx, '$1');
+            if (!httpsRegEx.test(this.payPalInfo)) {
+                this.payPalInfo = this.payPalInfo.replace(ppRegEx, 'https://www.$1');
+            }
         }
         localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
+
     }
 
     private shuffleSlots() {
