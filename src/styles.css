@@ -1,9 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~bootstrap/dist/css/bootstrap.min.css";
 @import "~font-awesome/css/font-awesome.css";
-@import "~sweetalert2/dist/sweetalert2.min.css";
+@import "~sweetalert2/dist/sweetalert2.css";
 
 
 .payment-confirmation-modal {
     width: 585px;
+}
+
+.swal2-popup {
+    font-size: 1.6rem !important;
 }

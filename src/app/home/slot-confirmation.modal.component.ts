@@ -4,8 +4,6 @@ import { Component, OnInit } from '@angular/core';
 import { DialogRef, ModalComponent, CloseGuard } from 'ngx-modialog';
 import { Modal, BSModalContext } from 'ngx-modialog/plugins/bootstrap';
 
-import swal from 'sweetalert2';
-
 import { RedditService } from '../reddit/services/reddit.service';
 
 export class SlotConfirmationModalContext extends BSModalContext {
@@ -139,6 +137,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         this.slotAssignments.push(
             {   username: username,
                 randomSlots: 0,
+                calledSlots: '',
                 inOrderSlots: 0,
                 swappedSlots: 0,
                 requester: this.context.comment.data.author

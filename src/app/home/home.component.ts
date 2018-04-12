@@ -12,8 +12,13 @@ import {AngularFireDatabase, AngularFireList} from 'angularfire2/database';
 
 import 'rxjs/Rx';
 import swal2 from 'sweetalert2';
-import swal from 'sweetalert';
-import he from 'he';
+import * as he from 'he';
+
+// fix for payment helper issue sweetalert_1.default not a function in reddit service
+// https://github.com/t4t5/sweetalert/issues/799
+import * as _swal from 'sweetalert';
+import { SweetAlert } from 'sweetalert/typings/core';
+const swal: SweetAlert = _swal as any;
 
 import {OauthService} from '../oauth/services/oauth.service';
 import {RedditService} from '../reddit/services/reddit.service';
@@ -154,10 +159,12 @@ export class HomeComponent implements OnInit {
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 confirmButtonText: 'Reduce Slots'
-            }).then(() => {
-                this.updateNumberOfSlots(updatedNumSlots);
-            }, (dismiss) => {
-                this.numSlots = prevSpots;
+            }).then((result) => {
+                if (result.value) {
+                    this.updateNumberOfSlots(updatedNumSlots);
+                } else if (result.dismiss) {
+                    this.numSlots = prevSpots;
+                }
             });
         } else {
             this.updateNumberOfSlots(updatedNumSlots);
@@ -385,9 +392,7 @@ export class HomeComponent implements OnInit {
                     'Please try to link again and if you get the same error try a different browser. ' +
                     'DO NOT UPDATE YOUR RAFFLE BEFORE RELINKING! You could delete your slot list!',
                     'error'
-                ).then(() => {
-                }, (dismiss) => {
-                });
+                );
             } else {
                 this.numSlots = numSlots;
 
@@ -410,9 +415,7 @@ export class HomeComponent implements OnInit {
                 'It looks like you are trying to fill a slot that isnt random. ' +
                 'Please double check that your raffle allows called slots. You wont get this message again.',
                 'question'
-            ).then(() => {
-            }, (dismiss) => {
-            });
+            );
 
             this.calledSpotMessageShown = true;
         }
@@ -453,9 +456,7 @@ export class HomeComponent implements OnInit {
                 'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
                 '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>https://www.paypal.me/yourname',
                 'info'
-            ).then(() => {
-            }, (dismiss) => {
-            });
+            );
             this.payPalMessageShown = true;
         }
     }
@@ -493,17 +494,16 @@ export class HomeComponent implements OnInit {
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 confirmButtonText: 'Donate Slot'
-            }).then(() => {
-                this.redditService.postComment(commentText, this.currentRaffle.name).subscribe();
+            }).then((result) => {
+                if (result.value) {
+                    this.redditService.postComment(commentText, this.currentRaffle.name).subscribe();
 
-                swal2(
-                    'Donation Comment Posted!',
-                    'Please process the slot request in the order it was recieved in the queue and thank you again for your generosity!',
-                    'success'
-                ).then(() => {
-                }, (dismiss) => {
-                });
-            }, (dismiss) => {
+                    swal2(
+                        'Donation Comment Posted!',
+                        'Please process the slot request in the order it was recieved in the queue and thank you again for your generosity!',
+                        'success'
+                    );
+                }
             });
         }
     }
@@ -684,16 +684,12 @@ export class HomeComponent implements OnInit {
             swal2('All slots are marked paid, congrats on a successful raffle!',
                 '',
                 'info'
-            ).then(() => {
-            }, (dismiss) => {
-            });
+            );
         } else {
             swal2('No more PMs from unpaid raffle participants.',
                 '',
                 'info'
-            ).then(() => {
-            }, (dismiss) => {
-            });
+            );
         }
     }
 
@@ -747,9 +743,7 @@ export class HomeComponent implements OnInit {
                     swal2('',
                         'No more slot requests at this time. Check back later.',
                         'info'
-                    ).then(() => {
-                    }, (dismiss) => {
-                    });
+                    );
                 }
 
                 this.isSlotAssignmentHelperRunning = false;
@@ -993,10 +987,12 @@ export class HomeComponent implements OnInit {
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'OK'
                 }
-            ).then(() => {
-                localStorage.setItem('shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
-            }, (dismiss) => {
-                localStorage.setItem(this.currentRaffle.name + '_shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
+            ).then((result) => {
+                if (result.value) {
+                    localStorage.setItem('shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
+                } else if (result.dismiss) {
+                    localStorage.setItem(this.currentRaffle.name + '_shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
+                }
             });
         }
     }
@@ -1018,9 +1014,10 @@ export class HomeComponent implements OnInit {
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'Donate Slot!'
                 }
-            ).then(() => {
-                this.donateModSlot();
-            }, (dismiss) => {
+            ).then((result) => {
+                if (result.value) {
+                    this.donateModSlot();
+                }
             });
         }
     }
@@ -1088,9 +1085,7 @@ export class HomeComponent implements OnInit {
                 'Donation Comment Posted!',
                 'Please process the slot request in the order it was recieved in the queue and thank you for your generosity!',
                 'success'
-            ).then(() => {
-            }, (dismiss) => {
-            });
+            );
         });
     }
 
@@ -1162,23 +1157,23 @@ export class HomeComponent implements OnInit {
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'Copy And Close'
                 }
-            ).then(() => {
-                const commentText = '#Modtober Is Here!!!\n\n' +
-                    '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
-                    'are encouraged to **show appreciation for a [random mod](' + randomModUrl + ')** by donating a slot to them.\n\n' +
-                    'In the spirit of Modtober **I am requesting a random slot for /u/' + randomMod + '** as a thank you for all the time and effort ' +
-                    'they donate to make /r/' + subreddit + ' a fun, fair, and safe community for everyone.';
+            ).then((result) => {
+                if (result.value) {
+                    const commentText = '#Modtober Is Here!!!\n\n' +
+                        '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
+                        'are encouraged to **show appreciation for a [random mod](' + randomModUrl + ')** by donating a slot to them.\n\n' +
+                        'In the spirit of Modtober **I am requesting a random slot for /u/' + randomMod + '** as a thank you for all the time and effort ' +
+                        'they donate to make /r/' + subreddit + ' a fun, fair, and safe community for everyone.';
 
-                let dummy = document.createElement('textarea');
-                document.body.appendChild(dummy);
-                dummy.setAttribute('id', 'dummy_id');
-                const commentControl: any = document.getElementById('dummy_id');
-                commentControl.value = commentText;
-                dummy.select();
-                document.execCommand('copy');
-                document.body.removeChild(dummy);
-
-            }, (dismiss) => {
+                    let dummy = document.createElement('textarea');
+                    document.body.appendChild(dummy);
+                    dummy.setAttribute('id', 'dummy_id');
+                    const commentControl: any = document.getElementById('dummy_id');
+                    commentControl.value = commentText;
+                    dummy.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(dummy);
+                }
             });
         }
     }
@@ -1206,9 +1201,10 @@ export class HomeComponent implements OnInit {
                 confirmButtonColor: '#3085d6',
                 confirmButtonText: 'Shuffle Slots'
             }
-        ).then(() => {
-            this.shuffleAllSlots();
-        }, (dismiss) => {
+        ).then((result) => {
+            if (result.value) {
+                this.shuffleAllSlots();
+            }
         });
     }
 
@@ -1246,12 +1242,13 @@ export class HomeComponent implements OnInit {
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'Call The Bot'
                 }
-            ).then(() => {
-                this.redditService.postComment(this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
-                });
-                this.updateFlair(this.completeFlairId, 'Complete');
-                this.botCalled = true;
-            }, (dismiss) => {
+            ).then((result) => {
+                if (result.value) {
+                    this.redditService.postComment(this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
+                    });
+                    this.updateFlair(this.completeFlairId, 'Complete');
+                    this.botCalled = true;
+                }
             });
         } else {
             swal2({
@@ -1261,9 +1258,7 @@ export class HomeComponent implements OnInit {
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: 'OK'
                 }
-            ).then(() => {
-            }, (dismiss) => {
-            });
+            );
         }
     }
 
@@ -1278,15 +1273,15 @@ export class HomeComponent implements OnInit {
         } else {
             // Otherwise, you import the script FuckAdBlock
             const importFAB = document.createElement('script');
-            importFAB.onload = function () {
+            importFAB.onload = () => {
                 // If all goes well, we configure FuckAdBlock
-                fuckAdBlock.onDetected(adBlockDetected)
+                fuckAdBlock.onDetected(() => {this.adBlockDetected()})
                 fuckAdBlock.onNotDetected(adBlockNotDetected);
             };
-            importFAB.onerror = function () {
+            importFAB.onerror =  () => {
                 // If the script does not load (blocked, integrity error, ...)
                 // Then a detection is triggered
-                adBlockDetected();
+                this.adBlockDetected()
             };
             importFAB.integrity = 'sha256-xjwKUY/NgkPjZZBOtOxRYtK20GaqTwUCf7WYCJ1z69w=';
             importFAB.crossOrigin = 'anonymous';
@@ -1313,9 +1308,10 @@ export class HomeComponent implements OnInit {
                 '<strong>THERE ARE NOT ANY ADS ON THIS SITE SO YOU GAIN NOTHING WITH THE AD BLOCKERS ENABLED.</strong> ' +
                 'You won\'t get this message again.',
                 'info'
-            ).then(() => {
-                localStorage.setItem('showAdBlockerMessage', JSON.stringify(false));
-            }, (dismiss) => {
+            ).then((result) => {
+                if (result.value) {
+                    localStorage.setItem('showAdBlockerMessage', JSON.stringify(false));
+                }
             });
         }
     }
@@ -1386,9 +1382,7 @@ export class HomeComponent implements OnInit {
                 confirmButtonColor: '#3085d6',
                 confirmButtonText: 'OK'
             }
-        ).then(() => {
-        }, (dismiss) => {
-        });
+        );
     }
 
     private setRequesters() {
@@ -1427,6 +1421,41 @@ export class HomeComponent implements OnInit {
                 this.updateCommentText();
             }
         }
+    }
+
+    private makeAnnouncement() {
+        swal2({
+            title: 'Make Announcement',
+            text: 'Making an announcement will post a top level comment with the comment text specified and ' +
+            'tag every raffler currently participating in your raffle.',
+            input: 'textarea',
+            inputPlaceholder: 'Type your Reddit comment here',
+            confirmButtonText: 'Make Announcement',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                return !value && 'You can\'t make an empty announcement!'
+            }
+        }).then((text) => {
+            if (text) {
+                this.sendAnnouncement(text);
+            } else {
+                swal2({
+                        title: 'Announcement Not Made!',
+                        text: 'There was an error reading your comment text.',
+                        type: 'error'
+                    }
+                );
+            }
+        }, (dismiss) => {
+        });
+    }
+
+    private sendAnnouncement(text) {
+        swal2({
+                title: 'Announcement Made!',
+                type: 'success'
+            }
+        );
     }
 
 }

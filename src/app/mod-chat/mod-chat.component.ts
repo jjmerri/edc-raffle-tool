@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, Output, OnInit, ViewChild} f
 import {AngularFireDatabase, AngularFireList} from 'angularfire2/database';
 import {Observable} from 'rxjs/Observable';
 
-import jQuery from 'jQuery';
+import * as jQuery from 'jQuery';
 
 @Component({
     selector: 'app-mod-chat',
