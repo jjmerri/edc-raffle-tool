@@ -1437,7 +1437,7 @@ export class HomeComponent implements OnInit {
             }
         }).then((text) => {
             if (text) {
-                this.sendAnnouncement(text);
+                this.sendAnnouncement(text.value);
             } else {
                 swal2({
                         title: 'Announcement Not Made!',
@@ -1451,11 +1451,48 @@ export class HomeComponent implements OnInit {
     }
 
     private sendAnnouncement(text) {
-        swal2({
-                title: 'Announcement Made!',
-                type: 'success'
+        this.redditService.postComment(text, this.currentRaffle.name).subscribe(response => {
+            if (response && response.json && response.json.data && response.json.data.things) {
+                let announcement = response.json.data.things[0].data;
+                let uniqueParticipanList = [];
+                for (let x = 0; x < this.raffleParticipants.length; x++) {
+                    const raffler = this.raffleParticipants[x];
+                    if (raffler.name && uniqueParticipanList.indexOf(raffler.name) === -1) {
+                        if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
+                            uniqueParticipanList.push(raffler.name);
+                        } else {
+                            uniqueParticipanList.push(this.userName);
+                        }
+                    }
+                }
+
+                this.redditService.createTagTrain(uniqueParticipanList, announcement.permalink, announcement.name).subscribe( tagTrainResponse => {
+                    if (tagTrainResponse === true) {
+                        swal2({
+                                title: 'Announcement Made!',
+                                type: 'success'
+                            }
+                        );
+                    } else {
+                        swal2({
+                                title: 'Error Making Announcement!',
+                                text: 'There was an error tagging all the participants of your raffle. ' +
+                                'Check your raffle to see who was not tagged so you can tag them manually.',
+                                type: 'error'
+                            }
+                        );
+                    }
+
+                });
+            } else {
+                swal2({
+                        title: 'Error Making Announcement!',
+                        text: 'There was an error posting your comment. Try again or do it manually.',
+                        type: 'error'
+                    }
+                );
             }
-        );
+        });
     }
 
 }
