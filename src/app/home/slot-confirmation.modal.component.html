@@ -84,7 +84,7 @@
 
                 <div class="form-group" *ngIf="!context.inOrderMode">
                     <label for="randomSlots{{i}}">Number of Random Slots: </label>
-                    <input id="randomSlots{{i}}" [(ngModel)]="slotAssignment.randomSlots" type="number" (change)="checkSlots()"/>
+                    <input id="randomSlots{{i}}" [(ngModel)]="slotAssignment.randomSlots" type="number" (ngModelChange)="checkSlots()"/>
                 </div>
 
                 <div class="form-group" *ngIf="context.inOrderMode">

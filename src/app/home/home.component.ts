@@ -1437,7 +1437,19 @@ export class HomeComponent implements OnInit {
             }
         }).then((text) => {
             if (text) {
-                this.sendAnnouncement(text.value);
+
+                swal2({
+                    title: 'Are You Sure You Want To Make An Announcement?',
+                    text: 'Literally everyone in your raffle will get a notification if you make this announcement. ' +
+                    'Do not use this feature lightly as people do not want to be spammed. ' +
+                    'If this is something you truly want to communicate to everyone in your raffle then click "Make Announcement" otherwise click "cancel".',
+                    confirmButtonText: 'Make Announcement',
+                    showCancelButton: true
+                }).then((result) => {
+                    if (result.value) {
+                        this.sendAnnouncement(text.value);
+                    }
+                });
             } else {
                 swal2({
                         title: 'Announcement Not Made!',
