@@ -137,10 +137,14 @@
         </div>
 
         <div class="row">
-          <div class="col-xs-12">
+          <div class="col-xs-8">
             <label for="numSlots">Number of Raffle Slots:</label>
-            <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSlots(numSlots)"/>
-            <button *ngIf="currentRaffle" class="btn btn-sm btn-primary" [disabled] = "botCalled" (click)="callTheBot()">Call {{botUsername}}...</button>
+            <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSlots(numSlots)"/><button *ngIf="currentRaffle" class="btn btn-sm btn-primary" [disabled] = "botCalled" (click)="callTheBot()">Call {{botUsername}}...</button>
+
+          </div>
+          <div class="col-xs-4">
+            <button *ngIf="currentRaffle" class="btn btn-md btn-primary" [disabled]="unpaidUsersArray.length === 0" (click)="pageUnpaid()">Page Unpaid...</button>
+            <button *ngIf="currentRaffle" class="btn btn-md btn-primary" [disabled]="unpaidUsersArray.length === 0" (click)="removeUnpaid()">Remove Unpaid...</button>
           </div>
         </div>
 

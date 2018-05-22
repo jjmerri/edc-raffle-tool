@@ -40,6 +40,7 @@ export class HomeComponent implements OnInit {
     private randomSlot: number;
     private commentText: string;
     private unpaidUsers: string;
+    private unpaidUsersArray = [];
     private userName: string;
     private userId: string;
     private currentRaffle;
@@ -250,6 +251,7 @@ export class HomeComponent implements OnInit {
         let numUnpaidUsers = 0;
         this.commentText = '';
         this.unpaidUsers = '';
+        this.unpaidUsersArray = [];
 
         for (let x = 0; x < this.raffleParticipants.length; x++) {
             let raffler = this.raffleParticipants[x];
@@ -264,6 +266,7 @@ export class HomeComponent implements OnInit {
             if (!raffler.paid && raffler.name && this.unpaidUsers.indexOf('/u/' + raffler.name + ' ') === -1) {
                 numUnpaidUsers++;
                 this.unpaidUsers += '/u/' + raffler.name + ' ';
+                this.unpaidUsersArray.push(raffler.name);
             }
         }
 
@@ -1436,7 +1439,7 @@ export class HomeComponent implements OnInit {
                 return !value && 'You can\'t make an empty announcement!'
             }
         }).then((text) => {
-            if (text) {
+            if (text && !text.dismiss) {
 
                 swal2({
                     title: 'Are You Sure You Want To Make An Announcement?',
@@ -1446,10 +1449,11 @@ export class HomeComponent implements OnInit {
                     confirmButtonText: 'Make Announcement',
                     showCancelButton: true
                 }).then((result) => {
-                    if (result.value) {
+                    if (result.value && !result.dismiss) {
                         this.sendAnnouncement(text.value);
                     }
                 });
+            } else if (text && text.dismiss) {
             } else {
                 swal2({
                         title: 'Announcement Not Made!',
@@ -1458,7 +1462,6 @@ export class HomeComponent implements OnInit {
                     }
                 );
             }
-        }, (dismiss) => {
         });
     }
 
@@ -1507,4 +1510,153 @@ export class HomeComponent implements OnInit {
         });
     }
 
+    private pageUnpaid() {
+        swal2({
+            title: 'Page Unpaid Users?',
+            text: 'Clicking "Page Unpaid" will post the specified comment and tag all unpaid users. Click "Cancel" if you don\'t want to do this.',
+            input: 'textarea',
+            inputValue: 'Attention unpaid participants: You have 10 minutes from now to pay or I will remove your slots and move to the waitlist.',
+            confirmButtonText: 'Page Unpaid',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                return !value && 'You can\'t post an empty comment!'
+            }
+        }).then((text) => {
+            if (text && !text.dismiss) {
+                this.pageUnpaidUsers(text.value);
+            } else if (text && text.dismiss) {
+            } else {
+                swal2({
+                        title: 'Page Failed!',
+                        text: 'There was an error paging unpaid users.',
+                        type: 'error'
+                    }
+                );
+            }
+        });
+    }
+
+    private pageUnpaidUsers(text) {
+        this.redditService.postComment(text, this.currentRaffle.name).subscribe(response => {
+            if (response && response.json && response.json.data && response.json.data.things) {
+                let comment = response.json.data.things[0].data;
+                let pageList = [];
+                for (let x = 0; x < this.unpaidUsersArray.length; x++) {
+                    const raffler = this.unpaidUsersArray[x];
+                    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
+                        pageList.push(raffler);
+                    } else {
+                        pageList.push(this.userName);
+                    }
+                }
+
+                this.redditService.tagUsersInComment(pageList, comment.name).subscribe( tagTrainResponse => {
+                    if (tagTrainResponse === true) {
+                        swal2({
+                                title: 'Unpaid Users Paged!',
+                                type: 'success'
+                            }
+                        );
+                    } else {
+                        swal2({
+                                title: 'Error Paging Unpaid!',
+                                text: 'There was an error tagging all the unpaid users of your raffle. ' +
+                                'Check your raffle to see who was not tagged so you can tag them manually.',
+                                type: 'error'
+                            }
+                        );
+                    }
+
+                });
+            } else {
+                swal2({
+                        title: 'Error Paging Unpaid!',
+                        text: 'There was an error posting your comment. Try again or do it manually.',
+                        type: 'error'
+                    }
+                );
+            }
+        });
+    }
+    private removeUnpaid() {
+        swal2({
+            title: 'Remove Unpaid Users?',
+            text: 'Clicking "Remove Unpaid" will remove all users from unpaid slots, post the specified comment, and tag all unpaid users. Click "Cancel" if you don\'t want to do this.',
+            input: 'textarea',
+            inputValue: 'Attention unpaid participants: your unpaid slots have been removed due to lack of payment.',
+            confirmButtonText: 'Remove Unpaid',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                return !value && 'You can\'t post an empty comment!'
+            }
+        }).then((text) => {
+            if (text && !text.dismiss) {
+                this.removeUnpaidUsers(text.value);
+            } else if (text && text.dismiss) {
+            } else {
+                swal2({
+                        title: 'Failed To Remove Unpaid!',
+                        text: 'There was an error removing unpaid users. Please try again or do it manually.',
+                        type: 'error'
+                    }
+                );
+            }
+        });
+    }
+
+    private removeUnpaidUsers(text) {
+        // make copy because we modify this when we updateCommentText
+        const unpaidUsersArrayCopy = this.unpaidUsersArray.slice();
+
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            let raffler = this.raffleParticipants[x];
+            if (!raffler.paid && raffler.name) {
+                raffler.name = '';
+                raffler.requester = '';
+            }
+        }
+
+        this.updateCommentText();
+
+        this.redditService.postComment(text, this.currentRaffle.name).subscribe(response => {
+            if (response && response.json && response.json.data && response.json.data.things) {
+                let comment = response.json.data.things[0].data;
+                let pageList = [];
+                for (let x = 0; x < unpaidUsersArrayCopy.length; x++) {
+                    const raffler = unpaidUsersArrayCopy[x];
+                    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
+                        pageList.push(raffler);
+                    } else {
+                        pageList.push(this.userName);
+                    }
+                }
+
+                this.redditService.tagUsersInComment(pageList, comment.name).subscribe(tagTrainResponse => {
+                    if (tagTrainResponse === true) {
+                        swal2({
+                                title: 'Unpaid Users Removed!',
+                                type: 'success'
+                            }
+                        );
+                    } else {
+                        swal2({
+                                title: 'Error Tagging Unpaid!',
+                                text: 'There was an error tagging all the unpaid users of your raffle. ' +
+                                'Check your raffle to see who was not tagged so you can tag them manually.',
+                                type: 'error'
+                            }
+                        );
+                    }
+
+                });
+            } else {
+                swal2({
+                        title: 'Error Paging Unpaid!',
+                        text: 'There was an error posting your comment. Try again or do it manually.',
+                        type: 'error'
+                    }
+                );
+            }
+        });
+    }
 }

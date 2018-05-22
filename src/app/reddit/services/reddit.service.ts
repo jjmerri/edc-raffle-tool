@@ -21,8 +21,8 @@ export class RedditService {
     private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
 
     private approvedSubs = ['edc_raffle', 'testingground4bots', 'KnifeRaffle', 'WrestlingRaffle', 'SSBM', 'raffleTest', 'lego_raffles'];
-    private subSubmissionAgeDays = {edc_raffle: 2, testingground4bots: 2, WrestlingRaffle: 2, KnifeRaffle: 4, SSBM: 4, raffleTest: 2, lego_raffles: 2};
-    private maxSubmissionAgeDays = 4;
+    private subSubmissionAgeDays = {edc_raffle: 2, testingground4bots: 2, WrestlingRaffle: 2, KnifeRaffle: 7, SSBM: 4, raffleTest: 2, lego_raffles: 2};
+    private maxSubmissionAgeDays = 7;
 
     constructor(private http: HttpClient, private oauthService: OauthService) {
     }
@@ -520,6 +520,53 @@ export class RedditService {
                     observer.complete();
                 }
             },
+                err => {
+                    console.error(err);
+                    observer.error(err);
+                    observer.complete();
+                }
+            );
+        });
+    }
+
+    public tagUsersInComment(users: string[], thing_id: string): Observable<any> {
+        return Observable.create(observer => {
+            if (!users || users.length === 0) {
+                observer.next(true);
+                observer.complete();
+                return;
+            }
+
+            let tags = '';
+            if (users.length > 3) {
+                tags += '/u/' + users.pop();
+                tags += ' /u/' + users.pop();
+                tags += ' /u/' + users.pop();
+            } else {
+                tags += '/u/' + users.join(' /u/');
+                users = [];
+            }
+
+            this.postComment(tags, thing_id).subscribe(response => {
+                    if (response && response.json && response.json.data && response.json.data.things) {
+                        this.tagUsersInComment(users, thing_id).subscribe(tagTrainResponse => {
+                                if (tagTrainResponse) {
+                                    observer.next(true);
+                                    observer.complete();
+                                }
+                            },
+                            err => {
+                                console.error(err);
+                                observer.error(err);
+                                observer.complete();
+                            }
+                        );
+                    } else {
+                        console.error(response);
+                        observer.error(response);
+                        observer.complete();
+                    }
+                },
                 err => {
                     console.error(err);
                     observer.error(err);
