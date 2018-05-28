@@ -70,6 +70,7 @@ export class HomeComponent implements OnInit {
     private numPayPmsProcessed = 0;
     private botMap = {
         edc_raffle: '/u/callthebot',
+        discoredc: '/u/callthebot',
         lego_raffles: '/u/callthebot',
         testingground4bots: '/u/callthebot',
         KnifeRaffle: '/u/callthebot',
@@ -102,6 +103,7 @@ export class HomeComponent implements OnInit {
 
     private mods = {
         edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
+        discoredc: ['RubenStudddard'],
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
         KnifeRaffle: ['Plazzed', 'accidentlyporn', 'twolfcale', 'theoddjosh', 'Fbolanos', 'cda555', 'Gimli_The_Drunk'],
         SSBM: ['UNKNOWN'],
@@ -277,6 +279,7 @@ export class HomeComponent implements OnInit {
             this.redditService.getSubmission(this.currentRaffle.permalink + '.json').subscribe(getSubmissionResponse => {
                     this.currentRaffle = getSubmissionResponse[0].data.children[0].data;
                     const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
+                    const escapedRe = /\\<raffle\\-tool\\>[\s\S]*\\<\/raffle\\-tool\\>/;
 
 
                     let txt: any;
@@ -295,6 +298,8 @@ export class HomeComponent implements OnInit {
 
                     if (postText.indexOf('<raffle-tool>') !== -1 && postText.indexOf('</raffle-tool>') !== -1) {
                         postText = postText.replace(re, slotText);
+                    } else if (postText.indexOf('\\<raffle\\-tool\\>') !== -1 && postText.indexOf('\\</raffle\\-tool\\>') !== -1) {
+                        postText = postText.replace(escapedRe, slotText);
                     } else {
                         postText += '\n\n' + slotText + '\n\n';
                     }
@@ -371,7 +376,7 @@ export class HomeComponent implements OnInit {
             let numSlots = 0;
 
             for (let i = 0; i < slots.length; i++) {
-                if (slots[i].match(/^[\d]+ /)) {
+                if (slots[i].match(/^[\d]+ ?/)) {
                     numSlots++;
                     const slotParts = slots[i].split(' ');
 
