@@ -386,7 +386,10 @@ export class HomeComponent implements OnInit {
                             paidString = (slotParts[2]).substring(0, 4);
                         }
 
-                        this.raffleParticipants.push({name: slotParts[1].substr(3), paid: paidString === 'PAID',  requester: ''});
+                        const usernameRegexp = /\/?[uU]\/([^ ]*)/g;
+                        const matchedUsername = usernameRegexp.exec(slotParts[1]);
+
+                        this.raffleParticipants.push({name: matchedUsername[1], paid: paidString === 'PAID',  requester: ''});
                     } else {
                         this.raffleParticipants.push({name: '', paid: false, requester: ''});
                     }
