@@ -5,8 +5,7 @@ import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class NotificationService {
-    //private edcRaffleDiscordUrl = 'https://discordapp.com/api/webhooks/378950331171602434/aiQqx3VkeC9Y10Px_e6oFlDc9Jj9ktO4UMjCeSNOBEuvBFUUJRJNhjIJ8ZIZo2fn7Tak';
-    private edcRaffleDiscordUrl = 'https://discordapp.com/api/webhooks/384374555109752843/Bxoop5I7NSmomFb3_TaL64wkUAPo3KLXf0BTxPVAxPyqhmQj9PyWIzBDCIfe0Makkitv';
+    private edcRaffleDiscordUrl = 'https://discordapp.com/api/webhooks/452145996663619594/vEUEJbaNlkjmRchtUTDAwnXlKcUWj8vfbvlYVxup5xwifO19tuHajsRCRTIQfGbmFPsk';
 
     constructor(private http: HttpClient) {
     }

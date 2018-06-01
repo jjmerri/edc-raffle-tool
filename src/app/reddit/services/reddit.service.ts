@@ -100,7 +100,7 @@ export class RedditService {
                             // submissions are ordered by age
                             // if submissionAge > maxSubmissionAgeDays nothing beyond this will be current
                             if (submissionAge > (this.maxSubmissionAgeDays * secondsInDay)) {
-                                if (submission.stickied) {
+                                if (submission.stickied || submission.pinned) {
                                     continue;
                                 } else {
                                     break;
