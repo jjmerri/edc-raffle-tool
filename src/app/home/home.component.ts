@@ -70,25 +70,39 @@ export class HomeComponent implements OnInit {
     private numPayPmsProcessed = 0;
     private botMap = {
         edc_raffle: '/u/callthebot',
-        discoredc: '/u/callthebot',
-        lego_raffles: '/u/callthebot',
-        testingground4bots: '/u/callthebot',
-        KnifeRaffle: '/u/callthebot',
-        WrestlingRaffle: '/u/callthebot',
-        SSBM: '/u/callthebot',
-        raffleTest: '/u/raffleTestBot'
+        WatchBreakers: '/u/watchbreak',
+        WatchBreakersNM: '/u/watchbreak',
+        WatchURaffle: '/u/raffle_verification',
+        discoredc: '/u/raffle_rng',
+        lego_raffles: '/u/raffle_verification',
+        testingground4bots: '/u/raffle_rng',
+        KnifeRaffle: '/u/raffle_verification',
+        WrestlingRaffle: '/u/raffle_rng',
+        SSBM: '/u/raffle_rng',
+        raffleTest: '/u/raffle_rng'
     };
     private botUsername = '/u/callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
 
-    //raffleTest values
-    //private collectingPaymentsFlairId = '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6';
-    //private customRainbowFlairId = '93c6af96-c4f7-11e7-90e7-0eaf69165a10';
-    private collectingPaymentsFlairId = '244259e8-1e68-11e8-87a3-0e345376c318';
-    private customRainbowFlairId = 'f5e546d2-1e67-11e8-a8e1-0ed67a61ed10';
-    private completeFlairId = '29e50c10-1e68-11e8-94ca-0ea1d686d0ec';
+    private collectingPaymentsFlairId: string;
+    private customRainbowFlairId: string;
+    private completeFlairId: string;
     private canEditFlair = false;
+
+    private collectingPaymentsFlairIdMap = {WatchBreakers: 'b83a011e-647c-11e8-a906-0e506dc1d7e2',
+        KnifeRaffle: 'af7ee3b6-8393-11e7-9270-0ea3887160ee',
+        WatchBreakersNM: 'a526d084-647c-11e8-8855-0e35bcd748dc',
+        raffleTest: '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6'};
+    private customRainbowFlairIdMap = {WatchBreakers: 'b83a011e-647c-11e8-a906-0e506dc1d7e2',
+        KnifeRaffle: 'dcff298a-653e-11e8-88cf-0e7c1cf30a1a',
+        WatchBreakersNM: 'a526d084-647c-11e8-8855-0e35bcd748dc',
+        raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
+    private completeFlairIdMap = {WatchBreakers: 'b83a011e-647c-11e8-a906-0e506dc1d7e2',
+        KnifeRaffle: 'a55517d4-8393-11e7-ac46-0eb86c086f40',
+        WatchBreakersNM: 'a526d084-647c-11e8-8855-0e35bcd748dc',
+    raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
+
     private botCalled = false;
     private paypalPmRecipients = [];
     private showAdBlockerMessage = true;
@@ -104,6 +118,9 @@ export class HomeComponent implements OnInit {
     private mods = {
         edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
         discoredc: ['RubenStudddard'],
+        WatchBreakers: [''],
+        WatchBreakersNM: [''],
+        WatchURaffle: [''],
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
         KnifeRaffle: ['Plazzed', 'accidentlyporn', 'twolfcale', 'theoddjosh', 'Fbolanos', 'cda555', 'Gimli_The_Drunk'],
         SSBM: ['UNKNOWN'],
@@ -1237,7 +1254,12 @@ export class HomeComponent implements OnInit {
 
     private setSubredditSettings(subreddit: string) {
         this.botUsername = this.botMap[subreddit];
-        if (subreddit === 'edc_raffle' || subreddit === 'raffleTest') {
+
+        this.collectingPaymentsFlairId = this.collectingPaymentsFlairIdMap[subreddit];
+        this.customRainbowFlairId = this.customRainbowFlairIdMap[subreddit];
+        this.completeFlairId = this.completeFlairIdMap[subreddit];
+
+        if (this.customRainbowFlairId) {
             this.canEditFlair = true;
             this.autoUpdateFlair = true;
         }
@@ -1357,6 +1379,7 @@ export class HomeComponent implements OnInit {
             let notification = 'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
             switch (this.currentRaffle.subreddit) {
                 case 'edc_raffle':
+                case 'WatchURaffle':
                 case 'testingground4bots':
                 case 'raffleTest':
                     this.notificationService.sendEdcRaffleNotification(notification, 'Raffle Tool').subscribe(res => {
@@ -1666,5 +1689,42 @@ export class HomeComponent implements OnInit {
                 );
             }
         });
+    }
+
+    private tagUsers() {
+        swal2({
+            title: 'Tag Users?',
+            text: 'Enter a permalink and click "Tag Users" to tag everyone who replied to that comment.',
+            input: 'text',
+            inputPlaceholder: '/r/edc_raffle/comments/the_rest_of_your_permalink/',
+            confirmButtonText: 'Tag Users',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                return new Promise((resolve) => {
+                    const permalinkRegex = /^\/?r\/.+$/g;
+                    if (permalinkRegex.test(value)) {
+                        resolve()
+                    } else {
+                        resolve('Please enter a premalink, example: /r/edc_raffle/comments/the_rest_of_your_permalink/')
+                    }
+                })
+            }
+        }).then((text) => {
+            if (text && !text.dismiss) {
+                this.tagUsersInRaffle(text.value);
+            } else if (text && text.dismiss) {
+            } else {
+                swal2({
+                        title: 'Failed To Tag Users!',
+                        text: 'There was an error tagging users. Please try again or do it manually.',
+                        type: 'error'
+                    }
+                );
+            }
+        });
+    }
+
+    private tagUsersInRaffle(permalink: string) {
+
     }
 }
