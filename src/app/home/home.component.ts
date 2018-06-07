@@ -69,17 +69,17 @@ export class HomeComponent implements OnInit {
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
     private botMap = {
-        edc_raffle: '/u/callthebot',
+        edc_raffle: '/u/BoyAndHisBot',
         WatchBreakers: '/u/watchbreak',
         WatchBreakersNM: '/u/watchbreak',
-        WatchURaffle: '/u/raffle_verification',
-        discoredc: '/u/raffle_rng',
-        lego_raffles: '/u/raffle_verification',
-        testingground4bots: '/u/raffle_rng',
+        WatchURaffle: '/u/BoyAndHisBot',
+        discoredc: '/u/BoyAndHisBot',
+        lego_raffles: '/u/BoyAndHisBot',
+        testingground4bots: '/u/BoyAndHisBot',
         KnifeRaffle: '/u/raffle_verification',
-        WrestlingRaffle: '/u/raffle_rng',
-        SSBM: '/u/raffle_rng',
-        raffleTest: '/u/raffle_rng'
+        WrestlingRaffle: '/u/BoyAndHisBot',
+        SSBM: '/u/BoyAndHisBot',
+        raffleTest: '/u/BoyAndHisBot'
     };
     private botUsername = '/u/callthebot';
     private inOrderMode = false;
@@ -90,19 +90,19 @@ export class HomeComponent implements OnInit {
     private completeFlairId: string;
     private canEditFlair = false;
 
-    private collectingPaymentsFlairIdMap = {WatchBreakers: 'b83a011e-647c-11e8-a906-0e506dc1d7e2',
+    private collectingPaymentsFlairIdMap = {WatchBreakers: 'ace148c8-68ef-11e8-a7ef-0ed54689f6f8',
         KnifeRaffle: 'af7ee3b6-8393-11e7-9270-0ea3887160ee',
-        WatchBreakersNM: 'a526d084-647c-11e8-8855-0e35bcd748dc',
+        WatchBreakersNM: '53486110-68f0-11e8-8742-0e667e3c5182',
         WatchURaffle: '21f149cc-65e1-11e8-841b-0ef20c3a0810',
         raffleTest: '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6'};
-    private customRainbowFlairIdMap = {WatchBreakers: 'b83a011e-647c-11e8-a906-0e506dc1d7e2',
+    private customRainbowFlairIdMap = {WatchBreakers: 'bf83aaca-68ef-11e8-ae83-0ec76c3ea78e',
         KnifeRaffle: 'dcff298a-653e-11e8-88cf-0e7c1cf30a1a',
-        WatchBreakersNM: 'a526d084-647c-11e8-8855-0e35bcd748dc',
+        WatchBreakersNM: '5e0c9b8e-68f0-11e8-b3b3-0e839aa4b1a8',
         WatchURaffle: '096e7e42-65e1-11e8-8777-0e41b92bfac8',
         raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
-    private completeFlairIdMap = {WatchBreakers: 'b83a011e-647c-11e8-a906-0e506dc1d7e2',
+    private completeFlairIdMap = {WatchBreakers: '907d2904-68ef-11e8-9133-0e241e8f14f2',
         KnifeRaffle: 'a55517d4-8393-11e7-ac46-0eb86c086f40',
-        WatchBreakersNM: 'a526d084-647c-11e8-8855-0e35bcd748dc',
+        WatchBreakersNM: '3cc437ac-68f0-11e8-8a4b-0e148b456748',
         WatchURaffle: '0d9e7080-65e1-11e8-bbda-0e5f20cd29ce',
     raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
 
