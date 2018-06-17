@@ -480,7 +480,7 @@ export class RedditService {
         });
     }
 
-    public createTagTrain(users: string[], permalink: string, thing_id: string): Observable<any> {
+    public createTagTrain(tagMessageText, users: string[], thing_id: string): Observable<any> {
         return Observable.create(observer => {
             if (!users || users.length === 0) {
                 observer.next(true);
@@ -488,7 +488,7 @@ export class RedditService {
                 return;
             }
 
-            let tags = 'Raffle [Announcement](' + permalink + ') Made\n\n';
+            let tags = tagMessageText + '\n\n';
             if (users.length > 3) {
                 tags += '/u/' + users.pop();
                 tags += ' /u/' + users.pop();
@@ -501,7 +501,7 @@ export class RedditService {
             this.postComment(tags, thing_id).subscribe( response => {
                 if (response && response.json && response.json.data && response.json.data.things) {
                     let comment = response.json.data.things[0].data;
-                    this.createTagTrain(users, permalink, comment.name).subscribe( tagTrainResponse => {
+                    this.createTagTrain(tagMessageText, users, comment.name).subscribe( tagTrainResponse => {
                         if (tagTrainResponse) {
                             observer.next(true);
                             observer.complete();

@@ -106,6 +106,7 @@ export class HomeComponent implements OnInit {
         WatchURaffle: '0d9e7080-65e1-11e8-bbda-0e5f20cd29ce',
     raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
 
+    private readonly permalinkPlaceholder = '{announcementPermalink}';
     private botCalled = false;
     private paypalPmRecipients = [];
     private showAdBlockerMessage = true;
@@ -1483,7 +1484,21 @@ export class HomeComponent implements OnInit {
                     showCancelButton: true
                 }).then((result) => {
                     if (result.value && !result.dismiss) {
-                        this.sendAnnouncement(text.value);
+                        const tagTrainMessage = 'Raffle [Announcement](' + this.permalinkPlaceholder + ') Made';
+
+                        let uniqueParticipanList = [];
+                        for (let x = 0; x < this.raffleParticipants.length; x++) {
+                            const raffler = this.raffleParticipants[x];
+                            if (raffler.name && uniqueParticipanList.indexOf(raffler.name) === -1) {
+                                if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
+                                    uniqueParticipanList.push(raffler.name);
+                                } else {
+                                    uniqueParticipanList.push(this.userName);
+                                }
+                            }
+                        }
+
+                        this.sendAnnouncement(text.value, tagTrainMessage, uniqueParticipanList);
                     }
                 });
             } else if (text && text.dismiss) {
@@ -1498,23 +1513,16 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    private sendAnnouncement(text) {
-        this.redditService.postComment(text, this.currentRaffle.name).subscribe(response => {
+    private sendAnnouncement(announcementText, tagTrainMessage, listOfUsers) {
+        this.redditService.postComment(announcementText, this.currentRaffle.name).subscribe(response => {
             if (response && response.json && response.json.data && response.json.data.things) {
                 let announcement = response.json.data.things[0].data;
-                let uniqueParticipanList = [];
-                for (let x = 0; x < this.raffleParticipants.length; x++) {
-                    const raffler = this.raffleParticipants[x];
-                    if (raffler.name && uniqueParticipanList.indexOf(raffler.name) === -1) {
-                        if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
-                            uniqueParticipanList.push(raffler.name);
-                        } else {
-                            uniqueParticipanList.push(this.userName);
-                        }
-                    }
+
+                if (tagTrainMessage.indexOf(this.permalinkPlaceholder) !== -1) {
+                    tagTrainMessage = tagTrainMessage.replace(this.permalinkPlaceholder, announcement.permalink)
                 }
 
-                this.redditService.createTagTrain(uniqueParticipanList, announcement.permalink, announcement.name).subscribe( tagTrainResponse => {
+                this.redditService.createTagTrain(tagTrainMessage, listOfUsers, announcement.name).subscribe( tagTrainResponse => {
                     if (tagTrainResponse === true) {
                         swal2({
                                 title: 'Announcement Made!',
@@ -1524,7 +1532,7 @@ export class HomeComponent implements OnInit {
                     } else {
                         swal2({
                                 title: 'Error Making Announcement!',
-                                text: 'There was an error tagging all the participants of your raffle. ' +
+                                text: 'There was an error tagging the users of your raffle. ' +
                                 'Check your raffle to see who was not tagged so you can tag them manually.',
                                 type: 'error'
                             }
@@ -1556,7 +1564,19 @@ export class HomeComponent implements OnInit {
             }
         }).then((text) => {
             if (text && !text.dismiss) {
-                this.pageUnpaidUsers(text.value);
+                const tagTrainMessage = '[Announcement](' + this.permalinkPlaceholder + ') made for unpaid participants';
+
+                let pageList = [];
+                for (let x = 0; x < this.unpaidUsersArray.length; x++) {
+                    const raffler = this.unpaidUsersArray[x];
+                    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
+                        pageList.push(raffler);
+                    } else {
+                        pageList.push(this.userName);
+                    }
+                }
+
+                this.sendAnnouncement(text.value,tagTrainMessage, pageList);
             } else if (text && text.dismiss) {
             } else {
                 swal2({
@@ -1569,48 +1589,6 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    private pageUnpaidUsers(text) {
-        this.redditService.postComment(text, this.currentRaffle.name).subscribe(response => {
-            if (response && response.json && response.json.data && response.json.data.things) {
-                let comment = response.json.data.things[0].data;
-                let pageList = [];
-                for (let x = 0; x < this.unpaidUsersArray.length; x++) {
-                    const raffler = this.unpaidUsersArray[x];
-                    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
-                        pageList.push(raffler);
-                    } else {
-                        pageList.push(this.userName);
-                    }
-                }
-
-                this.redditService.tagUsersInComment(pageList, comment.name).subscribe( tagTrainResponse => {
-                    if (tagTrainResponse === true) {
-                        swal2({
-                                title: 'Unpaid Users Paged!',
-                                type: 'success'
-                            }
-                        );
-                    } else {
-                        swal2({
-                                title: 'Error Paging Unpaid!',
-                                text: 'There was an error tagging all the unpaid users of your raffle. ' +
-                                'Check your raffle to see who was not tagged so you can tag them manually.',
-                                type: 'error'
-                            }
-                        );
-                    }
-
-                });
-            } else {
-                swal2({
-                        title: 'Error Paging Unpaid!',
-                        text: 'There was an error posting your comment. Try again or do it manually.',
-                        type: 'error'
-                    }
-                );
-            }
-        });
-    }
     private removeUnpaid() {
         swal2({
             title: 'Remove Unpaid Users?',
@@ -1727,6 +1705,8 @@ export class HomeComponent implements OnInit {
     }
 
     private tagUsersInRaffle(permalink: string) {
-
+        // this.redditService.getUsersRequestingTags(permalink).subscribe((usersResponse: any) => {
+        //     console.log(usersResponse);
+        // });
     }
 }
