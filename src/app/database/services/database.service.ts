@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {Observer} from 'rxjs/Observer';
 import {environment} from '../../../environments/environment';
 
 @Injectable()
@@ -13,69 +12,78 @@ export class DatabaseService {
     private paypalPmRecipientsUrl = this.databaseUri + '/paypal_pm_recipients';
     private modToolsUrl = this.databaseUri + '/mod_tools';
     private raffleParticipantsUrl = this.databaseUri + '/raffle_participants';
+    private subredditNotificationSettingsUrl = this.databaseUri + '/subreddit_notification_settings';
 
     constructor(private http: HttpClient) {
     }
 
     public storeProcessedComments(userId: string, submissionName: string, processedComments: string[]): Observable<any> {
-        let fullUri = this.processedCommentsUrl + '/' + userId + '/' + submissionName + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.processedCommentsUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.put(fullUri, processedComments, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
     public getProcessedComments(userId: string, submissionName: string): Observable<any> {
-        let fullUri = this.processedCommentsUrl + '/' + userId + '/' + submissionName + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.processedCommentsUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
     public storePaypalPmRecipients(userId: string, submissionName: string, paypalPmRecipients: string[]): Observable<any> {
-        let fullUri = this.paypalPmRecipientsUrl + '/' + userId + '/' + submissionName + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.paypalPmRecipientsUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.put(fullUri, paypalPmRecipients, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
     public getPaypalPmRecipients(userId: string, submissionName: string): Observable<any> {
-        let fullUri = this.paypalPmRecipientsUrl + '/' + userId + '/' + submissionName + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.paypalPmRecipientsUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
     public storeRaffleParticipants(userId: string, submissionName: string, raffleParticipants: any[]): Observable<any> {
-        let fullUri = this.raffleParticipantsUrl + '/' + userId + '/' + submissionName + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.raffleParticipantsUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.put(fullUri, raffleParticipants, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
     public getRaffleParticipants(userId: string, submissionName: string): Observable<any> {
-        let fullUri = this.raffleParticipantsUrl + '/' + userId + '/' + submissionName + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.raffleParticipantsUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
     public getModTools(modToolsId: string): Observable<any> {
-        let fullUri = this.modToolsUrl + '/' + modToolsId + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.modToolsUrl + '/' + modToolsId + '.json';
+        const headers = new HttpHeaders({});
+        headers.append('Accept', 'application/json');
+        return this.http.get(fullUri, {headers: headers})
+            .catch(this.handleErrorObservable);
+    }
+
+    public getSubredditNotificationSettings(subreddit: string): Observable<any> {
+        const fullUri = this.subredditNotificationSettingsUrl + '/' + subreddit + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
     public createModTools(modToolsId: string): Observable<any> {
-        let fullUri = this.modToolsUrl + '/' + modToolsId + '.json';
-        let headers = new HttpHeaders({});
+        const fullUri = this.modToolsUrl + '/' + modToolsId + '.json';
+        const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.put(fullUri, {created: true}, {headers: headers})
             .catch(this.handleErrorObservable);

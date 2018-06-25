@@ -117,6 +117,7 @@ export class HomeComponent implements OnInit {
     private interuptSlotAssignmentHelper = false;
     private haveShownModChatMessage = false;
     private redirectUrl = environment.baseUri + '/redirect?redirectUrl=';
+    private modToolsDiscordUrl = 'https://discordapp.com/api/webhooks/452145996663619594/vEUEJbaNlkjmRchtUTDAwnXlKcUWj8vfbvlYVxup5xwifO19tuHajsRCRTIQfGbmFPsk';
 
 
     private mods = {
@@ -1152,7 +1153,7 @@ export class HomeComponent implements OnInit {
 
                                         this.loadRaffleStorage(submission.name, this.userId);
 
-                                        this.createModTools();
+                                        this.sendOneTimeNotifications();
 
                                         if (this.hasNewFeature) {
                                             this.showNewFeatureMessage();
@@ -1363,16 +1364,33 @@ export class HomeComponent implements OnInit {
 
     }
 
-    private createModTools() {
+    private sendOneTimeNotifications() {
         this.modToolsId = Md5.hashStr(this.userId + this.currentRaffle.name) + '_' + this.currentRaffle.id;
 
         this.databaseService.getModTools(this.modToolsId).subscribe(modTools => {
             if (!modTools || !modTools.created) {
                 this.databaseService.createModTools(this.modToolsId).subscribe(createModToolsResponse => {
                     if (createModToolsResponse.created) {
-                        this.sendModToolsUri();
+                        this.sendNotifications();
                     }
                 });
+            }
+        });
+    }
+
+    private sendNotifications() {
+        this.sendModToolsUri();
+        this.sendNewRaffleDiscordNotifications();
+    }
+
+    private sendNewRaffleDiscordNotifications() {
+        this.databaseService.getSubredditNotificationSettings(this.currentRaffle.subreddit).subscribe(notificationSettings => {
+            if (notificationSettings && notificationSettings.discord) {
+               for (let i = 0; i < notificationSettings.discord.length; i++) {
+                   const notification = '@here New Raffle submitted by ' + this.userName + ' in ' + this.currentRaffle.subreddit + ': ' + this.currentRaffle.url;
+                   this.notificationService.sendDiscordNotification(notificationSettings.discord[i], notification, 'Raffle Tool').subscribe(res => {
+                   });
+               }
             }
         });
     }
@@ -1380,12 +1398,12 @@ export class HomeComponent implements OnInit {
     private sendModToolsUri() {
         if (environment.production) {
             const modToolsUri = environment.baseUri + '/mod-tools?modToolsId=' + this.modToolsId;
-            let notification = 'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
+            const notification = 'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
             switch (this.currentRaffle.subreddit) {
                 case 'WatchURaffle':
                 case 'testingground4bots':
                 case 'raffleTest':
-                    this.notificationService.sendEdcRaffleNotification(notification, 'Raffle Tool').subscribe(res => {
+                    this.notificationService.sendDiscordNotification(this.modToolsDiscordUrl , notification, 'Raffle Tool').subscribe(res => {
                     });
                     break;
 
