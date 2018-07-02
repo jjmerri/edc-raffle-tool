@@ -69,9 +69,6 @@ export class HomeComponent implements OnInit {
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
     private botMap = {
-        edc_raffle: '/u/BoyAndHisBot',
-        WatchBreakers: '/u/watchbreak',
-        WatchBreakersNM: '/u/watchbreak',
         WatchURaffle: '/u/BoyAndHisBot',
         discoredc: '/u/BoyAndHisBot',
         lego_raffles: '/u/BoyAndHisBot',
@@ -90,19 +87,13 @@ export class HomeComponent implements OnInit {
     private completeFlairId: string;
     private canEditFlair = false;
 
-    private collectingPaymentsFlairIdMap = {WatchBreakers: 'ace148c8-68ef-11e8-a7ef-0ed54689f6f8',
-        KnifeRaffle: 'af7ee3b6-8393-11e7-9270-0ea3887160ee',
-        WatchBreakersNM: '53486110-68f0-11e8-8742-0e667e3c5182',
+    private collectingPaymentsFlairIdMap = {KnifeRaffle: 'af7ee3b6-8393-11e7-9270-0ea3887160ee',
         WatchURaffle: '21f149cc-65e1-11e8-841b-0ef20c3a0810',
         raffleTest: '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6'};
-    private customRainbowFlairIdMap = {WatchBreakers: 'bf83aaca-68ef-11e8-ae83-0ec76c3ea78e',
-        KnifeRaffle: 'dcff298a-653e-11e8-88cf-0e7c1cf30a1a',
-        WatchBreakersNM: '5e0c9b8e-68f0-11e8-b3b3-0e839aa4b1a8',
+    private customRainbowFlairIdMap = {KnifeRaffle: 'dcff298a-653e-11e8-88cf-0e7c1cf30a1a',
         WatchURaffle: '096e7e42-65e1-11e8-8777-0e41b92bfac8',
         raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
-    private completeFlairIdMap = {WatchBreakers: '907d2904-68ef-11e8-9133-0e241e8f14f2',
-        KnifeRaffle: 'a55517d4-8393-11e7-ac46-0eb86c086f40',
-        WatchBreakersNM: '3cc437ac-68f0-11e8-8a4b-0e148b456748',
+    private completeFlairIdMap = {KnifeRaffle: 'a55517d4-8393-11e7-ac46-0eb86c086f40',
         WatchURaffle: '0d9e7080-65e1-11e8-bbda-0e5f20cd29ce',
     raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
 
@@ -121,11 +112,8 @@ export class HomeComponent implements OnInit {
 
 
     private mods = {
-        edc_raffle: ['EDCRaffleAdmin', 'EDCRaffleMod', 'EDCRaffleMod1', 'EDCRaffleMod2', 'EDCRaffleMod3', 'EDCRaffleMod4', 'EDCRaffleMod5', 'EDCRaffleDiscordMod'],
         discoredc: ['RubenStudddard'],
-        WatchBreakers: [''],
-        WatchBreakersNM: [''],
-        WatchURaffle: [''],
+        WatchURaffle: ['WatchRaffleAdmin', 'wurMod', 'WatchRaffleMod', 'WatchRaffleMod2'],
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
         KnifeRaffle: ['Plazzed', 'accidentlyporn', 'twolfcale', 'theoddjosh', 'Fbolanos', 'cda555', 'Gimli_The_Drunk'],
         SSBM: ['UNKNOWN'],
@@ -844,10 +832,11 @@ export class HomeComponent implements OnInit {
                 const slotsToAssign = slotsToAssignString.split(',');
                 for (let x = 0; x < slotsToAssign.length; x++) {
                     const calledSlot = slotsToAssign[x];
-                    assignedSlots[i].calledSlots.push(+calledSlot);
-                    this.assignSlot(slotAssignment.username, slotAssignment.requester ? slotAssignment.requester : slotAssignment.username, calledSlot, slotAssignment.donateSlot, false, false);
-
-                    slotAssignment.donateSlot = false;
+                    if (calledSlot) {
+                        assignedSlots[i].calledSlots.push(+calledSlot);
+                        this.assignSlot(slotAssignment.username, slotAssignment.requester ? slotAssignment.requester : slotAssignment.username, calledSlot, slotAssignment.donateSlot, false, false);
+                        slotAssignment.donateSlot = false;
+                    }
                 }
             }
         }
@@ -1504,15 +1493,11 @@ export class HomeComponent implements OnInit {
                     if (result.value && !result.dismiss) {
                         const tagTrainMessage = 'Raffle [Announcement](' + this.permalinkPlaceholder + ') Made';
 
-                        let uniqueParticipanList = [];
+                        const uniqueParticipanList = [];
                         for (let x = 0; x < this.raffleParticipants.length; x++) {
                             const raffler = this.raffleParticipants[x];
                             if (raffler.name && uniqueParticipanList.indexOf(raffler.name) === -1) {
-                                if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
-                                    uniqueParticipanList.push(raffler.name);
-                                } else {
-                                    uniqueParticipanList.push(this.userName);
-                                }
+                                uniqueParticipanList.push(this.getSanitizedUserName(raffler.name));
                             }
                         }
 
@@ -1532,6 +1517,10 @@ export class HomeComponent implements OnInit {
     }
 
     private sendAnnouncement(announcementText, tagTrainMessage, listOfUsers) {
+        if (!listOfUsers || !listOfUsers.length) {
+            return;
+        }
+
         this.redditService.postComment(announcementText, this.currentRaffle.name).subscribe(response => {
             if (response && response.json && response.json.data && response.json.data.things) {
                 let announcement = response.json.data.things[0].data;
@@ -1584,17 +1573,12 @@ export class HomeComponent implements OnInit {
             if (text && !text.dismiss) {
                 const tagTrainMessage = '[Announcement](' + this.permalinkPlaceholder + ') made for unpaid participants';
 
-                let pageList = [];
+                const pageList = [];
                 for (let x = 0; x < this.unpaidUsersArray.length; x++) {
-                    const raffler = this.unpaidUsersArray[x];
-                    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
-                        pageList.push(raffler);
-                    } else {
-                        pageList.push(this.userName);
-                    }
+                    pageList.push(this.getSanitizedUserName(this.unpaidUsersArray[x]));
                 }
 
-                this.sendAnnouncement(text.value,tagTrainMessage, pageList);
+                this.sendAnnouncement(text.value, tagTrainMessage, pageList);
             } else if (text && text.dismiss) {
             } else {
                 swal2({
@@ -1694,22 +1678,22 @@ export class HomeComponent implements OnInit {
             title: 'Tag Users?',
             text: 'Enter a permalink and click "Tag Users" to tag everyone who replied to that comment.',
             input: 'text',
-            inputPlaceholder: '/r/edc_raffle/comments/the_rest_of_your_permalink/',
+            inputPlaceholder: '/r/WatchURaffle/comments/the_rest_of_your_permalink/',
             confirmButtonText: 'Tag Users',
             showCancelButton: true,
             inputValidator: (value) => {
                 return new Promise((resolve) => {
-                    const permalinkRegex = /^\/?r\/.+$/g;
+                    const permalinkRegex = /^(https:\/\/www\.reddit\.com)?\/?r\/.+$/g;
                     if (permalinkRegex.test(value)) {
                         resolve()
                     } else {
-                        resolve('Please enter a premalink, example: /r/edc_raffle/comments/the_rest_of_your_permalink/')
+                        resolve('Please enter a premalink, example: /r/WatchURaffle/comments/the_rest_of_your_permalink/')
                     }
                 })
             }
         }).then((text) => {
             if (text && !text.dismiss) {
-                this.tagUsersInRaffle(text.value);
+                this.tagUsersInRaffle(text.value.replace('https://www.reddit.com', ''));
             } else if (text && text.dismiss) {
             } else {
                 swal2({
@@ -1723,8 +1707,42 @@ export class HomeComponent implements OnInit {
     }
 
     private tagUsersInRaffle(permalink: string) {
-        // this.redditService.getUsersRequestingTags(permalink).subscribe((usersResponse: any) => {
-        //     console.log(usersResponse);
-        // });
+        const commentMessage = 'Tagging users who requested tags [here.](' + permalink + ')';
+        const tagTrainMessage = '[Raffle live!](' + this.currentRaffle.permalink + ') You are being tagged because you replied to [this comment.](' + permalink + ')';
+
+        this.redditService.getPostComments(permalink).subscribe((post: any) => {
+            console.log(post);
+            const tagList = [];
+            const comments = post[0].data.replies.data.children;
+
+            for (let i = 0; i < comments.length; i++) {
+                tagList.push(this.getSanitizedUserName(comments[i].data.author));
+            }
+            if (post[0].data.author === this.userName) {
+                this.sendAnnouncement(commentMessage, tagTrainMessage, tagList);
+            } else {
+
+                swal2({
+                    title: 'Tag Users To Raffle?',
+                    text: 'The comment you linked to is not your own. Are you sure you want to tag everyone who replied to it?',
+                    type: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Tag Users'
+                }).then((result) => {
+                    if (result.value) {
+                        this.sendAnnouncement(commentMessage, tagTrainMessage, tagList);
+                    }
+                });
+            }
+        });
+    }
+
+    private getSanitizedUserName(userName): string {
+        if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
+            return userName;
+        } else {
+            return this.userName;
+        }
     }
 }

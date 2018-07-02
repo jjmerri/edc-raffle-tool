@@ -19,8 +19,8 @@ export class RedditService {
     private inboxUrl = this.secureRedditUrl + '/message/inbox';
     private childrenUrl = this.secureRedditUrl + '/api/morechildren';
     private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
-    private approvedSubs = ['WatchBreakers', 'WatchBreakersNM', 'WatchURaffle', 'edc_raffle', 'discoredc', 'testingground4bots', 'KnifeRaffle', 'WrestlingRaffle', 'SSBM', 'raffleTest', 'lego_raffles'];
-    private subSubmissionAgeDays = {edc_raffle: 2, discoredc: 7, WatchBreakers: 7, WatchBreakersNM: 7, WatchURaffle: 7, testingground4bots: 2, WrestlingRaffle: 2, KnifeRaffle: 7, SSBM: 4, raffleTest: 2, lego_raffles: 2};
+    private approvedSubs = ['WatchURaffle', 'discoredc', 'testingground4bots', 'KnifeRaffle', 'WrestlingRaffle', 'SSBM', 'raffleTest', 'lego_raffles'];
+    private subSubmissionAgeDays = {discoredc: 7, WatchURaffle: 7, testingground4bots: 2, WrestlingRaffle: 2, KnifeRaffle: 7, SSBM: 4, raffleTest: 2, lego_raffles: 2};
     private maxSubmissionAgeDays = 7;
 
     constructor(private http: HttpClient, private oauthService: OauthService) {
@@ -107,7 +107,7 @@ export class RedditService {
                                 }
                             } else if (this.approvedSubs.indexOf(submission.subreddit) !== -1 &&
                                 submissionAge <= allowedSubSubmissionAgeDays * secondsInDay &&
-                                submission.link_flair_text !== 'Complete' && submission.link_flair_text !== 'Canceled') {
+                                submission.link_flair_text !== 'Complete' && submission.link_flair_text !== 'Canceled' && submission.link_flair_text !== 'Cancelled') {
                                 currentRaffles.push(submission);
                             }
                         }
