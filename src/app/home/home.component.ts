@@ -109,7 +109,8 @@ export class HomeComponent implements OnInit {
     private haveShownModChatMessage = false;
     private redirectUrl = environment.baseUri + '/redirect?redirectUrl=';
     private modToolsDiscordUrl = 'https://discordapp.com/api/webhooks/452145996663619594/vEUEJbaNlkjmRchtUTDAwnXlKcUWj8vfbvlYVxup5xwifO19tuHajsRCRTIQfGbmFPsk';
-
+    private notificationSettings = null;
+    private publicRedditUrl = 'https://www.reddit.com';
 
     private mods = {
         discoredc: ['RubenStudddard'],
@@ -1257,6 +1258,10 @@ export class HomeComponent implements OnInit {
             this.canEditFlair = true;
             this.autoUpdateFlair = true;
         }
+
+        this.databaseService.getSubredditNotificationSettings(subreddit).subscribe(notificationSettings => {
+            this.notificationSettings = notificationSettings;
+        });
     }
 
     private callTheBot() {
@@ -1368,20 +1373,19 @@ export class HomeComponent implements OnInit {
     }
 
     private sendNotifications() {
+        const notification = '@here New Raffle submitted by ' + this.userName + ' in ' + this.currentRaffle.subreddit + ': ' + this.currentRaffle.url;
+
         this.sendModToolsUri();
-        this.sendNewRaffleDiscordNotifications();
+        this.sendDiscordNotifications(notification);
     }
 
-    private sendNewRaffleDiscordNotifications() {
-        this.databaseService.getSubredditNotificationSettings(this.currentRaffle.subreddit).subscribe(notificationSettings => {
-            if (notificationSettings && notificationSettings.discord) {
-               for (let i = 0; i < notificationSettings.discord.length; i++) {
-                   const notification = '@here New Raffle submitted by ' + this.userName + ' in ' + this.currentRaffle.subreddit + ': ' + this.currentRaffle.url;
-                   this.notificationService.sendDiscordNotification(notificationSettings.discord[i], notification, 'Raffle Tool').subscribe(res => {
-                   });
-               }
-            }
-        });
+    private sendDiscordNotifications(notification: string) {
+        if (this.notificationSettings && this.notificationSettings.discord) {
+           for (let i = 0; i < this.notificationSettings.discord.length; i++) {
+               this.notificationService.sendDiscordNotification(this.notificationSettings.discord[i], notification, 'Raffle Tool').subscribe(res => {
+               });
+           }
+        }
     }
 
     private sendModToolsUri() {
@@ -1501,7 +1505,7 @@ export class HomeComponent implements OnInit {
                             }
                         }
 
-                        this.sendAnnouncement(text.value, tagTrainMessage, uniqueParticipanList);
+                        this.sendAnnouncement(text.value, tagTrainMessage, uniqueParticipanList, true);
                     }
                 });
             } else if (text && text.dismiss) {
@@ -1516,7 +1520,7 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    private sendAnnouncement(announcementText, tagTrainMessage, listOfUsers) {
+    private sendAnnouncement(announcementText, tagTrainMessage, listOfUsers, sendDiscordNotification: boolean) {
         if (!listOfUsers || !listOfUsers.length) {
             return;
         }
@@ -1524,6 +1528,11 @@ export class HomeComponent implements OnInit {
         this.redditService.postComment(announcementText, this.currentRaffle.name).subscribe(response => {
             if (response && response.json && response.json.data && response.json.data.things) {
                 let announcement = response.json.data.things[0].data;
+
+                if (sendDiscordNotification) {
+                    const notification = '@here Raffle announcement made by ' + this.userName + ': ' + this.publicRedditUrl + announcement.permalink;
+                    this.sendDiscordNotifications(notification);
+                }
 
                 if (tagTrainMessage.indexOf(this.permalinkPlaceholder) !== -1) {
                     tagTrainMessage = tagTrainMessage.replace(this.permalinkPlaceholder, announcement.permalink)
@@ -1578,7 +1587,7 @@ export class HomeComponent implements OnInit {
                     pageList.push(this.getSanitizedUserName(this.unpaidUsersArray[x]));
                 }
 
-                this.sendAnnouncement(text.value, tagTrainMessage, pageList);
+                this.sendAnnouncement(text.value, tagTrainMessage, pageList, false);
             } else if (text && text.dismiss) {
             } else {
                 swal2({
@@ -1719,7 +1728,7 @@ export class HomeComponent implements OnInit {
                 tagList.push(this.getSanitizedUserName(comments[i].data.author));
             }
             if (post[0].data.author === this.userName) {
-                this.sendAnnouncement(commentMessage, tagTrainMessage, tagList);
+                this.sendAnnouncement(commentMessage, tagTrainMessage, tagList, false);
             } else {
 
                 swal2({
@@ -1731,7 +1740,7 @@ export class HomeComponent implements OnInit {
                     confirmButtonText: 'Tag Users'
                 }).then((result) => {
                     if (result.value) {
-                        this.sendAnnouncement(commentMessage, tagTrainMessage, tagList);
+                        this.sendAnnouncement(commentMessage, tagTrainMessage, tagList, false);
                     }
                 });
             }
