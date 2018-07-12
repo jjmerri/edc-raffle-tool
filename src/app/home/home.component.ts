@@ -108,7 +108,7 @@ export class HomeComponent implements OnInit {
     private interuptSlotAssignmentHelper = false;
     private haveShownModChatMessage = false;
     private redirectUrl = environment.baseUri + '/redirect?redirectUrl=';
-    private modToolsDiscordUrl = 'https://discordapp.com/api/webhooks/452145996663619594/vEUEJbaNlkjmRchtUTDAwnXlKcUWj8vfbvlYVxup5xwifO19tuHajsRCRTIQfGbmFPsk';
+    private modToolsDiscordUrl = null;
     private notificationSettings = null;
     private publicRedditUrl = 'https://www.reddit.com';
 
@@ -1389,20 +1389,11 @@ export class HomeComponent implements OnInit {
     }
 
     private sendModToolsUri() {
-        if (environment.production) {
-            const modToolsUri = environment.baseUri + '/mod-tools?modToolsId=' + this.modToolsId;
-            const notification = 'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
-            switch (this.currentRaffle.subreddit) {
-                case 'WatchURaffle':
-                case 'testingground4bots':
-                case 'raffleTest':
-                    this.notificationService.sendDiscordNotification(this.modToolsDiscordUrl , notification, 'Raffle Tool').subscribe(res => {
-                    });
-                    break;
-
-                default:
-                    break;
-            }
+        const modToolsUri = environment.baseUri + '/mod-tools?modToolsId=' + this.modToolsId;
+        const notification = 'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
+        if (this.notificationSettings && this.notificationSettings.mod_tools_discord) {
+            this.notificationService.sendDiscordNotification(this.notificationSettings.mod_tools_discord, notification, 'Raffle Tool').subscribe(res => {
+            });
         }
     }
 
