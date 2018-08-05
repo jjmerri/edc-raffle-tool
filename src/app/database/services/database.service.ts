@@ -12,7 +12,7 @@ export class DatabaseService {
     private paypalPmRecipientsUrl = this.databaseUri + '/paypal_pm_recipients';
     private modToolsUrl = this.databaseUri + '/mod_tools';
     private raffleParticipantsUrl = this.databaseUri + '/raffle_participants';
-    private subredditNotificationSettingsUrl = this.databaseUri + '/subreddit_notification_settings';
+    private subredditSettingsUrl = this.databaseUri + '/subreddit_settings';
 
     constructor(private http: HttpClient) {
     }
@@ -73,8 +73,8 @@ export class DatabaseService {
             .catch(this.handleErrorObservable);
     }
 
-    public getSubredditNotificationSettings(subreddit: string): Observable<any> {
-        const fullUri = this.subredditNotificationSettingsUrl + '/' + subreddit + '.json';
+    public getSubredditSettings(subreddit: string): Observable<any> {
+        const fullUri = this.subredditSettingsUrl + '/' + subreddit + '.json';
         const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})

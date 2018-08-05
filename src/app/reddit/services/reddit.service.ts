@@ -4,6 +4,7 @@ import {Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
 import {OauthService} from '../../oauth/services/oauth.service';
+import {DatabaseService} from "../../database/services/database.service";
 
 @Injectable()
 export class RedditService {

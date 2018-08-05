@@ -68,17 +68,7 @@ export class HomeComponent implements OnInit {
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
-    private botMap = {
-        WatchURaffle: '/u/BoyAndHisBot',
-        discoredc: '/u/BoyAndHisBot',
-        lego_raffles: '/u/BoyAndHisBot',
-        testingground4bots: '/u/BoyAndHisBot',
-        KnifeRaffle: '/u/raffle_verification',
-        WrestlingRaffle: '/u/BoyAndHisBot',
-        SSBM: '/u/BoyAndHisBot',
-        raffleTest: '/u/BoyAndHisBot'
-    };
-    private botUsername = '/u/callthebot';
+    private botUsername = 'callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
 
@@ -86,16 +76,6 @@ export class HomeComponent implements OnInit {
     private customRainbowFlairId: string;
     private completeFlairId: string;
     private canEditFlair = false;
-
-    private collectingPaymentsFlairIdMap = {KnifeRaffle: 'af7ee3b6-8393-11e7-9270-0ea3887160ee',
-        WatchURaffle: '21f149cc-65e1-11e8-841b-0ef20c3a0810',
-        raffleTest: '8f269dd4-c4f7-11e7-9462-0eac5e2adfd6'};
-    private customRainbowFlairIdMap = {KnifeRaffle: 'dcff298a-653e-11e8-88cf-0e7c1cf30a1a',
-        WatchURaffle: '096e7e42-65e1-11e8-8777-0e41b92bfac8',
-        raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
-    private completeFlairIdMap = {KnifeRaffle: 'a55517d4-8393-11e7-ac46-0eb86c086f40',
-        WatchURaffle: '0d9e7080-65e1-11e8-bbda-0e5f20cd29ce',
-    raffleTest: '93c6af96-c4f7-11e7-90e7-0eaf69165a10'};
 
     private readonly permalinkPlaceholder = '{announcementPermalink}';
     private botCalled = false;
@@ -555,6 +535,7 @@ export class HomeComponent implements OnInit {
         const message = messages[messageIndex];
         const slotNumberMap = this.getSlotNumberMap(message.data.author);
         const authorPaid = this.isUserPaid(message.data.author);
+        const numTotalSlotsUnpaidRequested = this.getNumUnpaidRequestedSlots(message.data.author);
 
         let authorHasSlots = false;
         let authorRequestedForAnother = false;
@@ -582,7 +563,7 @@ export class HomeComponent implements OnInit {
             numTotalSlotsRequested += numSlotsForOwner;
         }
 
-        let requestedSlotHtml = '<h3 class="text-left">From: ' + message.data.author + ' (' + numTotalSlotsRequested + ' total requested slots)</h3>' +
+        let requestedSlotHtml = '<h3 class="text-left">From: ' + message.data.author + ' (' + numTotalSlotsUnpaidRequested + ' unpaid of ' + numTotalSlotsRequested + ' total requested slots)</h3>' +
             '<h3 class="text-left">Subject: ' + message.data.subject + '</h3>';
 
         if (authorRequestedForAnother) {
@@ -1248,19 +1229,33 @@ export class HomeComponent implements OnInit {
     }
 
     private setSubredditSettings(subreddit: string) {
-        this.botUsername = this.botMap[subreddit];
+        this.databaseService.getSubredditSettings(subreddit).subscribe(subredditSettings => {
+            if (subredditSettings) {
+                this.notificationSettings = subredditSettings.notification;
+                this.botUsername = subredditSettings.botName;
 
-        this.collectingPaymentsFlairId = this.collectingPaymentsFlairIdMap[subreddit];
-        this.customRainbowFlairId = this.customRainbowFlairIdMap[subreddit];
-        this.completeFlairId = this.completeFlairIdMap[subreddit];
+                const flairSettings = subredditSettings.flair;
 
-        if (this.customRainbowFlairId) {
-            this.canEditFlair = true;
-            this.autoUpdateFlair = true;
-        }
+                if (flairSettings) {
+                    this.collectingPaymentsFlairId = flairSettings.collecting;
+                    this.customRainbowFlairId = flairSettings.editable;
+                    this.completeFlairId = flairSettings.complete;
+                }
 
-        this.databaseService.getSubredditNotificationSettings(subreddit).subscribe(notificationSettings => {
-            this.notificationSettings = notificationSettings;
+                if (flairSettings && flairSettings.editable) {
+                    this.canEditFlair = true;
+                    this.autoUpdateFlair = true;
+                }
+            } else {
+                swal2({
+                        title: 'Error getting subreddit settings!',
+                        text: 'Please try relinking the raffle tool. If the error persists please contact BoyAndHisBlob.',
+                        type: 'error',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                    }
+                );
+            }
         });
     }
 
@@ -1276,7 +1271,7 @@ export class HomeComponent implements OnInit {
                 }
             ).then((result) => {
                 if (result.value) {
-                    this.redditService.postComment(this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
+                    this.redditService.postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
                     });
                     this.updateFlair(this.completeFlairId, 'Complete');
                     this.botCalled = true;
@@ -1744,5 +1739,19 @@ export class HomeComponent implements OnInit {
         } else {
             return this.userName;
         }
+    }
+
+    private getNumUnpaidRequestedSlots(userName: string): number {
+        let numRequestedUnpaid = 0;
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (((raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
+                (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())) && !raffler.paid
+            )  {
+                numRequestedUnpaid += 1;
+            }
+        }
+
+        return numRequestedUnpaid;
     }
 }
