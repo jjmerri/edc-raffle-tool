@@ -20,7 +20,8 @@ import {ModToolsModule} from './mod-tools/mod-tools.module';
 import { AppComponent } from './app.component';
 import {LogglyService} from 'ngx-loggly-logger';
 import {NotificationService} from './notification/services/notification.service';
-import {RedirectModule} from "./redirect/redirect.module";
+import {RedirectModule} from './redirect/redirect.module';
+import {LoggingService} from './logging-service/services/logging.service';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,7 @@ import {RedirectModule} from "./redirect/redirect.module";
       ModalModule.forRoot(),
       BootstrapModalModule
   ],
-  providers: [OauthService, RedditService, DatabaseService, LogglyService, NotificationService],
+  providers: [OauthService, RedditService, DatabaseService, LogglyService, LoggingService, NotificationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

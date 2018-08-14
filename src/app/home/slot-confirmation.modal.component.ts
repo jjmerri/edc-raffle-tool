@@ -131,7 +131,12 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
 
     private addSlotAssignment(username?: string) {
         if (username && username !== this.context.comment.data.author && !this.isDonationComment) {
-            this.confirmationMessageText += '\n\n' + username + ' got {' + username + '_ALL_SLOTS}';
+            let tagPrefix = '';
+            if (this.context.comment.data.subreddit !== 'raffleTest' && this.context.comment.data.subreddit !== 'testingground4bots') {
+                tagPrefix = '/u/';
+            }
+
+            this.confirmationMessageText += '\n\n' + tagPrefix + username + ' got {' + username + '_ALL_SLOTS}';
         }
 
         this.slotAssignments.push(

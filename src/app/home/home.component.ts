@@ -1,3 +1,5 @@
+import {LoggingLevel} from "../shared/logging-level";
+
 declare var fuckAdBlock: FuckAdBlock;
 
 import {Component, OnInit} from '@angular/core';
@@ -28,6 +30,7 @@ import {RafflePickerModalComponent} from './raffle-picker.modal.component';
 import {TermsOfServiceModalComponent} from './terms-of-service.modal.component';
 import {LogglyService} from 'ngx-loggly-logger';
 import {NotificationService} from '../notification/services/notification.service';
+import {LoggingService} from '../logging-service/services/logging.service';
 
 @Component({
     selector: 'app-home',
@@ -103,7 +106,7 @@ export class HomeComponent implements OnInit {
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService,
-                private logglyService: LogglyService, private notificationService: NotificationService) {
+                private loggingService: LoggingService, private notificationService: NotificationService) {
     }
 
     ngOnInit() {
@@ -111,8 +114,6 @@ export class HomeComponent implements OnInit {
         if (!this.hasSeenTermsOfService) {
             this.showTermsOfService();
         }
-
-        this.configureLoggingService();
         this.configureAdblockerCheck();
 
         this.activatedRoute.queryParams.subscribe((params: Params) => {
@@ -121,6 +122,7 @@ export class HomeComponent implements OnInit {
                     if (res.success === true) {
                         this.loadRaffle();
                     } else {
+                        this.loggingService.logMessage('error retrieving access token', LoggingLevel.ERROR);
                         console.error('error retrieving access token', res);
                     }
 
@@ -298,6 +300,7 @@ export class HomeComponent implements OnInit {
                         .subscribe(postResponse => {
                             },
                             err => {
+                                this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
                                 console.error(err);
                             }
                         );
@@ -318,12 +321,7 @@ export class HomeComponent implements OnInit {
 
                     this.updateFlair(flairId, flairText);
 
-                    this.logglyService.push({
-                        slotList: this.commentText,
-                        raffleId: this.currentRaffle.name,
-                        subreddit: this.currentRaffle.subreddit,
-                        userName: this.userName
-                    });
+                    this.loggingService.logMessage(this.commentText, LoggingLevel.SLOT_LIST)
 
                     //prevents overwriting the saved participant list when it hasn't been fully loaded from an import yet
                     if (this.hasRequesters(this.raffleParticipants)) {
@@ -333,6 +331,7 @@ export class HomeComponent implements OnInit {
 
                 },
                 err => {
+                    this.loggingService.logMessage('getSubmission:' + JSON.stringify(err), LoggingLevel.ERROR);
                     console.error(err);
                 }
             );
@@ -518,7 +517,19 @@ export class HomeComponent implements OnInit {
             } else {
                 this.showNoUnpaidPms();
             }
-        });
+        },
+            err => {
+                this.loggingService.logMessage('getPmsAfter:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error(err);
+
+                swal2(
+                    'Error Retrieving PMs!',
+                    'There was an error retrieving your PMs. This could be an issue with Reddit. ' +
+                    'Try again and if the error persists please let BoyAndHisBlob know so he can check the logs.',
+                    'error'
+                );
+
+            });
     }
 
     private showPm(messages: any, messageIndex: number) {
@@ -577,6 +588,9 @@ export class HomeComponent implements OnInit {
         contentDiv.innerHTML = requestedSlotHtml;
 
         if (slotNumberMap.size && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
+            this.loggingService.logMessage('slotNumberMap:' + JSON.stringify(slotNumberMap), LoggingLevel.INFO);
+            this.loggingService.logMessage('message:' + JSON.stringify(message), LoggingLevel.INFO);
+
             this.numPayPmsProcessed++;
             swal({
                 title: 'Unpaid Raffle Participant PMs',
@@ -773,7 +787,9 @@ export class HomeComponent implements OnInit {
                     BSModalContext))
                 .then(dialogRef => {
                     dialogRef.result.then(result => {
+                        this.loggingService.logMessage('result:' + JSON.stringify(result), LoggingLevel.INFO);
                         if (result && result.slotAssignments && result.slotAssignments.length > 0) {
+                            this.loggingService.logMessage('comment:' + JSON.stringify(comments[commentIndex]), LoggingLevel.INFO);
                             this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name);
                         }
 
@@ -781,7 +797,22 @@ export class HomeComponent implements OnInit {
                             this.confirmedComments.push(comments[commentIndex].data.name);
 
                             this.databaseService.storeProcessedComments(this.userId, this.currentRaffle.name, this.confirmedComments).subscribe(res => {
-                            });
+                            },
+                                err => {
+                                    this.loggingService.logMessage('storeProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
+                                    console.error(err);
+
+                                    swal2(
+                                        'Error Marking Slot Request As Processed!',
+                                        'There was an error marking the slot request as processed. ' +
+                                        'This could cause the request to be processed twice. ' +
+                                        'To resolve this please close The Raffle Tool, relink to your raffle, run the Slot Assignment Helper, ' +
+                                        'and skip the comment so you don\'t process it again.',
+                                        'error'
+                                    );
+
+                                });
+
                             if (commentIndex < comments.length - 1) {
                                 this.showSlotAssignmentModal(comments, commentIndex + 1);
                             } else {
@@ -891,6 +922,7 @@ export class HomeComponent implements OnInit {
     private sendConfirmationReply(slotAssignments: any, confirmationMessage: string, commentId: string) {
         this.redditService.postComment(this.getCommentText(slotAssignments, confirmationMessage), commentId).subscribe(response => {
                 if (!response || !response.json || !response.json.data) {
+                    this.loggingService.logMessage('error sending confirmation response:' + JSON.stringify(response), LoggingLevel.ERROR);
                     console.error('error sending confirmation response', response);
                     let threadLocked = false;
                     if (response.json.errors && response.json.errors.length) {
@@ -911,6 +943,7 @@ export class HomeComponent implements OnInit {
                 }
             },
             error => {
+                this.loggingService.logMessage('error sending confirmation response:' + JSON.stringify(error), LoggingLevel.ERROR);
                 console.error('error sending confirmation response', error);
                 alert('Unable to send confirmation message. please do so manually.');
             });
@@ -1040,6 +1073,7 @@ export class HomeComponent implements OnInit {
                             observer.next(raffle);
                             observer.complete();
                         }).catch(err => {
+                            this.loggingService.logMessage('selectRaffle:' + JSON.stringify(err), LoggingLevel.ERROR);
                             console.error(err);
                             observer.error(err);
                             observer.complete();
@@ -1067,6 +1101,7 @@ export class HomeComponent implements OnInit {
                 dialogRef.result.then(userAgreementIndicator => {
                     localStorage.setItem(this.tosKey, JSON.stringify(userAgreementIndicator));
                 }).catch(err => {
+                    this.loggingService.logMessage('showTermsOfService:' + JSON.stringify(err), LoggingLevel.ERROR);
                     console.error(err);
                 });
             });
@@ -1118,6 +1153,7 @@ export class HomeComponent implements OnInit {
                                 if (submissionsResponse && submissionsResponse.length > 0) {
                                     this.selectRaffle(submissionsResponse).subscribe(submission => {
                                         this.currentRaffle = submission;
+                                        this.initLoggingService();
                                         this.importRaffleSlots(submission);
 
                                         this.setSubredditSettings(submission.subreddit);
@@ -1134,12 +1170,14 @@ export class HomeComponent implements OnInit {
                                 }
                             },
                             err => {
+                                this.loggingService.logMessage('getCurrentRaffleSubmissions:' + JSON.stringify(err), LoggingLevel.ERROR);
                                 console.error(err);
                             }
                         );
                 }
             },
             err => {
+                this.loggingService.logMessage('getUserDetails:' + JSON.stringify(err), LoggingLevel.ERROR);
                 console.error(err);
             }
         );
@@ -1272,9 +1310,23 @@ export class HomeComponent implements OnInit {
             ).then((result) => {
                 if (result.value) {
                     this.redditService.postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
-                    });
-                    this.updateFlair(this.completeFlairId, 'Complete');
-                    this.botCalled = true;
+                            this.updateFlair(this.completeFlairId, 'Complete');
+                            this.botCalled = true;
+                        },
+                        err => {
+                            this.loggingService.logMessage('callTheBot:' + JSON.stringify(err), LoggingLevel.ERROR);
+                            console.error(err);
+
+                            swal2(
+                                'Error Calling The Bot!',
+                                'There was an error calling the bot. ' +
+                                'This could be a Reddit issue. Wait a minute, check your raffle to see if it was definitely not called ' +
+                                'and if it wasn\'t, call it manually or try clicking the call the bot button again. ' +
+                                'If you call it manually, don\'t forget to change your raffle\'s flair to Complete.',
+                                'error'
+                            );
+                        }
+                        );
                 }
             });
         } else {
@@ -1341,16 +1393,6 @@ export class HomeComponent implements OnInit {
                 }
             });
         }
-    }
-
-    private configureLoggingService() {
-        // Init to set key and tag and sendConsoleErrors boolean
-        this.logglyService.push({
-            'logglyKey': 'c533a0e8-2a33-4aeb-8a76-fbf26387621e',
-            'sendConsoleErrors': true, // Optional set true to send uncaught console errors
-            'tag': 'raffletool'
-        });
-
     }
 
     private sendOneTimeNotifications() {
@@ -1706,7 +1748,6 @@ export class HomeComponent implements OnInit {
         const tagTrainMessage = '[Raffle live!](' + this.currentRaffle.permalink + ') You are being tagged because you replied to [this comment.](' + permalink + ')';
 
         this.redditService.getPostComments(permalink).subscribe((post: any) => {
-            console.log(post);
             const tagList = [];
             const comments = post[0].data.replies.data.children;
 
@@ -1753,5 +1794,10 @@ export class HomeComponent implements OnInit {
         }
 
         return numRequestedUnpaid;
+    }
+
+    private initLoggingService() {
+        this.loggingService.setCurrentRaffle(this.currentRaffle);
+        this.loggingService.setUserName(this.userName);
     }
 }
