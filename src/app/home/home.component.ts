@@ -476,7 +476,17 @@ export class HomeComponent implements OnInit {
             this.redditService.sendPm(recipient, subject.substr(0, 100),
                 this.payPalPmMessage + payPalFormatted +
                 '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe(res => {
-            });
+            }, err => {
+                    this.loggingService.logMessage('sendPm:' + JSON.stringify(err), LoggingLevel.ERROR);
+                    console.error(err);
+
+                    swal2(
+                        'Error Sending PayPal PM!',
+                        'There was an error sending the PayPal PM to ' + recipient +
+                        ' Please send them a PM manually.',
+                        'error'
+                    );
+                });
             this.paypalPmRecipients.push(recipient.toUpperCase());
             this.databaseService.storePaypalPmRecipients(this.userId, this.currentRaffle.name, this.paypalPmRecipients).subscribe(res => {
             });
@@ -766,6 +776,16 @@ export class HomeComponent implements OnInit {
                 this.isSlotAssignmentHelperRunning = false;
                 this.interuptSlotAssignmentHelper = false;
             }
+        }, err => {
+            this.loggingService.logMessage('getTopLevelComments:' + JSON.stringify(err), LoggingLevel.ERROR);
+            console.error(err);
+
+            swal2(
+                'Error Getting Post Comments!',
+                'There was an error retrieving comments for your raffle. ' +
+                'This could be a temporary Reddit issue. Wait a minute and try again. If the error persists please let BoyAndHisBlob know.',
+                'error'
+            );
         });
     }
 
@@ -790,7 +810,7 @@ export class HomeComponent implements OnInit {
                         this.loggingService.logMessage('result:' + JSON.stringify(result), LoggingLevel.INFO);
                         if (result && result.slotAssignments && result.slotAssignments.length > 0) {
                             this.loggingService.logMessage('comment:' + JSON.stringify(comments[commentIndex]), LoggingLevel.INFO);
-                            this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name);
+                            this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name, comments[commentIndex].data.author);
                         }
 
                         if (result) {
@@ -802,14 +822,12 @@ export class HomeComponent implements OnInit {
                                     this.loggingService.logMessage('storeProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
                                     console.error(err);
 
-                                    swal2(
-                                        'Error Marking Slot Request As Processed!',
-                                        'There was an error marking the slot request as processed. ' +
-                                        'This could cause the request to be processed twice. ' +
-                                        'To resolve this please close The Raffle Tool, relink to your raffle, run the Slot Assignment Helper, ' +
-                                        'and skip the comment so you don\'t process it again.',
-                                        'error'
-                                    );
+                                    alert('There was an error marking the slot request as processed. ' +
+                                        'To resolve this please close The Raffle Tool and relink to your raffle. ' +
+                                        'You might have to process the slot request again. ' +
+                                        'Check to see if the requested slots are in the tool after relinking. ' +
+                                        'If not then process the request again like you normally would. ' +
+                                        'Otherwise skip it since it was already processed.');
 
                                 });
 
@@ -919,7 +937,7 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    private sendConfirmationReply(slotAssignments: any, confirmationMessage: string, commentId: string) {
+    private sendConfirmationReply(slotAssignments: any, confirmationMessage: string, commentId: string, author: string) {
         this.redditService.postComment(this.getCommentText(slotAssignments, confirmationMessage), commentId).subscribe(response => {
                 if (!response || !response.json || !response.json.data) {
                     this.loggingService.logMessage('error sending confirmation response:' + JSON.stringify(response), LoggingLevel.ERROR);
@@ -938,14 +956,25 @@ export class HomeComponent implements OnInit {
                     if (threadLocked) {
                         alert('YOUR RAFFLE HAS BEEN LOCKED BY THE MODS!!! Please go look at your post and work with the mods to resolve the issue.');
                     } else {
-                        alert('Unable to send confirmation message. please do so manually.');
+                        alert(
+                            'There was an error sending the confirmation message to ' + author + '. ' +
+                            'If this is the only error message you receive ' +
+                            'then check that their slots were assigned properly and manually reply to them. ' +
+                            'If you got or get another error message telling you to relink the tool then follow the instructions in that message.'
+                        );
                     }
                 }
             },
             error => {
                 this.loggingService.logMessage('error sending confirmation response:' + JSON.stringify(error), LoggingLevel.ERROR);
                 console.error('error sending confirmation response', error);
-                alert('Unable to send confirmation message. please do so manually.');
+
+                alert(
+                    'There was an error sending the confirmation message to ' + author + '. ' +
+                    'If this is the only error message you receive ' +
+                    'then check that their slots were assigned properly and manually reply to them. ' +
+                    'If you see or saw another error message telling you to relink the tool then follow the instructions in that message.'
+                );
             });
     }
 
@@ -972,6 +1001,17 @@ export class HomeComponent implements OnInit {
             if (comments) {
                 this.confirmedComments = comments;
             }
+        }, err => {
+            this.loggingService.logMessage('getProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
+            console.error(err);
+
+            swal2(
+                'Error Getting Previous Processed Comments!',
+                'There was an error retrieving comments you already processed. ' +
+                'This could cause you to process comments again. Try relinking The Raffle Tool to resolve the issue. ' +
+                'If it persists please let BoyAndHisBlob know.',
+                'error'
+            );
         });
 
         this.databaseService.getPaypalPmRecipients(userId, raffleName).subscribe(paypalPmRecipients => {
@@ -1294,6 +1334,17 @@ export class HomeComponent implements OnInit {
                     }
                 );
             }
+        }, err => {
+            this.loggingService.logMessage('getSubredditSettings:' + JSON.stringify(err), LoggingLevel.ERROR);
+            console.error(err);
+
+            swal2(
+                'Error Getting Subreddit Specific Settings!',
+                'There was an error retrieving subreddit specific settings! ' +
+                'Try relinking The Raffle Tool to resolve the issue. ' +
+                'If it persists please let BoyAndHisBlob know.',
+                'error'
+            );
         });
     }
 

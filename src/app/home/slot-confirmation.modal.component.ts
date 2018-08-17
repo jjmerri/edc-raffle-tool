@@ -153,7 +153,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
         if (index >= 0 && index < this.slotAssignments.length) {
             const removedUser = this.slotAssignments[index].username;
             const isAuthor = removedUser === this.context.comment.data.author;
-            const regexText = (isAuthor ? 'You' : removedUser) + ' got {' + removedUser + '_ALL_SLOTS}';
+            const regexText = (isAuthor ? 'You' : '/u/' + removedUser) + ' got {' + removedUser + '_ALL_SLOTS}';
             const replyRegex = new RegExp((index === 0 ? regexText + '\n\n' : '\n\n' + regexText), 'i');
             this.confirmationMessageText = this.confirmationMessageText.replace(replyRegex, '');
 
@@ -231,8 +231,8 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
             '{' + updatedName + '_ALL_SLOTS' + '}');
         this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('{' + this.slotAssignments[index].username + '_RANDOM_SLOTS' + '}', 'ig'),
             '{' + updatedName + '_ALL_SLOTS' + '}');
-        this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('^' + this.slotAssignments[index].username + ' got', 'igm'),
-            updatedName + ' got');
+        this.confirmationMessageText = this.confirmationMessageText.replace(new RegExp('^/u/' + this.slotAssignments[index].username + ' got', 'igm'),
+            '/u/' + updatedName + ' got');
         this.slotAssignments[index].username = updatedName;
     }
 
