@@ -8,6 +8,11 @@
     width: 585px;
 }
 
+.swal2-container {
+    z-index: 1600 !important;
+}
+
 .swal2-popup {
     font-size: 1.6rem !important;
 }
+

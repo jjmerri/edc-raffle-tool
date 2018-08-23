@@ -6,6 +6,8 @@ import { Modal, BSModalContext } from 'ngx-modialog/plugins/bootstrap';
 
 import { RedditService } from '../reddit/services/reddit.service';
 
+import swal2 from 'sweetalert2';
+
 export class SlotConfirmationModalContext extends BSModalContext {
     public comment: any;
     public callingComponent: any;
@@ -23,7 +25,6 @@ export class SlotConfirmationModalContext extends BSModalContext {
 })
 export class SlotConfirmationModalComponent implements OnInit, CloseGuard, ModalComponent<SlotConfirmationModalContext> {
     private static numOpenModals = 0;
-    private static waitlistMessageSent = false;
 
     private context: SlotConfirmationModalContext;
     private unavailableSlots: any = [];
@@ -103,12 +104,21 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
 
     private postWaitlistCommentAndClose() {
         this.redditService.postComment(this.confirmationMessageText, this.context.comment.data.name).subscribe();
-        SlotConfirmationModalComponent.waitlistMessageSent = true;
         this.closeModal(null);
     }
 
-    private skipComment() {
-        this.closeModal({slotAssignments: []});
+    private skipComment(sendReplyMessage: boolean) {
+        if (this.confirmationMessageText.indexOf('_ALL_SLOTS') === -1) {
+            if (sendReplyMessage) {
+                this.redditService.postComment(this.confirmationMessageText, this.context.comment.data.name).subscribe();
+            }
+            this.closeModal({slotAssignments: []});
+        } else {
+            swal2('Reply Not Written!',
+                'It looks like you haven\'t changed the reply text. Please write your reply then click "Replay & Skip"',
+                'error'
+            );
+        }
     }
 
     private assignSlots() {
@@ -257,10 +267,6 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
                 }
             }).catch(error => {});
         });
-    }
-
-    public get waitlistMessageSent() {
-        return SlotConfirmationModalComponent.waitlistMessageSent;
     }
 
 }

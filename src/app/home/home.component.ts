@@ -798,7 +798,7 @@ export class HomeComponent implements OnInit {
         } else {
             this.modal.open(SlotConfirmationModalComponent,
                 overlayConfigFactory({
-                        isBlocking: false,
+                        isBlocking: true,
                         comment: comments[commentIndex],
                         callingComponent: this,
                         numOpenSlots: this.numOpenSlots,
@@ -822,12 +822,13 @@ export class HomeComponent implements OnInit {
                                     this.loggingService.logMessage('storeProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
                                     console.error(err);
 
-                                    alert('There was an error marking the slot request as processed. ' +
+                                    alert('There was an error marking the slot request as processed! ' +
                                         'To resolve this please close The Raffle Tool and relink to your raffle. ' +
                                         'You might have to process the slot request again. ' +
                                         'Check to see if the requested slots are in the tool after relinking. ' +
                                         'If not then process the request again like you normally would. ' +
-                                        'Otherwise skip it since it was already processed.');
+                                        'Otherwise skip it since it was already processed.'
+                                    );
 
                                 });
 
@@ -956,11 +957,11 @@ export class HomeComponent implements OnInit {
                     if (threadLocked) {
                         alert('YOUR RAFFLE HAS BEEN LOCKED BY THE MODS!!! Please go look at your post and work with the mods to resolve the issue.');
                     } else {
-                        alert(
-                            'There was an error sending the confirmation message to ' + author + '. ' +
+                        swal2('Error Sending Confirmation Message To ' + author + '!',
                             'If this is the only error message you receive ' +
                             'then check that their slots were assigned properly and manually reply to them. ' +
-                            'If you got or get another error message telling you to relink the tool then follow the instructions in that message.'
+                            'If you got or get another error message telling you to relink the tool then follow the instructions in that message.',
+                            'error'
                         );
                     }
                 }
@@ -969,11 +970,11 @@ export class HomeComponent implements OnInit {
                 this.loggingService.logMessage('error sending confirmation response:' + JSON.stringify(error), LoggingLevel.ERROR);
                 console.error('error sending confirmation response', error);
 
-                alert(
-                    'There was an error sending the confirmation message to ' + author + '. ' +
+                swal2('Error Sending Confirmation Message To ' + author + '!',
                     'If this is the only error message you receive ' +
                     'then check that their slots were assigned properly and manually reply to them. ' +
-                    'If you see or saw another error message telling you to relink the tool then follow the instructions in that message.'
+                    'If you got or get another error message telling you to relink the tool then follow the instructions in that message.',
+                    'error'
                 );
             });
     }
