@@ -108,7 +108,7 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
     }
 
     private skipComment(sendReplyMessage: boolean) {
-        if (this.confirmationMessageText.indexOf('_ALL_SLOTS') === -1) {
+        if (this.confirmationMessageText.indexOf('_ALL_SLOTS') === -1 || !sendReplyMessage) {
             if (sendReplyMessage) {
                 this.redditService.postComment(this.confirmationMessageText, this.context.comment.data.name).subscribe();
             }
