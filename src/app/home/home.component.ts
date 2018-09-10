@@ -557,6 +557,7 @@ export class HomeComponent implements OnInit {
         const slotNumberMap = this.getSlotNumberMap(message.data.author);
         const authorPaid = this.isUserPaid(message.data.author);
         const numTotalSlotsUnpaidRequested = this.getNumUnpaidRequestedSlots(message.data.author);
+        const pmReplyElementName = 'pmReplyTextArea';
 
         let authorHasSlots = false;
         let authorRequestedForAnother = false;
@@ -593,6 +594,12 @@ export class HomeComponent implements OnInit {
         }
 
         requestedSlotHtml += ' <h4 class="text-left col-xs-12">Message Body:</h4> <div class="well text-left col-xs-12">' + txt.innerText + '</div>';
+        requestedSlotHtml +=    '<div class="col-xs-12">' +
+                                    '<label for="' + pmReplyElementName + '">PM Reply (leave empty to not reply)</label>' +
+                                    '<div class="col-xs-12 input-group">' +
+                                        '<textarea class="form-control" style="min-width: 100%" id="' + pmReplyElementName + '" rows="3"></textarea>' +
+                                    '</div>' +
+                                '</div>';
 
         const contentDiv: any = document.createElement('div');
         contentDiv.innerHTML = requestedSlotHtml;
@@ -641,6 +648,17 @@ export class HomeComponent implements OnInit {
                         break;
                     default: // dont show any more PMs
                         return;
+                }
+
+                let replyTextArea: any;
+                replyTextArea = document.getElementById(pmReplyElementName);
+
+                if (replyTextArea.value) {
+                    this.redditService.postComment(replyTextArea.value, message.data.name).subscribe(response => {
+                    }, err => {
+                        this.loggingService.logMessage('error sending PM Reply:' + JSON.stringify(err), LoggingLevel.ERROR);
+                        console.error('error sending PM Reply:', err);
+                    });
                 }
 
                 this.skippedPms.push(message.data.name);
@@ -1626,6 +1644,9 @@ export class HomeComponent implements OnInit {
                             }
                         );
                     } else {
+                        this.loggingService.logMessage('createTagTrain:' + JSON.stringify(tagTrainResponse), LoggingLevel.ERROR);
+                        console.error(tagTrainResponse);
+
                         swal2({
                                 title: 'Error Making Announcement!',
                                 text: 'There was an error tagging the users of your raffle. ' +
@@ -1637,6 +1658,8 @@ export class HomeComponent implements OnInit {
 
                 });
             } else {
+                this.loggingService.logMessage('postComment:' + JSON.stringify(response), LoggingLevel.ERROR);
+                console.error(response);
                 swal2({
                         title: 'Error Making Announcement!',
                         text: 'There was an error posting your comment. Try again or do it manually.',
@@ -1709,9 +1732,8 @@ export class HomeComponent implements OnInit {
     private removeUnpaidUsers(text) {
         // make copy because we modify this when we updateCommentText
         const unpaidUsersArrayCopy = this.unpaidUsersArray.slice();
-
         for (let x = 0; x < this.raffleParticipants.length; x++) {
-            let raffler = this.raffleParticipants[x];
+            const raffler = this.raffleParticipants[x];
             if (!raffler.paid && raffler.name) {
                 raffler.name = '';
                 raffler.requester = '';
@@ -1719,6 +1741,20 @@ export class HomeComponent implements OnInit {
         }
 
         this.updateCommentText();
+
+        if (this.notificationSettings.notify_mods_unpaid) {
+            const message = 'The following raffle participants were removed from [this raffle](' +
+                this.currentRaffle.permalink + ')\n\n' + unpaidUsersArrayCopy.join('\n\n');
+
+            this.redditService.sendPm('/r/' + this.currentRaffle.subreddit,
+                'Unpaid Degenerates Removed', message).subscribe(postResponse => {
+                },
+                err => {
+                    this.loggingService.logMessage('notifyModsUnpaid:' + JSON.stringify(err), LoggingLevel.ERROR);
+                    console.error(err);
+                }
+            );
+        }
 
         this.redditService.postComment(text, this.currentRaffle.name).subscribe(response => {
             if (response && response.json && response.json.data && response.json.data.things) {
