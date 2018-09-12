@@ -1656,7 +1656,13 @@ export class HomeComponent implements OnInit {
                         );
                     }
 
-                });
+                },
+                    err => {
+                        const params = {announcementText: announcementText, tagTrainMessage: tagTrainMessage, listOfUsers: listOfUsers};
+                        this.loggingService.logMessage('sendAnnouncement createTagTrain: params:' + JSON.stringify(params) +
+                            ' ERR:' + JSON.stringify(err), LoggingLevel.ERROR);
+                        console.error(err);
+                    });
             } else {
                 this.loggingService.logMessage('postComment:' + JSON.stringify(response), LoggingLevel.ERROR);
                 console.error(response);
@@ -1667,7 +1673,13 @@ export class HomeComponent implements OnInit {
                     }
                 );
             }
-        });
+        },
+            err => {
+                const params = {announcementText: announcementText, tagTrainMessage: tagTrainMessage, listOfUsers: listOfUsers};
+                this.loggingService.logMessage('sendAnnouncement postComment: params:' + JSON.stringify(params) +
+                    ' ERR:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error(err);
+            });
     }
 
     private pageUnpaid() {
@@ -1859,6 +1871,10 @@ export class HomeComponent implements OnInit {
                     }
                 });
             }
+        },
+            err => {
+                this.loggingService.logMessage('tagUsersInRaffle getPostComments:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error(err);
         });
     }
 
