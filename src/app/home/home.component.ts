@@ -67,7 +67,7 @@ export class HomeComponent implements OnInit {
     private confirmedComments = [];
     private shownNewFeatureMessageSlotAssignmentHelper = false;
     private hasNewFeature = false;
-    private isModtober = false;
+    private isModtober = true;
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
@@ -96,10 +96,10 @@ export class HomeComponent implements OnInit {
     private publicRedditUrl = 'https://www.reddit.com';
 
     private mods = {
-        discoredc: ['RubenStudddard'],
-        WatchURaffle: ['WatchRaffleAdmin', 'wurMod', 'WatchRaffleMod', 'WatchRaffleMod2'],
+        lego_raffles: ['viljedi', 'legorafflemod', 'Zunger', 'Nathan_Lego_Raffles'],
+        WatchURaffle: ['WatchRaffleAdmin', 'wurMod', 'WatchRaffleMod', 'WatchRaffleMod2', 'WatchRaffleMod3'],
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
-        KnifeRaffle: ['Plazzed', 'accidentlyporn', 'twolfcale', 'theoddjosh', 'Fbolanos', 'cda555', 'Gimli_The_Drunk'],
+        KnifeRaffle: ['Plazzed', 'accidentlyporn', 'theoddjosh', 'Fbolanos', 'Zangadia', 'TheVector', 'NoProfile7', 'Walt_the_White', 'slumblor'],
         SSBM: ['UNKNOWN'],
         raffleTest: ['BoyAndHisBlob']
     };
