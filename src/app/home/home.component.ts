@@ -1754,7 +1754,7 @@ export class HomeComponent implements OnInit {
 
         this.updateCommentText();
 
-        if (this.notificationSettings.notify_mods_unpaid) {
+        if (this.notificationSettings && this.notificationSettings.notify_mods_unpaid) {
             const message = 'The following raffle participants were removed from [this raffle](' +
                 this.currentRaffle.permalink + ')\n\n' + unpaidUsersArrayCopy.join('\n\n');
 
@@ -1798,7 +1798,19 @@ export class HomeComponent implements OnInit {
                         );
                     }
 
-                });
+                },
+                    err => {
+                        this.loggingService.logMessage('tagRemovedUnpaidUsersComment:' + JSON.stringify(err), LoggingLevel.ERROR);
+                        console.error(err);
+
+                        swal2({
+                                title: 'Error Tagging Unpaid!',
+                                text: 'There was an error tagging all the unpaid users of your raffle. ' +
+                                    'Check your raffle to see who was not tagged so you can tag them manually.',
+                                type: 'error'
+                            }
+                        );
+                    });
             } else {
                 swal2({
                         title: 'Error Paging Unpaid!',
@@ -1807,7 +1819,19 @@ export class HomeComponent implements OnInit {
                     }
                 );
             }
-        });
+        },
+            err => {
+                this.loggingService.logMessage('postRemoveUnpaidComment:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error(err);
+
+                swal2({
+                        title: 'Error Posting Comment!',
+                        text: 'There was an error posting your comment to notify unpaid users they were removed. ' +
+                            'Check that the unpaid users were removed properly and post the comment manually to inform them.',
+                        type: 'error'
+                    }
+                );
+            });
     }
 
     private tagUsers() {
