@@ -63,7 +63,6 @@ export class HomeComponent implements OnInit {
         '**Please submit your payment using Friends and Family and leave nothing in the notes or comments.**\n\n' +
         '**Please find my PayPal info below:**\n\n';
     private popUpTimer: any;
-    private skippedPms = [];
     private confirmedComments = [];
     private shownNewFeatureMessageSlotAssignmentHelper = false;
     private hasNewFeature = false;
@@ -74,6 +73,7 @@ export class HomeComponent implements OnInit {
     private botUsername = 'callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
+    private raffleProperties: any = {customFlair: '', skippedPms: []};
 
     private collectingPaymentsFlairId: string;
     private customRainbowFlairId: string;
@@ -315,7 +315,7 @@ export class HomeComponent implements OnInit {
                         flairText = 'Collecting Payments';
                         flairId = this.collectingPaymentsFlairId;
                     } else {
-                        flairText = this.numOpenSlots + ' Slots Left';
+                        flairText = (this.raffleProperties.customFlair ? this.raffleProperties.customFlair + ' - ' : '') + this.numOpenSlots + ' Slots Left';
                         flairId = this.customRainbowFlairId;
                     }
 
@@ -604,7 +604,7 @@ export class HomeComponent implements OnInit {
         const contentDiv: any = document.createElement('div');
         contentDiv.innerHTML = requestedSlotHtml;
 
-        if (slotNumberMap.size && !authorPaid && this.skippedPms.indexOf(message.data.name) === -1) {
+        if (slotNumberMap.size && !authorPaid && this.raffleProperties.skippedPms.indexOf(message.data.name) === -1) {
             this.loggingService.logMessage('slotNumberMap:' + JSON.stringify(slotNumberMap), LoggingLevel.INFO);
             this.loggingService.logMessage('message:' + JSON.stringify(message), LoggingLevel.INFO);
 
@@ -661,8 +661,8 @@ export class HomeComponent implements OnInit {
                     });
                 }
 
-                this.skippedPms.push(message.data.name);
-                localStorage.setItem(this.currentRaffle.name + '_skippedPms', JSON.stringify(this.skippedPms));
+                this.raffleProperties.skippedPms.push(message.data.name);
+                this.updateRaffleProperties();
 
                 this.showPm(messages, messageIndex - 1);
             });
@@ -1011,11 +1011,6 @@ export class HomeComponent implements OnInit {
     }
 
     private loadRaffleStorage(raffleName: string, userId: string) {
-        const skippedPms = JSON.parse(localStorage.getItem(raffleName + '_skippedPms'));
-        if (skippedPms !== null) {
-            this.skippedPms = skippedPms;
-        }
-
         this.databaseService.getProcessedComments(userId, raffleName).subscribe(comments => {
             if (comments) {
                 this.confirmedComments = comments;
@@ -1036,6 +1031,18 @@ export class HomeComponent implements OnInit {
         this.databaseService.getPaypalPmRecipients(userId, raffleName).subscribe(paypalPmRecipients => {
             if (paypalPmRecipients) {
                 this.paypalPmRecipients = paypalPmRecipients;
+            }
+        });
+
+        this.databaseService.getRaffleProperties(userId, raffleName).subscribe(raffleProperties => {
+            if (raffleProperties) {
+                if (!raffleProperties.skippedPms) {
+                    raffleProperties.skippedPms = [];
+                }
+                this.raffleProperties = raffleProperties;
+
+            } else {
+                this.raffleProperties = {customFlair: '', skippedPms: []};
             }
         });
     }
@@ -1927,5 +1934,19 @@ export class HomeComponent implements OnInit {
     private initLoggingService() {
         this.loggingService.setCurrentRaffle(this.currentRaffle);
         this.loggingService.setUserName(this.userName);
+    }
+
+    private updateCustomFlairText() {
+        this.updateRaffleProperties();
+        this.updateCommentText();
+    }
+
+    private updateRaffleProperties() {
+        this.databaseService.storeRaffleProperties(this.userId, this.currentRaffle.name, this.raffleProperties).subscribe(response => {
+            },
+            err => {
+                this.loggingService.logMessage('updateRaffleProperties:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error(err);
+            });
     }
 }

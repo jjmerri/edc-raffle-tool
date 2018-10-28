@@ -9,6 +9,7 @@ export class DatabaseService {
     private databaseUri = environment.databaseUri;
 
     private processedCommentsUrl = this.databaseUri + '/processed_comments';
+    private rafflePropertiesUrl = this.databaseUri + '/raffle_properties';
     private paypalPmRecipientsUrl = this.databaseUri + '/paypal_pm_recipients';
     private modToolsUrl = this.databaseUri + '/mod_tools';
     private raffleParticipantsUrl = this.databaseUri + '/raffle_participants';
@@ -46,6 +47,21 @@ export class DatabaseService {
         const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
         return this.http.get(fullUri, {headers: headers})
+            .catch(this.handleErrorObservable);
+    }
+    public getRaffleProperties(userId: string, submissionName: string): Observable<any> {
+        const fullUri = this.rafflePropertiesUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
+        headers.append('Accept', 'application/json');
+        return this.http.get(fullUri, {headers: headers})
+            .catch(this.handleErrorObservable);
+    }
+
+    public storeRaffleProperties(userId: string, submissionName: string, raffleProperties: any[]): Observable<any> {
+        const fullUri = this.rafflePropertiesUrl + '/' + userId + '/' + submissionName + '.json';
+        const headers = new HttpHeaders({});
+        headers.append('Accept', 'application/json');
+        return this.http.put(fullUri, raffleProperties, {headers: headers})
             .catch(this.handleErrorObservable);
     }
 
