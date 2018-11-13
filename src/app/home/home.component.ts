@@ -66,7 +66,7 @@ export class HomeComponent implements OnInit {
     private confirmedComments = [];
     private shownNewFeatureMessageSlotAssignmentHelper = false;
     private hasNewFeature = false;
-    private isModtober = true;
+    private isModtober = false;
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
@@ -101,6 +101,7 @@ export class HomeComponent implements OnInit {
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
         KnifeRaffle: ['Plazzed', 'accidentlyporn', 'theoddjosh', 'Fbolanos', 'Zangadia', 'TheVector', 'NoProfile7', 'Walt_the_White', 'slumblor'],
         SSBM: ['UNKNOWN'],
+        RocketLeagueExchange: ['UNKNOWN'],
         raffleTest: ['BoyAndHisBlob']
     };
 
