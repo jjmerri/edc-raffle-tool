@@ -22,12 +22,26 @@ import {LogglyService} from 'ngx-loggly-logger';
 import {NotificationService} from './notification/services/notification.service';
 import {RedirectModule} from './redirect/redirect.module';
 import {LoggingService} from './logging-service/services/logging.service';
+import {environment} from '../environments/environment';
+import {AngularFireModule} from 'angularfire2';
+import {AngularFireStorageModule} from '@angular/fire/storage';
+
+
+export const firebaseConfig = {
+    apiKey: environment.firebaseApiKey,
+    authDomain: environment.firebaseAuthDomain,
+    databaseURL: environment.firebaseDatabaseUrl,
+    storageBucket: environment.firebaseStorageBucket,
+    messagingSenderId: environment.firebaseSenderId
+};
 
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
+      AngularFireModule.initializeApp(firebaseConfig),
+      AngularFireStorageModule,
     BrowserModule,
     FormsModule,
       HttpClientModule,

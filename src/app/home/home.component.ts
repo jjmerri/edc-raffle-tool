@@ -1,4 +1,4 @@
-import {LoggingLevel} from "../shared/logging-level";
+import {LoggingLevel} from '../shared/logging-level';
 
 declare var fuckAdBlock: FuckAdBlock;
 
@@ -10,7 +10,7 @@ import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
 import {FuckAdBlock} from 'fuckadblock';
 import {Md5} from 'ts-md5/dist/md5';
-import {AngularFireDatabase, AngularFireList} from 'angularfire2/database';
+import { AngularFireStorage } from '@angular/fire/storage';
 
 import 'rxjs/Rx';
 import swal2 from 'sweetalert2';
@@ -38,6 +38,8 @@ import {LoggingService} from '../logging-service/services/logging.service';
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+    private readonly MAX_SUBMISSION_LENGTH = 40000;
+
     private raffleParticipants = [{name: '', paid: false, requester: ''}];
     private numSlots = 1;
     private randomSlot: number;
@@ -107,7 +109,8 @@ export class HomeComponent implements OnInit {
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService,
-                private loggingService: LoggingService, private notificationService: NotificationService) {
+                private loggingService: LoggingService, private notificationService: NotificationService,
+                private angularFireStorage: AngularFireStorage) {
     }
 
     ngOnInit() {
@@ -179,7 +182,7 @@ export class HomeComponent implements OnInit {
             this.raffleParticipants.splice(updatedNumSlots, prevSpots - updatedNumSlots);
         }
 
-        let commentControl: any = document.getElementById('commentText');
+        const commentControl: any = document.getElementById('commentText');
         commentControl.rows = this.numSlots * 2 + 1;
 
         this.updateCommentText();
@@ -196,7 +199,7 @@ export class HomeComponent implements OnInit {
 
     private getRandomUnclaimedSlotNumber(): Observable<any> {
         return Observable.create(observer => {
-            let openRaffleSlots = [];
+            const openRaffleSlots = [];
             for (let x = 0; x < this.raffleParticipants.length; x++) {
                 if (!this.raffleParticipants[x].name) {
                     openRaffleSlots.push(x + 1);
@@ -217,7 +220,7 @@ export class HomeComponent implements OnInit {
 
     private getNextUnclaimedSlotNumbers(numRequestedSlots: number): Observable<any> {
         return Observable.create(observer => {
-            let openRaffleSlots = [];
+            const openRaffleSlots = [];
             let numFoundSlots = 0;
             for (let x = 0; x < this.raffleParticipants.length; x++) {
                 if (!this.raffleParticipants[x].name) {
@@ -233,9 +236,10 @@ export class HomeComponent implements OnInit {
             for (let i = numFoundSlots; i < numRequestedSlots; i++) {
                 this.numSlots++;
                 openRaffleSlots.push(this.numSlots);
-                this.updateRaffleSlots(this.numSlots);
                 numFoundSlots++;
             }
+
+            this.updateRaffleSlots(this.numSlots);
 
             observer.next(openRaffleSlots);
             observer.complete();
@@ -250,7 +254,7 @@ export class HomeComponent implements OnInit {
         this.unpaidUsersArray = [];
 
         for (let x = 0; x < this.raffleParticipants.length; x++) {
-            let raffler = this.raffleParticipants[x];
+            const raffler = this.raffleParticipants[x];
             if (raffler.name) {
                 raffler.name = raffler.name.replace(new RegExp(' ', 'g'), '');
                 raffler.name = raffler.name.replace(new RegExp('/[uU]/', 'g'), '');
@@ -279,11 +283,11 @@ export class HomeComponent implements OnInit {
                     let txt: any;
                     let flairText = '';
                     let flairId = '';
-                    txt = document.createElement("textareatmp");
+                    txt = document.createElement('textareatmp');
                     txt.innerHTML = this.currentRaffle.selftext;
                     let postText = txt.innerText;
 
-                    let slotText = '<raffle-tool>\n\n' +
+                    const slotText = '<raffle-tool>\n\n' +
                         'Number of vacant slots: ' + this.numOpenSlots + '\n\n' +
                         'Number of unpaid users: ' + numUnpaidUsers + '\n\n' +
                         'This slot list is created and updated by ' +
@@ -297,6 +301,7 @@ export class HomeComponent implements OnInit {
                     } else {
                         postText += '\n\n' + slotText + '\n\n';
                     }
+
                     this.redditService.updatePostText(postText, this.currentRaffle.name)
                         .subscribe(postResponse => {
                             },
@@ -305,7 +310,6 @@ export class HomeComponent implements OnInit {
                                 console.error(err);
                             }
                         );
-
                     if (this.inOrderMode) {
                         flairText = 'In Progress';
                         flairId = this.customRainbowFlairId;
@@ -324,11 +328,10 @@ export class HomeComponent implements OnInit {
 
                     this.loggingService.logMessage(this.commentText, LoggingLevel.SLOT_LIST)
 
-                    //prevents overwriting the saved participant list when it hasn't been fully loaded from an import yet
+                    // prevents overwriting the saved participant list when it hasn't been fully loaded from an import yet
                     if (this.hasRequesters(this.raffleParticipants)) {
                         this.databaseService.storeRaffleParticipants(this.userId, this.currentRaffle.name, this.raffleParticipants).subscribe();
                     }
-
 
                 },
                 err => {
@@ -552,6 +555,9 @@ export class HomeComponent implements OnInit {
                 this.showNoUnpaidPms();
             }
             return;
+        } else if (!messages[messageIndex].data.author) {
+            this.showPm(messages, messageIndex - 1);
+            return;
         }
 
         const message = messages[messageIndex];
@@ -688,7 +694,7 @@ export class HomeComponent implements OnInit {
     }
 
     private getSlotNumberMap(userName: string): Map<string, number> {
-        let slotNumberMap = new Map();
+        const slotNumberMap = new Map();
         for (let x = 0; x < this.raffleParticipants.length; x++) {
             const raffler = this.raffleParticipants[x];
             if ((raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
@@ -965,7 +971,7 @@ export class HomeComponent implements OnInit {
                     let threadLocked = false;
                     if (response.json.errors && response.json.errors.length) {
                         for (let x = 0; x < response.json.errors.length; x++) {
-                            let errors = response.json.errors[x];
+                            const errors = response.json.errors[x];
                             for (let i = 0; i < errors.length; i++) {
                                 if (errors[x] === 'THREAD_LOCKED') {
                                     threadLocked = true;
@@ -1274,7 +1280,7 @@ export class HomeComponent implements OnInit {
                         'In the spirit of Modtober **I am requesting a random slot for /u/' + randomMod + '** as a thank you for all the time and effort ' +
                         'they donate to make /r/' + subreddit + ' a fun, fair, and safe community for everyone.';
 
-                    let dummy = document.createElement('textarea');
+                    const dummy = document.createElement('textarea');
                     document.body.appendChild(dummy);
                     dummy.setAttribute('id', 'dummy_id');
                     const commentControl: any = document.getElementById('dummy_id');
@@ -1318,7 +1324,7 @@ export class HomeComponent implements OnInit {
     }
 
     private shuffleAllSlots() {
-        let participants = this.raffleParticipants;
+        const participants = this.raffleParticipants;
         for (let i = participants.length; i; i--) {
             const j = Math.floor(Math.random() * i);
             [participants[i - 1], participants[j]] = [participants[j], participants[i - 1]];
@@ -1633,7 +1639,7 @@ export class HomeComponent implements OnInit {
 
         this.redditService.postComment(announcementText, this.currentRaffle.name).subscribe(response => {
             if (response && response.json && response.json.data && response.json.data.things) {
-                let announcement = response.json.data.things[0].data;
+                const announcement = response.json.data.things[0].data;
 
                 if (sendDiscordNotification) {
                     const notification = '@here Raffle announcement made by ' + this.userName + ': ' + this.publicRedditUrl + announcement.permalink;
@@ -1778,8 +1784,8 @@ export class HomeComponent implements OnInit {
 
         this.redditService.postComment(text, this.currentRaffle.name).subscribe(response => {
             if (response && response.json && response.json.data && response.json.data.things) {
-                let comment = response.json.data.things[0].data;
-                let pageList = [];
+                const comment = response.json.data.things[0].data;
+                const pageList = [];
                 for (let x = 0; x < unpaidUsersArrayCopy.length; x++) {
                     const raffler = unpaidUsersArrayCopy[x];
                     if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {

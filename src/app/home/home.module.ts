@@ -8,6 +8,7 @@ import { RafflePickerModalComponent } from './raffle-picker.modal.component';
 import { TermsOfServiceModalComponent } from './terms-of-service.modal.component';
 import {SharedModule} from '../shared/shared.module';
 
+
 @NgModule({
     imports: [
         BrowserModule,
