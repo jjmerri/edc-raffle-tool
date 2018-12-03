@@ -31,6 +31,8 @@ import {TermsOfServiceModalComponent} from './terms-of-service.modal.component';
 import {LogglyService} from 'ngx-loggly-logger';
 import {NotificationService} from '../notification/services/notification.service';
 import {LoggingService} from '../logging-service/services/logging.service';
+import {RaffleProperties} from './RaffleProperties';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 @Component({
     selector: 'app-home',
@@ -75,7 +77,7 @@ export class HomeComponent implements OnInit {
     private botUsername = 'callthebot';
     private inOrderMode = false;
     private autoUpdateFlair = false;
-    private raffleProperties: any = {customFlair: '', skippedPms: []};
+    private raffleProperties: RaffleProperties = new RaffleProperties();
 
     private collectingPaymentsFlairId: string;
     private customRainbowFlairId: string;
@@ -101,7 +103,8 @@ export class HomeComponent implements OnInit {
         lego_raffles: ['viljedi', 'legorafflemod', 'Zunger', 'Nathan_Lego_Raffles'],
         WatchURaffle: ['WatchRaffleAdmin', 'wurMod', 'WatchRaffleMod', 'WatchRaffleMod2', 'WatchRaffleMod3'],
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
-        KnifeRaffle: ['Plazzed', 'accidentlyporn', 'theoddjosh', 'Fbolanos', 'Zangadia', 'TheVector', 'NoProfile7', 'Walt_the_White', 'slumblor'],
+        KnifeRaffle: ['Plazzed', 'accidentlyporn', 'theoddjosh', 'Fbolanos', 'Zangadia', 'TheVector', 'NoProfile7',
+            'Walt_the_White', 'slumblor'],
         SSBM: ['UNKNOWN'],
         RocketLeagueExchange: ['UNKNOWN'],
         raffleTest: ['BoyAndHisBlob']
@@ -110,7 +113,7 @@ export class HomeComponent implements OnInit {
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
                 private redditService: RedditService, private modal: Modal, private databaseService: DatabaseService,
                 private loggingService: LoggingService, private notificationService: NotificationService,
-                private angularFireStorage: AngularFireStorage) {
+                private angularFireStorage: AngularFireStorage, private http: HttpClient) {
     }
 
     ngOnInit() {
@@ -232,7 +235,7 @@ export class HomeComponent implements OnInit {
                 }
             }
 
-            //add remaining slots
+            // add remaining slots
             for (let i = numFoundSlots; i < numRequestedSlots; i++) {
                 this.numSlots++;
                 openRaffleSlots.push(this.numSlots);
@@ -261,7 +264,8 @@ export class HomeComponent implements OnInit {
 
                 numSlotsTaken++;
             }
-            this.commentText += ( x + 1) + ' ' + (raffler.name ? '/u/' + raffler.name + ' ' : '') + (raffler.paid ? '**PAID**' : '') + '\n\n';
+            this.commentText += ( x + 1) + ' ' + (raffler.name ? '/u/' + raffler.name + ' ' : '') +
+                (raffler.paid ? '**PAID**' : '') + '\n\n';
 
             if (!raffler.paid && raffler.name && this.unpaidUsers.indexOf('/u/' + raffler.name + ' ') === -1) {
                 numUnpaidUsers++;
@@ -287,12 +291,7 @@ export class HomeComponent implements OnInit {
                     txt.innerHTML = this.currentRaffle.selftext;
                     let postText = txt.innerText;
 
-                    const slotText = '<raffle-tool>\n\n' +
-                        'Number of vacant slots: ' + this.numOpenSlots + '\n\n' +
-                        'Number of unpaid users: ' + numUnpaidUsers + '\n\n' +
-                        'This slot list is created and updated by ' +
-                        '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' +
-                        this.commentText + '\n\n</raffle-tool>';
+                    let slotText = this.getSlotListText(this.numOpenSlots, numUnpaidUsers, this.commentText);
 
                     if (postText.indexOf('<raffle-tool>') !== -1 && postText.indexOf('</raffle-tool>') !== -1) {
                         postText = postText.replace(re, slotText);
@@ -302,14 +301,38 @@ export class HomeComponent implements OnInit {
                         postText += '\n\n' + slotText + '\n\n';
                     }
 
-                    this.redditService.updatePostText(postText, this.currentRaffle.name)
-                        .subscribe(postResponse => {
-                            },
-                            err => {
-                                this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
-                                console.error(err);
-                            }
-                        );
+                    if (postText.length > this.MAX_SUBMISSION_LENGTH) {
+                        const ref = this.angularFireStorage.ref('slot_lists/' + this.currentRaffle.name);
+                        ref.putString(slotText, 'raw', {contentType: 'text/plain'}).then( snapshot => {
+                            ref.getDownloadURL().subscribe(url => {
+                                this.raffleProperties.slotListFileDownloadUrl = url;
+                                this.updateRaffleProperties();
+                                slotText = this.getSlotListText(this.numOpenSlots, numUnpaidUsers,
+                                    'The slot list contains ' + this.numSlots + ' slots ' +
+                                    'and is too large to post. The current slot list can be found [here.](' + url + ')');
+                                postText = postText.replace(re, slotText);
+                                this.redditService.updatePostText(postText, this.currentRaffle.name)
+                                    .subscribe(postResponse => {
+                                        },
+                                        err => {
+                                            this.loggingService.logMessage('updatePostText over MAX:' +
+                                                JSON.stringify(err), LoggingLevel.ERROR);
+                                            console.error(err);
+                                        }
+                                    );
+                            });
+                        });
+                    } else {
+                        this.redditService.updatePostText(postText, this.currentRaffle.name)
+                            .subscribe(postResponse => {
+                                },
+                                err => {
+                                    this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
+                                    console.error(err);
+                                }
+                            );
+                    }
+
                     if (this.inOrderMode) {
                         flairText = 'In Progress';
                         flairId = this.customRainbowFlairId;
@@ -354,61 +377,85 @@ export class HomeComponent implements OnInit {
     }
 
     public importRaffleSlots(raffle: any) {
-        const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
+        const postSlotListRe = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
+        // const externalSlotListRe = /<raffle-tool>[\s\S]*The current slot list can be found[\s\S]*<\/raffle-tool>/;
+        const externalSlotListRe = /<raffle-tool>[\s\S]*\[here.\]\(([^)]+)\)[\s\S]*<\/raffle-tool>/;
         let txt: any;
         txt = document.createElement('textareatmp');
-        let matches: any;
+        let postMatches: any;
+        let externalMatches: any;
         if (raffle.selftext_html) {
             txt.innerHTML = he.decode(raffle.selftext_html);
+            const markup = he.decode(raffle.selftext);
             const postText = txt.innerText;
-            matches = postText.match(re);
+            postMatches = postText.match(postSlotListRe);
+            externalMatches = markup.match(externalSlotListRe);
         }
-        if (matches) {
-            this.raffleParticipants = [];
-            const slotList = matches[0];
-            const slots = slotList.split('\n');
-            let numSlots = 0;
 
-            for (let i = 0; i < slots.length; i++) {
-                if (slots[i].match(/^[\d]+ ?/)) {
-                    numSlots++;
-                    const slotParts = slots[i].split(' ');
+        if (externalMatches) {
+            const headers = new HttpHeaders({});
+            headers.append('Accept', 'text/plain');
+            return this.http.get(externalMatches[1], {headers: headers, responseType: 'text'}).subscribe(slotList => {
+                this.loadSlotList(slotList.toString());
+            }, err => {
+                console.error(err);
+            });
+        } else if (postMatches) {
+            this.loadSlotList(postMatches[0]);
+        }
+    }
 
-                    if (slotParts[1]) {
-                        let paidString = '';
-                        if (slotParts[2]) {
-                            paidString = (slotParts[2]).substring(0, 4);
-                        }
+    private loadSlotList(slotList: string) {
+        this.raffleParticipants = [];
+        const slots = slotList.split('\n');
+        let numSlots = 0;
 
-                        const usernameRegexp = /\/?[uU]\/([^ ]*)/g;
-                        const matchedUsername = usernameRegexp.exec(slotParts[1]);
+        for (let i = 0; i < slots.length; i++) {
+            if (slots[i].match(/^[\d]+ ?/)) {
+                numSlots++;
+                const slotParts = slots[i].split(' ');
 
-                        this.raffleParticipants.push({name: matchedUsername[1], paid: paidString === 'PAID',  requester: ''});
-                    } else {
-                        this.raffleParticipants.push({name: '', paid: false, requester: ''});
+                if (slotParts[1]) {
+                    let paidString = '';
+                    if (slotParts[2]) {
+                        paidString = slotParts[2];
                     }
+
+                    const usernameRegexp = /\/?[uU]\/([^ ]*)/g;
+                    const matchedUsername = usernameRegexp.exec(slotParts[1]);
+
+                    this.raffleParticipants.push({name: matchedUsername[1], paid: paidString.toLowerCase().indexOf('paid') !== -1,  requester: ''});
+                } else {
+                    this.raffleParticipants.push({name: '', paid: false, requester: ''});
                 }
             }
-
-            if (numSlots <= 1) {
-                swal2('Raffle failed to import!',
-                    'The raffle importer detected < 2 slots which is not a valid raffle! ' +
-                    'This could be due to browser compatibility issues. ' +
-                    'Please try to link again and if you get the same error try a different browser. ' +
-                    'DO NOT UPDATE YOUR RAFFLE BEFORE RELINKING! You could delete your slot list!',
-                    'error'
-                );
-            } else {
-                this.numSlots = numSlots;
-
-                this.updateRaffleSlots(numSlots);
-                this.raffleImported = true;
-            }
-
-            this.setRequesters();
         }
 
+        if (numSlots <= 1) {
+            swal2('Raffle failed to import!',
+                'The raffle importer detected < 2 slots which is not a valid raffle! ' +
+                'This could be due to browser compatibility issues. ' +
+                'Please try to link again and if you get the same error try a different browser. ' +
+                'DO NOT UPDATE YOUR RAFFLE BEFORE RELINKING! You could delete your slot list!',
+                'error'
+            );
+        } else {
+            this.numSlots = numSlots;
 
+            this.updateRaffleSlots(numSlots);
+            this.raffleImported = true;
+        }
+
+        this.setRequesters();
+    }
+
+    private getSlotListText(numOpenSlots, numUnpaidUsers, slotList): string {
+        return '<raffle-tool>\n\n' +
+        'Number of vacant slots: ' + numOpenSlots + '\n\n' +
+        'Number of unpaid users: ' + numUnpaidUsers + '\n\n' +
+        'This slot list is created and updated by ' +
+        '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' +
+            slotList + '\n\n</raffle-tool>';
     }
 
     private checkCalledSpot(event: any) {
@@ -1049,7 +1096,7 @@ export class HomeComponent implements OnInit {
                 this.raffleProperties = raffleProperties;
 
             } else {
-                this.raffleProperties = {customFlair: '', skippedPms: []};
+                this.raffleProperties = new RaffleProperties();
             }
         });
     }

@@ -3,6 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {environment} from '../../../environments/environment';
+import {RaffleProperties} from "../../home/RaffleProperties";
 
 @Injectable()
 export class DatabaseService {
@@ -57,7 +58,7 @@ export class DatabaseService {
             .catch(this.handleErrorObservable);
     }
 
-    public storeRaffleProperties(userId: string, submissionName: string, raffleProperties: any[]): Observable<any> {
+    public storeRaffleProperties(userId: string, submissionName: string, raffleProperties: RaffleProperties): Observable<any> {
         const fullUri = this.rafflePropertiesUrl + '/' + userId + '/' + submissionName + '.json';
         const headers = new HttpHeaders({});
         headers.append('Accept', 'application/json');
