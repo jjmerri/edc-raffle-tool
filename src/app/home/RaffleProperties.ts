@@ -3,7 +3,7 @@ export class RaffleProperties {
     public skippedPms: string[];
     public slotListFileDownloadUrl: string;
 
-    RaffleProperties() {
+    constructor() {
         this.customFlair = '';
         this.skippedPms = [];
         this.slotListFileDownloadUrl = '';
