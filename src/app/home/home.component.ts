@@ -574,7 +574,19 @@ export class HomeComponent implements OnInit {
         this.numPayPmsProcessed = 0;
         this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(messages => {
             if (messages && messages.length) {
-                this.showPm(messages, messages.length - 1);
+                try {
+                    this.showPm(messages, messages.length - 1);
+                } catch (err) {
+                    this.loggingService.logMessage('runPaymentConfirmer stack:' + JSON.stringify(err.stack), LoggingLevel.ERROR);
+                    this.loggingService.logMessage('runPaymentConfirmer messages:' + JSON.stringify(messages), LoggingLevel.ERROR);
+                    console.error(err);
+                    swal2(
+                        'Error Running Payment Confirmer!',
+                        'Please wait a few minutes and try again. ' +
+                        'If the issue persists send a PM to BoyAndHisBlob and confirm payments manually.',
+                        'error'
+                    );
+                }
             } else {
                 this.showNoUnpaidPms();
             }
