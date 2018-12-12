@@ -1455,6 +1455,12 @@ export class HomeComponent implements OnInit {
                     this.redditService.postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
                             this.updateFlair(this.completeFlairId, 'Complete');
                             this.botCalled = true;
+
+                            swal2(
+                                'The Bot Has Been Called!',
+                                'Congrats on a successful raffle! The bot should respond to your comment shortly.',
+                                'success'
+                            );
                         },
                         err => {
                             this.loggingService.logMessage('callTheBot:' + JSON.stringify(err), LoggingLevel.ERROR);
