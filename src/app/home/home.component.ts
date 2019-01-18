@@ -107,7 +107,8 @@ export class HomeComponent implements OnInit {
             'Walt_the_White', 'slumblor'],
         SSBM: ['UNKNOWN'],
         RocketLeagueExchange: ['UNKNOWN'],
-        raffleTest: ['BoyAndHisBlob']
+        raffleTest: ['BoyAndHisBlob'],
+        PenRaffle: ['Turokman123']
     };
 
     constructor(private activatedRoute: ActivatedRoute, private oauthSerice: OauthService,
