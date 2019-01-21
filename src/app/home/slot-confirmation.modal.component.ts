@@ -155,7 +155,8 @@ export class SlotConfirmationModalComponent implements OnInit, CloseGuard, Modal
                 calledSlots: '',
                 inOrderSlots: 0,
                 swappedSlots: 0,
-                requester: this.context.comment.data.author
+                requester: this.context.comment.data.author,
+                donateSlot: false
             });
     }
 

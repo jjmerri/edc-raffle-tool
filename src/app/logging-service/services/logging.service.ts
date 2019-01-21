@@ -6,12 +6,17 @@ export class LoggingService {
 
     public currentRaffle = null;
     public userName = null;
+    public sessionId: string;
 
     constructor(private logglyService: LogglyService) {
+        this.sessionId = logglyService.uuid();
         this.logglyService.push({
             'logglyKey': 'c533a0e8-2a33-4aeb-8a76-fbf26387621e',
             'sendConsoleErrors': true, // Optional set true to send uncaught console errors
             'tag': 'raffletool'
+        });
+        this.logglyService.push({
+            'session_id': this.sessionId
         });
     }
 

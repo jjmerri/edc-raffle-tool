@@ -280,6 +280,9 @@ export class HomeComponent implements OnInit {
 
         if (this.currentRaffle) {
             this.redditService.getSubmission(this.currentRaffle.permalink + '.json').subscribe(getSubmissionResponse => {
+                    this.raffleProperties.latestSessionId = this.loggingService.sessionId;
+                    this.updateRaffleProperties();
+
                     this.currentRaffle = getSubmissionResponse[0].data.children[0].data;
                     const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
                     const escapedRe = /\\<raffle\\-tool\\>[\s\S]*\\<\/raffle\\-tool\\>/;
@@ -326,6 +329,7 @@ export class HomeComponent implements OnInit {
                     } else {
                         this.redditService.updatePostText(postText, this.currentRaffle.name)
                             .subscribe(postResponse => {
+                                this.currentRaffle = postResponse.json.data.things[0].data;
                                 },
                                 err => {
                                     this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
@@ -378,42 +382,82 @@ export class HomeComponent implements OnInit {
     }
 
     public importRaffleSlots(raffle: any) {
-        const postSlotListRe = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
-        // const externalSlotListRe = /<raffle-tool>[\s\S]*The current slot list can be found[\s\S]*<\/raffle-tool>/;
-        const externalSlotListRe = /<raffle-tool>[\s\S]*\[here.\]\(([^)]+)\)[\s\S]*<\/raffle-tool>/;
-        let txt: any;
-        txt = document.createElement('textareatmp');
-        let postMatches: any;
-        let externalMatches: any;
-        if (raffle.selftext_html) {
-            txt.innerHTML = he.decode(raffle.selftext_html);
-            const markup = he.decode(raffle.selftext);
-            const postText = txt.innerText;
-            postMatches = postText.match(postSlotListRe);
-            externalMatches = markup.match(externalSlotListRe);
-        }
+        this.getCurrentSlotListString(raffle).subscribe(slotList => {
+            this.loadSlotList(slotList);
+        }, err => {
+            this.loggingService.logMessage('importRaffleSlots:' + JSON.stringify(err), LoggingLevel.ERROR);
+            console.error(err);
 
-        if (externalMatches) {
-            const headers = new HttpHeaders({});
-            headers.append('Accept', 'text/plain');
-            return this.http.get(externalMatches[1], {headers: headers, responseType: 'text'}).subscribe(slotList => {
-                this.loadSlotList(slotList.toString());
-            }, err => {
-                console.error(err);
-            });
-        } else if (postMatches) {
-            this.loadSlotList(postMatches[0]);
-        }
+            swal2(
+                'Error Importing Raffle Slots!',
+                'Please relink The Raffle Tool. If you continue to get this error PM BoyAndHisBlob.',
+                'error'
+            );
+        });
+    }
+
+    private getCurrentSlotListString(raffle: any): Observable<any> {
+        return Observable.create(observer => {
+            const postSlotListRe = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
+
+            const externalSlotListRe = /<raffle-tool>[\s\S]*\[here.\]\(([^)]+)\)[\s\S]*<\/raffle-tool>/;
+            let txt: any;
+            txt = document.createElement('textareatmp');
+            let postMatches: any;
+            let externalMatches: any;
+            if (raffle.selftext_html) {
+                txt.innerHTML = he.decode(raffle.selftext_html);
+                const markup = he.decode(raffle.selftext);
+                const postText = txt.innerText;
+                postMatches = postText.match(postSlotListRe);
+                externalMatches = markup.match(externalSlotListRe);
+            }
+
+            if (externalMatches) {
+                const headers = new HttpHeaders({});
+                headers.append('Accept', 'text/plain');
+                this.http.get(externalMatches[1], {headers: headers, responseType: 'text'}).subscribe(slotList => {
+                    observer.next(slotList.toString());
+                    observer.complete();
+                }, err => {
+                    console.error(err);
+                    observer.error(err);
+                });
+            } else if (postMatches) {
+                observer.next(postMatches[0]);
+                observer.complete();
+            }
+        });
     }
 
     private loadSlotList(slotList: string) {
-        this.raffleParticipants = [];
+        const raffleParticipants = this.createRaffleParticipants(slotList);
+
+
+        if (raffleParticipants.length <= 1) {
+            swal2('Raffle failed to import!',
+                'The raffle importer detected < 2 slots which is not a valid raffle! ' +
+                'This could be due to browser compatibility issues. ' +
+                'Please try to link again and if you get the same error try a different browser. ' +
+                'DO NOT UPDATE YOUR RAFFLE BEFORE RELINKING! You could delete your slot list!',
+                'error'
+            );
+        } else {
+            this.raffleParticipants = raffleParticipants;
+            this.numSlots = raffleParticipants.length;
+            this.updateRaffleSlots(raffleParticipants.length);
+            this.raffleImported = true;
+        }
+
+        this.setRequesters();
+    }
+
+    private createRaffleParticipants(slotList: string): any[] {
+        const raffleParticipants = [];
         const slots = slotList.split('\n');
-        let numSlots = 0;
 
         for (let i = 0; i < slots.length; i++) {
             if (slots[i].match(/^[\d]+ ?/)) {
-                numSlots++;
                 const slotParts = slots[i].split(' ');
 
                 if (slotParts[1]) {
@@ -425,29 +469,14 @@ export class HomeComponent implements OnInit {
                     const usernameRegexp = /\/?[uU]\/([^ ]*)/g;
                     const matchedUsername = usernameRegexp.exec(slotParts[1]);
 
-                    this.raffleParticipants.push({name: matchedUsername[1], paid: paidString.toLowerCase().indexOf('paid') !== -1,  requester: ''});
+                    raffleParticipants.push({name: matchedUsername[1], paid: paidString.toLowerCase().indexOf('paid') !== -1,  requester: ''});
                 } else {
-                    this.raffleParticipants.push({name: '', paid: false, requester: ''});
+                    raffleParticipants.push({name: '', paid: false, requester: ''});
                 }
             }
         }
 
-        if (numSlots <= 1) {
-            swal2('Raffle failed to import!',
-                'The raffle importer detected < 2 slots which is not a valid raffle! ' +
-                'This could be due to browser compatibility issues. ' +
-                'Please try to link again and if you get the same error try a different browser. ' +
-                'DO NOT UPDATE YOUR RAFFLE BEFORE RELINKING! You could delete your slot list!',
-                'error'
-            );
-        } else {
-            this.numSlots = numSlots;
-
-            this.updateRaffleSlots(numSlots);
-            this.raffleImported = true;
-        }
-
-        this.setRequesters();
+        return raffleParticipants;
     }
 
     private getSlotListText(numOpenSlots, numUnpaidUsers, slotList): string {
@@ -571,27 +600,58 @@ export class HomeComponent implements OnInit {
         }
     }
 
+    private runPaymentConfirmerWithSlotListCheck() {
+        this.slotListUpToDate().subscribe( slotListsMatch => {
+            if (!slotListsMatch) {
+                swal2({
+                        title: 'Your Slot List Is Out Of Date!',
+                        text: 'The Raffle Tool\'s slot list does not match the list on Reddit. ' +
+                            'This is probably because you have multiple sessions of The Raffle Tool running (maybe one on your laptop and one on your phone) ' +
+                            'and they are not automatically kept in sync. Before continuing you should relink to Reddit to get the latest slot list. ' +
+                            'If you beleive you got this message in error click "Continue Anyway" otherwise click "Relink".',
+                        type: 'error',
+                        showCancelButton: true,
+                        cancelButtonText: 'Continue Anyway',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Relink'
+                    }
+                ).then((result) => {
+                    if (result.value) {
+                        this.linkWithReddit();
+                    } else if (result.dismiss && result.dismiss === swal2.DismissReason.cancel) {
+                        this.runPaymentConfirmer();
+                    } else {
+                        return;
+                    }
+                });
+            } else {
+                this.runPaymentConfirmer();
+            }
+        });
+
+    }
+
     private runPaymentConfirmer() {
         this.numPayPmsProcessed = 0;
         this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(messages => {
-            if (messages && messages.length) {
-                try {
-                    this.showPm(messages, messages.length - 1);
-                } catch (err) {
-                    this.loggingService.logMessage('runPaymentConfirmer stack:' + JSON.stringify(err.stack), LoggingLevel.ERROR);
-                    this.loggingService.logMessage('runPaymentConfirmer messages:' + JSON.stringify(messages), LoggingLevel.ERROR);
-                    console.error(err);
-                    swal2(
-                        'Error Running Payment Confirmer!',
-                        'Please wait a few minutes and try again. ' +
-                        'If the issue persists send a PM to BoyAndHisBlob and confirm payments manually.',
-                        'error'
-                    );
+                if (messages && messages.length) {
+                    try {
+                        this.showPm(messages, messages.length - 1);
+                    } catch (err) {
+                        this.loggingService.logMessage('runPaymentConfirmer stack:' + JSON.stringify(err.stack), LoggingLevel.ERROR);
+                        this.loggingService.logMessage('runPaymentConfirmer messages:' + JSON.stringify(messages), LoggingLevel.ERROR);
+                        console.error(err);
+                        swal2(
+                            'Error Running Payment Confirmer!',
+                            'Please wait a few minutes and try again. ' +
+                            'If the issue persists send a PM to BoyAndHisBlob and confirm payments manually.',
+                            'error'
+                        );
+                    }
+                } else {
+                    this.showNoUnpaidPms();
                 }
-            } else {
-                this.showNoUnpaidPms();
-            }
-        },
+            },
             err => {
                 this.loggingService.logMessage('getPmsAfter:' + JSON.stringify(err), LoggingLevel.ERROR);
                 console.error(err);
@@ -881,58 +941,152 @@ export class HomeComponent implements OnInit {
 
             this.showModChatMessage();
         } else {
-            this.modal.open(SlotConfirmationModalComponent,
-                overlayConfigFactory({
-                        isBlocking: true,
-                        comment: comments[commentIndex],
-                        callingComponent: this,
-                        numOpenSlots: this.numOpenSlots,
-                        inOrderMode: this.inOrderMode
-                    },
-                    BSModalContext))
-                .then(dialogRef => {
-                    dialogRef.result.then(result => {
-                        this.loggingService.logMessage('result:' + JSON.stringify(result), LoggingLevel.INFO);
-                        if (result && result.slotAssignments && result.slotAssignments.length > 0) {
-                            this.loggingService.logMessage('comment:' + JSON.stringify(comments[commentIndex]), LoggingLevel.INFO);
-                            this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name, comments[commentIndex].data.author);
-                        }
 
-                        if (result) {
-                            this.confirmedComments.push(comments[commentIndex].data.name);
-
-                            this.databaseService.storeProcessedComments(this.userId, this.currentRaffle.name, this.confirmedComments).subscribe(res => {
-                            },
-                                err => {
-                                    this.loggingService.logMessage('storeProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
-                                    console.error(err);
-
-                                    alert('There was an error marking the slot request as processed! ' +
-                                        'To resolve this please close The Raffle Tool and relink to your raffle. ' +
-                                        'You might have to process the slot request again. ' +
-                                        'Check to see if the requested slots are in the tool after relinking. ' +
-                                        'If not then process the request again like you normally would. ' +
-                                        'Otherwise skip it since it was already processed.'
-                                    );
-
-                                });
-
-                            if (commentIndex < comments.length - 1) {
-                                this.showSlotAssignmentModal(comments, commentIndex + 1);
-                            } else {
-                                //check if more comments since start of wizard
-                                this.slotAssignmentWizard();
-                            }
-                        } else {
-                            this.isSlotAssignmentHelperRunning = false;
-                            this.interuptSlotAssignmentHelper = false;
-                        }
-                    }).catch(error => {
-                        this.isSlotAssignmentHelperRunning = false;
-                        this.interuptSlotAssignmentHelper = false;
-                    });
+            this.slotListUpToDate().subscribe( slotListsMatch => {
+                if (!slotListsMatch) {
+                swal2({
+                        title: 'Your Slot List Is Out Of Date!',
+                        text: 'The Raffle Tool\'s slot list does not match the list on Reddit. ' +
+                            'This is probably because you have multiple sessions of The Raffle Tool running (maybe one on your laptop and one on your phone) ' +
+                            'and they are not automatically kept in sync. Before continuing you should relink to Reddit to get the latest slot list. ' +
+                            'If you beleive you got this message in error click "Continue Anyway" otherwise click "Relink".',
+                        type: 'error',
+                        showCancelButton: true,
+                        cancelButtonText: 'Continue Anyway',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Relink'
+                    }
+                ).then((result) => {
+                    if (result.value) {
+                        this.linkWithReddit();
+                    } else if (result.dismiss && result.dismiss === swal2.DismissReason.cancel) {
+                        this.openSlotConfirmationModal(comments, commentIndex);
+                    } else {
+                        return;
+                    }
+                });
+                } else {
+                    this.openSlotConfirmationModal(comments, commentIndex);
+                }
+            },
+                err => {
+                    this.loggingService.logMessage('showSlotAssignmentModal slotListUpToDate:' + JSON.stringify(err), LoggingLevel.ERROR);
+                    console.error(err);
                 });
         }
+    }
+
+    private openSlotConfirmationModal(comments: any, commentIndex: number) {
+        this.modal.open(SlotConfirmationModalComponent,
+            overlayConfigFactory({
+                    isBlocking: true,
+                    comment: comments[commentIndex],
+                    callingComponent: this,
+                    numOpenSlots: this.numOpenSlots,
+                    inOrderMode: this.inOrderMode
+                },
+                BSModalContext))
+            .then(dialogRef => {
+                dialogRef.result.then(result => {
+                    this.loggingService.logMessage('result:' + JSON.stringify(result), LoggingLevel.INFO);
+                    if (result && result.slotAssignments && result.slotAssignments.length > 0) {
+                        this.loggingService.logMessage('comment:' + JSON.stringify(comments[commentIndex]), LoggingLevel.INFO);
+                        this.sendConfirmationReply(this.assignSlots(result.slotAssignments), result.confirmationMessageText, comments[commentIndex].data.name, comments[commentIndex].data.author);
+                    }
+
+                    if (result) {
+                        this.confirmedComments.push(comments[commentIndex].data.name);
+
+                        this.databaseService.storeProcessedComments(this.userId, this.currentRaffle.name, this.confirmedComments).subscribe(res => {
+                            },
+                            err => {
+                                this.loggingService.logMessage('storeProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
+                                console.error(err);
+
+                                alert('There was an error marking the slot request as processed! ' +
+                                    'To resolve this please close The Raffle Tool and relink to your raffle. ' +
+                                    'You might have to process the slot request again. ' +
+                                    'Check to see if the requested slots are in the tool after relinking. ' +
+                                    'If not then process the request again like you normally would. ' +
+                                    'Otherwise skip it since it was already processed.'
+                                );
+
+                            });
+
+                        if (commentIndex < comments.length - 1) {
+                            this.showSlotAssignmentModal(comments, commentIndex + 1);
+                        } else {
+                            //check if more comments since start of wizard
+                            this.slotAssignmentWizard();
+                        }
+                    } else {
+                        this.isSlotAssignmentHelperRunning = false;
+                        this.interuptSlotAssignmentHelper = false;
+                    }
+                }).catch(error => {
+                    this.isSlotAssignmentHelperRunning = false;
+                    this.interuptSlotAssignmentHelper = false;
+                });
+            });
+    }
+
+    private slotListUpToDate(): Observable<boolean> {
+        return Observable.create(observer => {
+
+            this.loadRaffleProperties(this.currentRaffle.name, this.userId).then(() => {
+                if (this.raffleProperties.latestSessionId !== this.loggingService.sessionId) {
+                    this.redditService.getPostByName(this.currentRaffle.name).subscribe(raffle => {
+                        this.getCurrentSlotListString(raffle.data.children[0].data).subscribe(slotList => {
+                            let slotListsMatch = true;
+                            const raffleParticipants = this.createRaffleParticipants(slotList);
+                            for (let i = 0; i < raffleParticipants.length; i++) {
+                                if (raffleParticipants[i].name !== this.raffleParticipants[i].name ||
+                                    raffleParticipants[i].paid !== this.raffleParticipants[i].paid) {
+                                    slotListsMatch = false;
+                                    break;
+                                }
+                            }
+
+                            //update here in case slot assigner doesnt finish before next one comes up
+                            if (slotListsMatch) {
+                                this.raffleProperties.latestSessionId = this.loggingService.sessionId;
+                                this.databaseService.storeRaffleProperties(this.userId, this.currentRaffle.name, this.raffleProperties).subscribe(response => {
+                                    observer.next(slotListsMatch);
+                                    observer.complete();
+                                    },
+                                    err => {
+                                        this.loggingService.logMessage('updateRaffleProperties slotListUpToDate:' + JSON.stringify(err), LoggingLevel.ERROR);
+                                        console.error(err);
+                                        observer.error(err);
+                                        observer.complete();
+                                    });
+                            } else {
+                                observer.next(slotListsMatch);
+                                observer.complete();
+                            }
+
+                        }, err => {
+                            this.loggingService.logMessage('slotListUpToDate:' + JSON.stringify(err), LoggingLevel.ERROR);
+                            console.error(err);
+                            observer.error(err);
+                            observer.complete();
+                        });
+                    });
+                } else {
+                    /*assume the slot list is up to date if the session hasn't changed*/
+                    observer.next(true);
+                    observer.complete();
+                }
+            }).catch(err => {
+                this.loggingService.logMessage('slotListUpToDate' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error('slotListUpToDate:', err);
+                swal2('Error Verifying Slot List!',
+                    'There was an error verifying that you have the current slot list. ' +
+                    'Please try again and if you continue to get this error message relink The Raffle Tool.',
+                    'error'
+                );
+            });
+        });
     }
 
     private assignSlots(slotAssignments: any): any {
@@ -1101,19 +1255,29 @@ export class HomeComponent implements OnInit {
             }
         });
 
-        this.databaseService.getRaffleProperties(userId, raffleName).subscribe(raffleProperties => {
-            if (raffleProperties) {
-                if (!raffleProperties.skippedPms) {
-                    raffleProperties.skippedPms = [];
-                }
-                this.raffleProperties = raffleProperties;
-
-            } else {
-                this.raffleProperties = new RaffleProperties();
-            }
-        });
+        this.loadRaffleProperties(raffleName, userId);
     }
 
+    private loadRaffleProperties(raffleName: string, userId: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.databaseService.getRaffleProperties(userId, raffleName).subscribe(raffleProperties => {
+                if (raffleProperties) {
+                    if (!raffleProperties.skippedPms) {
+                        raffleProperties.skippedPms = [];
+                    }
+                    this.raffleProperties = raffleProperties;
+
+                } else {
+                    this.raffleProperties = new RaffleProperties();
+                }
+                resolve();
+            }, err => {
+                this.loggingService.logMessage('loadRaffleProperties:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.log(err);
+                reject(err);
+            });
+        });
+    }
 
     private loadStorage() {
 
