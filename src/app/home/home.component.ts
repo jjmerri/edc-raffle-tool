@@ -893,9 +893,16 @@ export class HomeComponent implements OnInit {
 
     private slotAssignmentWizard() {
         this.redditService.getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name).subscribe(comments => {
+            const currentDate = new Date();
+            const currentDateSeconds = currentDate.getTime() / 1000;
             for (let x = 0; x < comments.length; x++) {
-                if (comments[x].data.author === 'AutoModerator') {
+                const commentAge = currentDateSeconds - comments[x].data.created_utc;
+                // remove comments < 5 seconds old to give time for Reddit data to replicate to all servers
+                // This helps prevent comments processing out of order
+                if (comments[x].data.author === 'AutoModerator' || commentAge < 10) {
+                    console.log(comments[x].data);
                     comments.splice(x, 1);
+                    x--; //we removed one so we need to check the same index next
                 }
             }
 
@@ -936,10 +943,19 @@ export class HomeComponent implements OnInit {
 
     private showSlotAssignmentModal(comments: any, commentIndex: number) {
         this.isSlotAssignmentHelperRunning = true;
+
+
         if (this.interuptSlotAssignmentHelper) {
             this.interuptSlotAssignmentHelper = false;
 
             this.showModChatMessage();
+        } else if (this.confirmedComments.indexOf(comments[commentIndex].data.name) !== -1) { //need to double check we havent processed this because reddit sometimes retrieves comments out of order
+            if (commentIndex < comments.length - 1) {
+                this.showSlotAssignmentModal(comments, commentIndex + 1);
+            } else {
+                // check if more comments since start of wizard
+                this.slotAssignmentWizard();
+            }
         } else {
 
             this.slotListUpToDate().subscribe( slotListsMatch => {
