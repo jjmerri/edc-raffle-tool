@@ -899,7 +899,8 @@ export class HomeComponent implements OnInit {
                 const commentAge = currentDateSeconds - comments[x].data.created_utc;
                 // remove comments < 5 seconds old to give time for Reddit data to replicate to all servers
                 // This helps prevent comments processing out of order
-                if (comments[x].data.author === 'AutoModerator' || commentAge < 10) {
+                //check if greater than 0 because system time might not be right
+                if (comments[x].data.author === 'AutoModerator' || (commentAge >= 0 && commentAge < 10)) {
                     console.log(comments[x].data);
                     comments.splice(x, 1);
                     x--; //we removed one so we need to check the same index next
