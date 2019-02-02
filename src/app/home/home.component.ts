@@ -895,13 +895,21 @@ export class HomeComponent implements OnInit {
         this.redditService.getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name).subscribe(comments => {
             const currentDate = new Date();
             const currentDateSeconds = currentDate.getTime() / 1000;
+            let youngestSkippedCommentTime = null;
             for (let x = 0; x < comments.length; x++) {
                 const commentAge = currentDateSeconds - comments[x].data.created_utc;
                 // remove comments < 5 seconds old to give time for Reddit data to replicate to all servers
                 // This helps prevent comments processing out of order
                 //check if greater than 0 because system time might not be right
-                if (comments[x].data.author === 'AutoModerator' || (commentAge >= 0 && commentAge < 10)) {
+                if (comments[x].data.author === 'AutoModerator' ||
+                    (commentAge >= 0 && commentAge < 10) ||
+                    (youngestSkippedCommentTime && comments[x].data.created_utc >= youngestSkippedCommentTime)) {
                     console.log(comments[x].data);
+
+                    if (!youngestSkippedCommentTime || youngestSkippedCommentTime > comments[x].data.created_utc) {
+                        youngestSkippedCommentTime = comments[x].data.created_utc;
+                    }
+
                     comments.splice(x, 1);
                     x--; //we removed one so we need to check the same index next
                 }
