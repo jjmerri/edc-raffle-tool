@@ -906,7 +906,7 @@ export class HomeComponent implements OnInit {
                     (youngestSkippedCommentTime && comments[x].data.created_utc >= youngestSkippedCommentTime)) {
                     console.log(comments[x].data);
 
-                    if (!youngestSkippedCommentTime || youngestSkippedCommentTime > comments[x].data.created_utc) {
+                    if (comments[x].data.author !== 'AutoModerator' && (!youngestSkippedCommentTime || youngestSkippedCommentTime > comments[x].data.created_utc)) {
                         youngestSkippedCommentTime = comments[x].data.created_utc;
                     }
 
