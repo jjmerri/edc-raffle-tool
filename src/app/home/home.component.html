@@ -126,18 +126,21 @@
 
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-3">
-            <label for="paid{{i}}">In Order Mode?</label>
+            <label for="inOrderMode">In Order Mode?</label>
             <input type="checkbox" id="inOrderMode" name="inOrderMode" [(ngModel)]="inOrderMode"/>
           </div>
           <div class="col-xs-2" *ngIf="canEditFlair">
-            <label for="paid{{i}}">Auto-Update Flair?</label>
+            <label for="autoUpdateFlair">Auto-Update Flair?</label>
             <input type="checkbox" id="autoUpdateFlair" name="autoUpdateFlair" [(ngModel)]="autoUpdateFlair"/>
           </div>
           <div class="col-xs-4">
             <label for="customFlair">Custom Flair:</label>
             <input type="text" id="customFlair" maxlength="47" [(ngModel)]="raffleProperties.customFlair" (change)="updateCustomFlairText()"/>
           </div>
-          <div class="col-xs-3"></div>
+          <div class="col-xs-3">
+            <label for="willSendParticipantPm">Send Participant PM?</label>
+            <input type="checkbox" id="willSendParticipantPm" name="willSendParticipantPm" [(ngModel)]="raffleProperties.willSendParticipantPm" />
+          </div>
           <div class="col-xs-12" style="height:10px;"></div>
         </div>
 

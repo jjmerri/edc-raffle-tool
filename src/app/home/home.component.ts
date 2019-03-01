@@ -58,18 +58,17 @@ export class HomeComponent implements OnInit {
     private closePopOver = false;
     private numOpenSlots = this.numSlots;
     private payPalInfo: string;
-    private payPalPmMessage = 'Thank you for participating in the raffle.\n\n' +
+    private pmMessage = 'Thank you for participating in the raffle.\n\n' +
         '**Please reply to this message in this format:**\n\n' +
         '*Raffle:*\n\n' +
         '*Spot Numbers:*\n\n' +
         '*PayPal Name:*\n\n' +
         '*PayPal Email:*\n\n' +
-        '**Please submit your payment using Friends and Family and leave nothing in the notes or comments.**\n\n' +
-        '**Please find my PayPal info below:**\n\n';
+        '**Please submit your payment using Friends and Family and leave nothing in the notes or comments.**\n\n'
     private popUpTimer: any;
     private confirmedComments = [];
-    private shownNewFeatureMessageSlotAssignmentHelper = false;
-    private hasNewFeature = false;
+    private shownNewFeatureMessage = true;
+    private hasNewFeature = true;
     private isModtober = false;
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
@@ -480,7 +479,19 @@ export class HomeComponent implements OnInit {
     }
 
     private getSlotListText(numOpenSlots, numUnpaidUsers, slotList): string {
+        let payPalInfo = '';
+        if (this.payPalInfo) {
+            let payPalFormatted = this.payPalInfo;
+            const ppRegEx = new RegExp('(paypal\.me)', 'i');
+            if (ppRegEx.test(this.payPalInfo)) {
+                payPalFormatted = '[' + this.payPalInfo + '](' + this.redirectUrl + this.payPalInfo + ')';
+            }
+            payPalInfo = '**PayPal Info: ' + payPalFormatted + '**\n\n&#x200b;\n\n'
+        }
+
         return '<raffle-tool>\n\n' +
+        payPalInfo +
+        '**[Tip BoyAndHisBlob](https://blobware-tips.firebaseapp.com)**\n\n' +
         'Number of vacant slots: ' + numOpenSlots + '\n\n' +
         'Number of unpaid users: ' + numUnpaidUsers + '\n\n' +
         'This slot list is created and updated by ' +
@@ -534,29 +545,21 @@ export class HomeComponent implements OnInit {
     private showPayPalWarning(event: any) {
         if (!this.payPalMessageShown) {
             swal2('',
-                'Entering your PayPal info will cause <strong>PMs to be sent</strong> to participants as you add them to the slot list. ' +
-                'Only newly added participants will be PM\'d. You won\'t get this message again.</br></br>' +
-                '<strong>Example PM:</strong></br>' + this.payPalPmMessage + '</br>https://www.paypal.me/yourname',
+                'Entering your PayPal info will cause your PayPal link to be displayed in your raffle. You won\'t get this message again.',
                 'info'
             );
             this.payPalMessageShown = true;
         }
     }
 
-    private sendPayPalPm(recipient: string) {
-        if (recipient && this.payPalInfo && this.paypalPmRecipients.indexOf(recipient.toUpperCase()) === -1
+    private sendParticipantPm(recipient: string) {
+        if (recipient && this.raffleProperties.willSendParticipantPm && this.paypalPmRecipients.indexOf(recipient.toUpperCase()) === -1
             && ((this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') || this.userName.toUpperCase() === recipient.toUpperCase())) {
-
-            let payPalFormatted = this.payPalInfo;
-            const ppRegEx = new RegExp('(paypal\.me)', 'i');
-            if (ppRegEx.test(this.payPalInfo)) {
-                payPalFormatted = '[' + this.payPalInfo + '](' + this.redirectUrl + this.payPalInfo + ')';
-            }
 
             const subject = 'PayPal Info For: ' + this.currentRaffle.title;
             this.redditService.sendPm(recipient, subject.substr(0, 100),
-                this.payPalPmMessage + payPalFormatted +
-                '\n\n^^^.\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe(res => {
+                this.pmMessage + (this.payPalInfo ? '**Please find my PayPal info at the top of the slot list in the raffle.**\n\n' : '') +
+                '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe(res => {
             }, err => {
                     this.loggingService.logMessage('sendPm:' + JSON.stringify(err), LoggingLevel.ERROR);
                     console.error(err);
@@ -1194,10 +1197,10 @@ export class HomeComponent implements OnInit {
             if (updateText) {
                 this.updateCommentText();
             }
-            this.sendPayPalPm(username);
+            this.sendParticipantPm(username);
 
             if (username !== requester) {
-                this.sendPayPalPm(requester);
+                this.sendParticipantPm(requester);
             }
         }
     }
@@ -1311,9 +1314,9 @@ export class HomeComponent implements OnInit {
             this.hasSeenTermsOfService = hasSeenTermsOfService;
         }
 
-        const shownNewFeatureMessageSlotAssignmentHelper = JSON.parse(localStorage.getItem('shownNewFeatureMessageSlotAssignmentHelper'));
-        if (shownNewFeatureMessageSlotAssignmentHelper !== null) {
-            this.shownNewFeatureMessageSlotAssignmentHelper = shownNewFeatureMessageSlotAssignmentHelper;
+        const shownNewFeatureMessage = JSON.parse(localStorage.getItem('shownNewFeatureMessage'));
+        if (shownNewFeatureMessage !== null) {
+            this.shownNewFeatureMessage = shownNewFeatureMessage;
         }
 
         const showAdBlockerMessage = JSON.parse(localStorage.getItem('showAdBlockerMessage'));
@@ -1329,26 +1332,18 @@ export class HomeComponent implements OnInit {
     }
 
     private showNewFeatureMessage() {
-        if (!this.shownNewFeatureMessageSlotAssignmentHelper) {
-            swal2({
-                    title: 'New Feature Available!',
-                    html: '<h3><span style="font-weight: 400;">' +
-                    'Slot Assignment Helper' +
-                    '</span></h3>' +
-                    '<p><span style="font-weight: 400;">' +
-                    'Clicking the "Slot Assignment Helper" button will cycle you through top level comments and provide ' +
-                    'you with an interface to assign slots and reply to the request with a confirmation message ' +
-                    'all without having to leave The Raffle Tool.' +
-                    '</span></p>' +
-                    '<p><span style="font-weight: 400;">' +
-                    'See the <a href="https://docs.google.com/document/d/1lz07G4-So9sUXgp46FWY-i7DSJ_RCfGfrBtIU1xNQbw/edit#heading=h.sg5104iphu6x" target="_blank" rel="noopener">complete documentation</a>&nbsp;for more info.' +
-                    '</span></p>',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'OK'
-                }
+        if (!this.shownNewFeatureMessage) {
+            swal2(
+                'Feature Update!',
+                'Due to a piece of garbage coward scammer spoofing PayPal PMs the following changes have been made. ' +
+                'Your PayPal info will now be posted at the top of the slot list instead of in the PM that goes to the participant. ' +
+                'The PM will still get sent, just not with your PayPal info. ' +
+                'If you don\'t want PMs to send at all you can uncheck the "Send Participant PM." checkbox.',
+                'info'
+
             ).then((result) => {
                 if (result.value) {
-                    localStorage.setItem('shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
+                    localStorage.setItem('shownNewFeatureMessage', JSON.stringify(true));
                 } else if (result.dismiss) {
                     localStorage.setItem(this.currentRaffle.name + '_shownNewFeatureMessageSlotAssignmentHelper', JSON.stringify(true));
                 }
@@ -1643,8 +1638,11 @@ export class HomeComponent implements OnInit {
             ).then((result) => {
                 if (result.value) {
                     this.redditService.postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
+                            this.loggingService.logMessage('callTheBot:', LoggingLevel.INFO);
                             this.updateFlair(this.completeFlairId, 'Complete');
                             this.botCalled = true;
+
+                            this.redactPayPalInfo()
 
                             swal2(
                                 'The Bot Has Been Called!',
@@ -1678,6 +1676,37 @@ export class HomeComponent implements OnInit {
                 }
             );
         }
+    }
+
+    private redactPayPalInfo() {
+
+        if (!this.payPalInfo) {
+            return;
+        }
+
+        this.redditService.getSubmission(this.currentRaffle.permalink + '.json').subscribe(getSubmissionResponse => {
+                let txt: any;
+                txt = document.createElement('textareatmp');
+                txt.innerHTML = this.currentRaffle.selftext;
+                let postText = txt.innerText;
+
+                const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me\/[^*]+)(\*\*\n\n)/;
+                postText = postText.replace(re, "$1[REDACTED]$3");
+
+                this.redditService.updatePostText(postText, this.currentRaffle.name)
+                    .subscribe(postResponse => {
+                            this.currentRaffle = postResponse.json.data.things[0].data;
+                        },
+                        err => {
+                            this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
+                            console.error(err);
+                        }
+                    );
+            },
+            err => {
+                this.loggingService.logMessage('getSubmission:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error(err);
+            });
     }
 
     private configureAdblockerCheck() {
