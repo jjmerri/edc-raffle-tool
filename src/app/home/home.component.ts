@@ -558,7 +558,9 @@ export class HomeComponent implements OnInit {
 
             const subject = 'PayPal Info For: ' + this.currentRaffle.title;
             this.redditService.sendPm(recipient, subject.substr(0, 100),
-                this.pmMessage + (this.payPalInfo ? '**Please find my PayPal info at the top of the slot list in the raffle.**\n\n' : '') +
+                this.pmMessage + (this.payPalInfo ? '**Please find my PayPal info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
+                'Because Reddit flags PayPal links as spam the link actually performs a redirect through The Raffle Tool and will look like:\n\n' +
+                '    https://edc-raffle-tool.firebaseapp.com/redirect?redirectUrl=https://www.paypal.me/usersPayPalMe\n\n' : '') +
                 '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe(res => {
             }, err => {
                     this.loggingService.logMessage('sendPm:' + JSON.stringify(err), LoggingLevel.ERROR);
