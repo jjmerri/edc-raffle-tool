@@ -93,7 +93,7 @@ export class HomeComponent implements OnInit {
     private isSlotAssignmentHelperRunning = false;
     private interuptSlotAssignmentHelper = false;
     private haveShownModChatMessage = false;
-    private redirectUrl = environment.baseUri + '/redirect?redirectUrl=';
+    private redirectUrl = 'https://redirect-ddff2.firebaseapp.com/index.html?redirectUrl=';
     private modToolsDiscordUrl = null;
     private notificationSettings = null;
     private publicRedditUrl = 'https://www.reddit.com';
@@ -483,8 +483,14 @@ export class HomeComponent implements OnInit {
         if (this.payPalInfo) {
             let payPalFormatted = this.payPalInfo;
             const ppRegEx = new RegExp('(paypal\.me)', 'i');
+
+            //move this to a config item instead of being lazy
+            let payPalText = this.payPalInfo;
+            if (this.currentRaffle.subreddit === 'lego_raffles') {
+                payPalText = 'https://www.paypal.me';
+            }
             if (ppRegEx.test(this.payPalInfo)) {
-                payPalFormatted = '[' + this.payPalInfo + '](' + this.redirectUrl + this.payPalInfo + ')';
+                payPalFormatted = '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
             }
             payPalInfo = '**PayPal Info: ' + payPalFormatted + '**\n\n&#x200b;\n\n'
         }
@@ -560,7 +566,7 @@ export class HomeComponent implements OnInit {
             this.redditService.sendPm(recipient, subject.substr(0, 100),
                 this.pmMessage + (this.payPalInfo ? '**Please find my PayPal info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
                 'Because Reddit flags PayPal links as spam the link actually performs a redirect through The Raffle Tool and will look like:\n\n' +
-                '    https://edc-raffle-tool.firebaseapp.com/redirect?redirectUrl=https://www.paypal.me/usersPayPalMe\n\n' : '') +
+                '    https://redirect-ddff2.firebaseapp.com/index.html?redirectUrl=https://www.paypal.me/usersPayPalMe\n\n' : '') +
                 '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n').subscribe(res => {
             }, err => {
                     this.loggingService.logMessage('sendPm:' + JSON.stringify(err), LoggingLevel.ERROR);
@@ -1692,7 +1698,7 @@ export class HomeComponent implements OnInit {
                 txt.innerHTML = this.currentRaffle.selftext;
                 let postText = txt.innerText;
 
-                const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me\/[^*]+)(\*\*\n\n)/;
+                const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me[^*]*)(\*\*\n\n)/;
                 postText = postText.replace(re, "$1[REDACTED]$3");
 
                 this.redditService.updatePostText(postText, this.currentRaffle.name)
