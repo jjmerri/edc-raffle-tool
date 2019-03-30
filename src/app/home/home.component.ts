@@ -106,6 +106,7 @@ export class HomeComponent implements OnInit {
             'Walt_the_White', 'slumblor'],
         SSBM: ['UNKNOWN'],
         RocketLeagueExchange: ['UNKNOWN'],
+        Knife_Swap: ['UNKNOWN'],
         raffleTest: ['BoyAndHisBlob'],
         PenRaffle: ['Turokman123']
     };
@@ -1698,7 +1699,7 @@ export class HomeComponent implements OnInit {
                 txt.innerHTML = this.currentRaffle.selftext;
                 let postText = txt.innerText;
 
-                const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me[^*]*)(\*\*\n\n)/;
+                const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me[^*]*)(\*\*\n\n)/i;
                 postText = postText.replace(re, "$1[REDACTED]$3");
 
                 this.redditService.updatePostText(postText, this.currentRaffle.name)
