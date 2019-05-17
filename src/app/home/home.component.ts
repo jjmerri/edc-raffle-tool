@@ -33,6 +33,7 @@ import {NotificationService} from '../notification/services/notification.service
 import {LoggingService} from '../logging-service/services/logging.service';
 import {RaffleProperties} from './RaffleProperties';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {FinishRaffleModalComponent} from "./finish-raffle.modal.component";
 
 @Component({
     selector: 'app-home',
@@ -1648,31 +1649,35 @@ export class HomeComponent implements OnInit {
                 if (result.value) {
                     this.redditService.postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
                             this.loggingService.logMessage('callTheBot:', LoggingLevel.INFO);
-                            this.updateFlair(this.completeFlairId, 'Complete');
                             this.botCalled = true;
 
                             this.redactPayPalInfo()
-
+                        if (this.currentRaffle.subreddit === 'WatchURaffle') {
+                            this.openFinishRaffleModal();
+                        } else {
                             swal2(
                                 'The Bot Has Been Called!',
                                 'Congrats on a successful raffle! The bot should respond to your comment shortly.',
                                 'success'
                             );
-                        },
-                        err => {
-                            this.loggingService.logMessage('callTheBot:' + JSON.stringify(err), LoggingLevel.ERROR);
-                            console.error(err);
 
-                            swal2(
-                                'Error Calling The Bot!',
-                                'There was an error calling the bot. ' +
-                                'This could be a Reddit issue. Wait a minute, check your raffle to see if it was definitely not called ' +
-                                'and if it wasn\'t, call it manually or try clicking the call the bot button again. ' +
-                                'If you call it manually, don\'t forget to change your raffle\'s flair to Complete.',
-                                'error'
-                            );
+                            this.updateFlair(this.completeFlairId, 'Complete');
                         }
+                    },
+                    err => {
+                        this.loggingService.logMessage('callTheBotError:' + JSON.stringify(err), LoggingLevel.ERROR);
+                        console.error(err);
+
+                        swal2(
+                            'Error Calling The Bot!',
+                            'There was an error calling the bot. ' +
+                            'This could be a Reddit issue. Wait a minute, check your raffle to see if it was definitely not called ' +
+                            'and if it wasn\'t, call it manually or try clicking the call the bot button again. ' +
+                            'If you call it manually, don\'t forget to change your raffle\'s flair to Complete.',
+                            'error'
                         );
+                    }
+                    );
                 }
             });
         } else {
@@ -1685,6 +1690,48 @@ export class HomeComponent implements OnInit {
                 }
             );
         }
+    }
+
+    private openFinishRaffleModal() {
+        this.modal.open(FinishRaffleModalComponent,
+            overlayConfigFactory({
+                    isBlocking: true,
+                    raffleParticipants: this.raffleParticipants,
+                    raffle: this.currentRaffle
+                },
+                BSModalContext))
+            .then(dialogRef => {
+                dialogRef.result.then(result => {
+                    if (result) {
+                        this.updateFlair(this.completeFlairId, 'Complete');
+                    }
+
+                    if (result && result.modPm) {
+                        this.redditService.sendPm('/r/' + this.currentRaffle.subreddit,
+                            'Raffle Complete - Sub Fund Contribution Info', result.modPm).subscribe(postResponse => {
+                            },
+                            err => {
+                                this.loggingService.logMessage('send modPm:' + JSON.stringify(err), LoggingLevel.ERROR);
+                                console.error(err);
+                            }
+                        );
+                    }
+
+                    if (result && result.winnerPm) {
+                        this.redditService.sendPm(this.getSanitizedUserName(result.winner),
+                            'Congrats On Your Win!', result.winnerPm).subscribe(postResponse => {
+                            },
+                            err => {
+                                this.loggingService.logMessage('send winnerPm:' + JSON.stringify(err), LoggingLevel.ERROR);
+                                console.error(err);
+                            }
+                        );
+                    }
+                }).catch(err => {
+                    this.loggingService.logMessage('finishRaffle:' + JSON.stringify(err), LoggingLevel.ERROR);
+                    console.error(err);
+                });
+            });
     }
 
     private redactPayPalInfo() {

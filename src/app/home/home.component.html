@@ -72,7 +72,7 @@
   <div class="container" *ngIf="userName && currentRaffle">
     <div class="alert alert-success alert-dismissible">
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      <strong>Linked with current raffle!</strong> NOTE: Your slot list will auto-update and if you use the "Slot Assignment Helper" slots will be confirmed but it is still <strong>YOUR responsibility</strong> to communicate everything else to the raffle participants and to check in on your raffle post to make sure tool integration is working as expected. GLWR!
+      <strong>Linked with current raffle!</strong> NOTE: Your slot list will auto-update and if you use the "Slot Assignment" functionality slots will be confirmed but it is still <strong>YOUR responsibility</strong> to communicate everything else to the raffle participants and to check in on your raffle post to make sure tool integration is working as expected. GLWR!
     </div>
   </div>
 
@@ -106,10 +106,10 @@
 
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-2">
-            <p><a class="btn btn-md btn-primary" (click)="slotAssignmentWizard()">Slot Assignment Helper...</a></p>
+            <p><a class="btn btn-md btn-primary" (click)="slotAssignmentWizard()">Slot Assignment...</a></p>
           </div>
           <div class="col-xs-3">
-            <p><a class="btn btn-md btn-primary" (click)="runPaymentConfirmerWithSlotListCheck()">Payment Confirmation Helper...</a></p>
+            <p><a class="btn btn-md btn-primary" (click)="runPaymentConfirmerWithSlotListCheck()">Payment Confirmation...</a></p>
           </div>
           <div class="col-xs-2">
             <p><a class="btn btn-md btn-primary" (click)="makeAnnouncement()">Make Announcement...</a></p>
@@ -147,8 +147,9 @@
         <div class="row">
           <div class="col-xs-8">
             <label for="numSlots">Number of Raffle Slots:</label>
-            <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSlots(numSlots)"/><button *ngIf="currentRaffle" class="btn btn-sm btn-primary" [disabled] = "botCalled" (click)="callTheBot()">Call {{botUsername}}...</button>
-
+            <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSlots(numSlots)"/>
+            <button *ngIf="currentRaffle" class="btn btn-sm btn-primary" [disabled] = "botCalled" (click)="callTheBot()">Call {{botUsername}}...</button>
+            <button *ngIf="currentRaffle.subreddit === 'WatchURaffle'" class="btn btn-sm btn-primary" (click)="openFinishRaffleModal()">Finish Raffle...</button>
           </div>
           <div class="col-xs-4">
             <button *ngIf="currentRaffle" class="btn btn-md btn-primary" [disabled]="unpaidUsersArray.length === 0" (click)="pageUnpaid()">Page Unpaid...</button>

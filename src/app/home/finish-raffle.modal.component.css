@@ -1,0 +1,7 @@
+.help-icon{
+  padding: 3px 3px 1px 0px;
+  font-size:14px;
+}
+.input-disabled{
+    background-color:lightgray !important;
+}
