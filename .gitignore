@@ -44,5 +44,4 @@ firebase.json
 src/assets/.gitkeep
 firebase-debug.log
 npm-debug.log.50517939
-package-lock.json
 .firebase/hosting.ZGlzdA.cache
