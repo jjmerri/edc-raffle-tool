@@ -1,0 +1,14 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title">Click to copy slot text to clipboard.</h4>
+    </div>
+
+
+    <div class="modal-body">
+        <textarea id="commentText" readonly rows="20" cols="50" [(ngModel)]="commentText" (click)="copyText('commentText')"></textarea>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
+    </div>
+</div>

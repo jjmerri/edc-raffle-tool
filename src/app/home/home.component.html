@@ -44,13 +44,6 @@
     </div><!-- /.container-fluid -->
   </nav>
 
-  <div class="container" *ngIf="raffleImported">
-    <div class="alert alert-success alert-dismissible">
-      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      <strong>Current raffle imported!</strong>
-    </div>
-  </div>
-
   <div class="container" *ngIf="!userName">
     <div class="alert alert-warning alert-dismissible">
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -68,15 +61,7 @@
       and relink with Reddit.
     </div>
   </div>
-
-  <div class="container" *ngIf="userName && currentRaffle">
-    <div class="alert alert-success alert-dismissible">
-      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      <strong>Linked with current raffle!</strong> NOTE: Your slot list will auto-update and if you use the "Slot Assignment" functionality slots will be confirmed but it is still <strong>YOUR responsibility</strong> to communicate everything else to the raffle participants and to check in on your raffle post to make sure tool integration is working as expected. GLWR!
-    </div>
-  </div>
-
-
+    
   <pop-over
           #paidPopOver [my]="'top left'" [at]="'bottom right'"
           [anchor-to]="true" [x-offset]="5" [y-offset]="5">
@@ -117,7 +102,7 @@
 
           <div class="col-xs-5">
             <div class="text-right">
-              <label for="payPalInfo"><a href="https://www.paypal.com/paypalme/grab" target="_blank">Get a PayPal.Me link here</a><br/>PayPal Info: </label>
+              <label for="payPalInfo"><a href="https://www.paypal.me" target="_blank">Get a PayPal.Me link here</a><br/>PayPal Info: </label>
               <input type="text" id="payPalInfo" [(ngModel)]="payPalInfo" (focus)="showPayPalWarning($event)" (change)="modifyPayPalMe()"/>
             </div>
           </div>
@@ -178,14 +163,21 @@
         <div class="col-xs-6">
           <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
             <label [ngClass]="{'bg-success': raffleParticipant.name === undefined || raffleParticipant.name === ''}" for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
-            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="assignSlot(raffleParticipant.name, raffleParticipant.name, i + 1, false, true, true)" (focus)="checkCalledSpot($event)" />
+            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="assignSlot(raffleParticipant.name, raffleParticipant.name, i + 1, false, true, true)" />
             <label for="paid{{i}}">Paid?</label>
             <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [disabled]="raffleParticipant.name === undefined || raffleParticipant.name === ''" [(ngModel)]="raffleParticipant.paid" (change)="updateAffectedSlots(raffleParticipant.name,$event); paidPopOver.toggle($event)"/>
           </div>
         </div>
-        <div class="col-xs-6">
-          <textarea id="commentText" readonly rows="20" cols="50" [(ngModel)]="commentText" (click)="copyText('commentText')"></textarea>
-        </div>
+          <div class="col-xs-3">
+              <div class="col-xs-2">
+                  <p><a class="btn btn-md btn-primary" (click)="markAllPaidConfirmation()">Mark All Paid...</a></p>
+              </div>
+          </div>
+          <div class="col-xs-3">
+              <div class="col-xs-2">
+                  <p><a class="btn btn-md btn-primary" (click)="openSlotTextModal()">View Slot List Text...</a></p>
+              </div>
+          </div>
       </div>
     </div>
   </div>

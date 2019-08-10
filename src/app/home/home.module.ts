@@ -8,6 +8,7 @@ import { RafflePickerModalComponent } from './raffle-picker.modal.component';
 import { TermsOfServiceModalComponent } from './terms-of-service.modal.component';
 import {SharedModule} from '../shared/shared.module';
 import {FinishRaffleModalComponent} from "./finish-raffle.modal.component";
+import {SlotTextModalComponent} from "./slot-text.modal.component";
 
 
 @NgModule({
@@ -16,9 +17,9 @@ import {FinishRaffleModalComponent} from "./finish-raffle.modal.component";
         FormsModule,
         PopoverModule,
     SharedModule],
-    declarations: [HomeComponent, SlotConfirmationModalComponent, RafflePickerModalComponent, TermsOfServiceModalComponent, FinishRaffleModalComponent],
+    declarations: [HomeComponent, SlotConfirmationModalComponent, RafflePickerModalComponent, TermsOfServiceModalComponent, FinishRaffleModalComponent, SlotTextModalComponent],
     exports: [HomeComponent],
-    entryComponents: [SlotConfirmationModalComponent, RafflePickerModalComponent, TermsOfServiceModalComponent, FinishRaffleModalComponent],
+    entryComponents: [SlotConfirmationModalComponent, RafflePickerModalComponent, TermsOfServiceModalComponent, FinishRaffleModalComponent, SlotTextModalComponent],
     providers: []
 })
 export class HomeModule { }

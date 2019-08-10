@@ -41,14 +41,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -70,14 +68,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -96,14 +92,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -146,7 +140,6 @@ export class RedditService {
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -174,14 +167,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -200,14 +191,12 @@ export class RedditService {
                         err => {
                             console.error(err);
                             observer.error(err);
-                            observer.complete();
                         }
                     );
                     },
                     err => {
                         console.error(err);
                         observer.error(err);
-                        observer.complete();
                     }
                     );
             });
@@ -236,14 +225,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -271,14 +258,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -300,14 +285,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -328,14 +311,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -430,7 +411,6 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
 
@@ -438,7 +418,6 @@ export class RedditService {
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -454,7 +433,6 @@ export class RedditService {
                     err => {
                         console.error(err);
                         observer.error(err);
-                        observer.complete();
                     }
                 );
             } else {
@@ -465,7 +443,6 @@ export class RedditService {
                     err => {
                         console.error(err);
                         observer.error(err);
-                        observer.complete();
                     }
                 );
             }
@@ -495,14 +472,12 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -538,19 +513,16 @@ export class RedditService {
                         err => {
                             console.error(err);
                             observer.error(err);
-                            observer.complete();
                         }
                     );
                 } else {
                     console.error(response);
                     observer.error(response);
-                    observer.complete();
                 }
             },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });
@@ -585,19 +557,16 @@ export class RedditService {
                             err => {
                                 console.error(err);
                                 observer.error(err);
-                                observer.complete();
                             }
                         );
                     } else {
                         console.error(response);
                         observer.error(response);
-                        observer.complete();
                     }
                 },
                 err => {
                     console.error(err);
                     observer.error(err);
-                    observer.complete();
                 }
             );
         });

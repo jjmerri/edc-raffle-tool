@@ -33,7 +33,8 @@ import {NotificationService} from '../notification/services/notification.service
 import {LoggingService} from '../logging-service/services/logging.service';
 import {RaffleProperties} from './RaffleProperties';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {FinishRaffleModalComponent} from "./finish-raffle.modal.component";
+import {FinishRaffleModalComponent} from './finish-raffle.modal.component';
+import {SlotTextModalComponent} from './slot-text.modal.component';
 
 @Component({
     selector: 'app-home',
@@ -53,7 +54,6 @@ export class HomeComponent implements OnInit {
     private userId: string;
     private currentRaffle;
     private raffleImported = false;
-    private calledSpotMessageShown = false;
     private payPalMessageShown = false;
     private paidPopoverProperties = {};
     private closePopOver = false;
@@ -187,9 +187,6 @@ export class HomeComponent implements OnInit {
             this.raffleParticipants.splice(updatedNumSlots, prevSpots - updatedNumSlots);
         }
 
-        const commentControl: any = document.getElementById('commentText');
-        commentControl.rows = this.numSlots * 2 + 1;
-
         this.updateCommentText();
     }
 
@@ -254,6 +251,7 @@ export class HomeComponent implements OnInit {
     public updateCommentText() {
         let numSlotsTaken = 0;
         let numUnpaidUsers = 0;
+        let numUnpaidSlots = 0;
         this.commentText = '';
         this.unpaidUsers = '';
         this.unpaidUsersArray = [];
@@ -273,6 +271,10 @@ export class HomeComponent implements OnInit {
                 numUnpaidUsers++;
                 this.unpaidUsers += '/u/' + raffler.name + ' ';
                 this.unpaidUsersArray.push(raffler.name);
+            }
+
+            if (!raffler.paid && raffler.name) {
+                numUnpaidSlots++;
             }
         }
 
@@ -296,7 +298,7 @@ export class HomeComponent implements OnInit {
                     txt.innerHTML = this.currentRaffle.selftext;
                     let postText = txt.innerText;
 
-                    let slotText = this.getSlotListText(this.numOpenSlots, numUnpaidUsers, this.commentText);
+                    let slotText = this.getSlotListText(this.numOpenSlots, numUnpaidUsers, numUnpaidSlots, this.commentText);
 
                     if (postText.indexOf('<raffle-tool>') !== -1 && postText.indexOf('</raffle-tool>') !== -1) {
                         postText = postText.replace(re, slotText);
@@ -312,7 +314,7 @@ export class HomeComponent implements OnInit {
                             ref.getDownloadURL().subscribe(url => {
                                 this.raffleProperties.slotListFileDownloadUrl = url;
                                 this.updateRaffleProperties();
-                                slotText = this.getSlotListText(this.numOpenSlots, numUnpaidUsers,
+                                slotText = this.getSlotListText(this.numOpenSlots, numUnpaidUsers, numUnpaidSlots,
                                     'The slot list contains ' + this.numSlots + ' slots ' +
                                     'and is too large to post. The current slot list can be found [here.](' + url + ')');
                                 postText = postText.replace(re, slotText);
@@ -480,7 +482,7 @@ export class HomeComponent implements OnInit {
         return raffleParticipants;
     }
 
-    private getSlotListText(numOpenSlots, numUnpaidUsers, slotList): string {
+    private getSlotListText(numOpenSlots, numUnpaidUsers, numUnpaidSlots, slotList): string {
         let payPalInfo = '';
         if (this.payPalInfo) {
             let payPalFormatted = this.payPalInfo;
@@ -502,24 +504,10 @@ export class HomeComponent implements OnInit {
         '**[Tip BoyAndHisBlob](https://blobware-tips.firebaseapp.com)**\n\n' +
         'Number of vacant slots: ' + numOpenSlots + '\n\n' +
         'Number of unpaid users: ' + numUnpaidUsers + '\n\n' +
+        'Number of unpaid slots: ' + numUnpaidSlots + '\n\n' +
         'This slot list is created and updated by ' +
         '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' +
             slotList + '\n\n</raffle-tool>';
-    }
-
-    private checkCalledSpot(event: any) {
-        if (!this.calledSpotMessageShown &&
-            event.target.value === '' && (!this.randomSlot ||
-                (event.target.id !== 'raffleParticipant' + (this.randomSlot - 1)))) {
-
-            swal2('Are Called Slots Allowed?',
-                'It looks like you are trying to fill a slot that isnt random. ' +
-                'Please double check that your raffle allows called slots. You wont get this message again.',
-                'question'
-            );
-
-            this.calledSpotMessageShown = true;
-        }
     }
 
     private updateAffectedSlots(name: string, event: any) {
@@ -1648,7 +1636,7 @@ export class HomeComponent implements OnInit {
             ).then((result) => {
                 if (result.value) {
                     this.redditService.postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name).subscribe(res => {
-                            this.loggingService.logMessage('callTheBot:', LoggingLevel.INFO);
+                            this.loggingService.logMessage('callTheBot:' + JSON.stringify(res), LoggingLevel.INFO);
                             this.botCalled = true;
 
                             this.redactPayPalInfo()
@@ -1914,6 +1902,31 @@ export class HomeComponent implements OnInit {
             if ((raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
                 (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
             )  {
+                raffler.paid = true;
+            }
+
+            if (x + 1 === this.raffleParticipants.length) {
+                this.updateCommentText();
+            }
+        }
+    }
+
+    private markAllPaidConfirmation() {
+        swal2({
+            title: 'Are You Sure You Want To Mark All Users As Paid?',
+            confirmButtonText: 'Mark all paid',
+            showCancelButton: true
+        }).then((result) => {
+            if (result.value && !result.dismiss) {
+                this.markAllPaid();
+            }
+        });
+    }
+
+    private markAllPaid() {
+        for (let x = 0; x < this.raffleParticipants.length; x++) {
+            const raffler = this.raffleParticipants[x];
+            if (raffler.name)  {
                 raffler.paid = true;
             }
 
@@ -2294,6 +2307,19 @@ export class HomeComponent implements OnInit {
             err => {
                 this.loggingService.logMessage('updateRaffleProperties:' + JSON.stringify(err), LoggingLevel.ERROR);
                 console.error(err);
+            });
+    }
+
+    private openSlotTextModal() {
+        this.modal.open(SlotTextModalComponent,
+            overlayConfigFactory({
+                    isBlocking: false,
+                    commentText: this.commentText,
+                    copyText: this.copyText,
+                    numSlots: this.numSlots
+                },
+                BSModalContext))
+            .then(dialogRef => {
             });
     }
 }
