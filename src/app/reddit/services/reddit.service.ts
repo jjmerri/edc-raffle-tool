@@ -22,8 +22,8 @@ export class RedditService {
     private infoUrl = this.secureRedditUrl + '/api/info';
     private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
     private approvedSubs = ['WatchURaffle', 'PenRaffle', 'RocketLeagueExchange', 'discoredc', 'testingground4bots', 'KnifeRaffle', 'WrestlingRaffle', 'SSBM', 'raffleTest', 'lego_raffles', 'Knife_Swap'];
-    private subSubmissionAgeDays = {RocketLeagueExchange: 7, PenRaffle: 7, discoredc: 7, WatchURaffle: 7, testingground4bots: 2, WrestlingRaffle: 2, KnifeRaffle: 7, SSBM: 4, raffleTest: 2, lego_raffles: 2, Knife_Swap: 2};
-    private maxSubmissionAgeDays = 7;
+    private subSubmissionAgeDays = {RocketLeagueExchange: 7, PenRaffle: 7, discoredc: 7, WatchURaffle: 7, testingground4bots: 2, WrestlingRaffle: 2, KnifeRaffle: 14, SSBM: 4, raffleTest: 2, lego_raffles: 2, Knife_Swap: 2};
+    private maxSubmissionAgeDays = 14;
 
     constructor(private http: HttpClient, private oauthService: OauthService) {
     }
