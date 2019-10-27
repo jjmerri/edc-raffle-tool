@@ -70,7 +70,7 @@ export class HomeComponent implements OnInit {
     private confirmedComments = [];
     private shownNewFeatureMessage = true;
     private hasNewFeature = true;
-    private isModtober = false;
+    private isModtober = true;
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
@@ -101,10 +101,10 @@ export class HomeComponent implements OnInit {
 
     private mods = {
         lego_raffles: ['viljedi', 'legorafflemod', 'Zunger', 'Nathan_Lego_Raffles'],
-        WatchURaffle: ['WatchRaffleAdmin', 'wurMod', 'WatchRaffleMod', 'WatchRaffleMod2', 'WatchRaffleMod3'],
+        WatchURaffle: ['WatchRaffleAdmin', 'wurMod', 'WatchRaffleMod', 'WatchRaffleMod2', 'WatchRaffleMod3', 'WatchRaffleMod4', 'WatchRaffleMod5'],
         testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
         KnifeRaffle: ['Plazzed', 'accidentlyporn', 'theoddjosh', 'Fbolanos', 'Zangadia', 'TheVector', 'NoProfile7',
-            'Walt_the_White', 'slumblor'],
+            'Walt_the_White', 'slumblor', 'BrianR383'],
         SSBM: ['UNKNOWN'],
         RocketLeagueExchange: ['UNKNOWN'],
         Knife_Swap: ['UNKNOWN'],
@@ -487,13 +487,14 @@ export class HomeComponent implements OnInit {
         if (this.payPalInfo) {
             let payPalFormatted = this.payPalInfo;
             const ppRegEx = new RegExp('(paypal\.me)', 'i');
+            const pp2RegEx = new RegExp('(paypal\.com)', 'i');
 
             //move this to a config item instead of being lazy
             let payPalText = this.payPalInfo;
             if (this.currentRaffle.subreddit === 'lego_raffles') {
                 payPalText = 'https://www.paypal.me';
             }
-            if (ppRegEx.test(this.payPalInfo)) {
+            if (ppRegEx.test(this.payPalInfo) || pp2RegEx.test(this.payPalInfo)) {
                 payPalFormatted = '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
             }
             payPalInfo = '**PayPal Info: ' + payPalFormatted + '**\n\n&#x200b;\n\n'
@@ -1736,6 +1737,9 @@ export class HomeComponent implements OnInit {
 
                 const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me[^*]*)(\*\*\n\n)/i;
                 postText = postText.replace(re, "$1[REDACTED]$3");
+
+                const re2 = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.com[^*]*)(\*\*\n\n)/i;
+                postText = postText.replace(re2, "$1[REDACTED]$3");
 
                 this.redditService.updatePostText(postText, this.currentRaffle.name)
                     .subscribe(postResponse => {
