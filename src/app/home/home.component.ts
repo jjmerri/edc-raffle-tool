@@ -28,7 +28,6 @@ import {DatabaseService} from '../database/services/database.service';
 import {SlotConfirmationModalComponent} from './slot-confirmation.modal.component';
 import {RafflePickerModalComponent} from './raffle-picker.modal.component';
 import {TermsOfServiceModalComponent} from './terms-of-service.modal.component';
-import {LogglyService} from 'ngx-loggly-logger';
 import {NotificationService} from '../notification/services/notification.service';
 import {LoggingService} from '../logging-service/services/logging.service';
 import {RaffleProperties} from './RaffleProperties';
@@ -70,7 +69,7 @@ export class HomeComponent implements OnInit {
     private confirmedComments = [];
     private shownNewFeatureMessage = true;
     private hasNewFeature = true;
-    private isModtober = true;
+    private isModtober = false;
     private raffleToolUri = environment.redirectUri;
     private tosKey = 'showTermsOfService_09182017';
     private numPayPmsProcessed = 0;
