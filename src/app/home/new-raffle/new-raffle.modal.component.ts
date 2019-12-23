@@ -35,7 +35,7 @@ export class NewRaffleModalComponent
     subreddit: new FormControl('placeholder', [
       Validators.pattern(/\b(?!placeholder)\b\S+/)
     ]),
-    sellersUsername: new FormControl('', [Validators.required]),
+    sellerUsername: new FormControl('', [Validators.required]),
     itemName: new FormControl('', [Validators.required]),
     raffleType: new FormControl('placeholder', [
       Validators.pattern(/\b(?!placeholder)\b\S+/)
@@ -55,7 +55,6 @@ export class NewRaffleModalComponent
     otherLocation: new FormControl({ value: '', disabled: true }),
     shipping: new FormControl('', [Validators.required]),
     images: new FormControl('', [Validators.required]),
-    escrow: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required])
   });
 

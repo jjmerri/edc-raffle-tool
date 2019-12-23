@@ -23,20 +23,6 @@
 
       <div *ngIf="newRaffleForm.controls.subreddit.value !== 'placeholder'">
         <div class="form-row">
-          <div class="form-group col-xs-12">
-            <label for="sellersUsername">Seller Username*</label>
-            <input
-              class="form-control"
-              type="text"
-              id="sellersUsername"
-              name="sellersUsername"
-              placeholder="SELLERS USERNAME HERE"
-              formControlName="sellersUsername"
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
           <div class="form-group col-xs-6">
             <label for="raffleType">
               Raffle Type*
@@ -227,14 +213,14 @@
 
         <div class="form-row">
           <div class="form-group col-xs-12">
-            <label for="escrow">Escrow*</label>
+            <label for="sellerUsername">Seller Username*</label>
             <input
               class="form-control"
               type="text"
-              id="escrow"
-              name="escrow"
-              placeholder="Y/N VERIFIED USER NAME"
-              formControlName="escrow"
+              id="sellerUsername"
+              name="sellerUsername"
+              placeholder="SELLERS USERNAME HERE"
+              formControlName="sellerUsername"
             />
           </div>
         </div>
@@ -257,7 +243,7 @@
 
     <div class="modal-footer">
       <button class="btn btn-default" type="submit">
-        Submit
+        Submit...
       </button>
       <button type="button" class="btn btn-default" (click)="closeModal()">
         Cancel

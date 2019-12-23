@@ -78,7 +78,7 @@ export class ConfirmNewRaffleModalComponent
       }
 **Will ship international?**|${raffleForm.shipping}
 **Timestamp/pics:**|${raffleForm.images}
-**Escrow:**|${raffleForm.escrow}
+**Seller:**|${raffleForm.sellerUsername}
 **Description:**|${raffleForm.description}
 `
     );
