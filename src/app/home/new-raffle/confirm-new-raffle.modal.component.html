@@ -1,0 +1,45 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      Confirm New Raffle Submission in <strong>{{ subreddit }}</strong>
+    </h4>
+  </div>
+
+  <div class="modal-body panel-body">
+    <p>
+      If you need to change any information that was on the previous form like
+      price or number of slots go back and do it there. Do not only change it in
+      the title because that data is used in other functionality.
+    </p>
+    <div class="form-group col-xs-12">
+      <label for="raffleTitle">Raffle Title: </label>
+      <input
+        class="form-control"
+        type="text"
+        id="raffleTitle"
+        name="raffleTitle"
+        [(ngModel)]="raffleTitle"
+      />
+    </div>
+    <div class="form-group col-xs-12">
+      <label for="raffleBody">Raffle Body: </label>
+      <textarea
+        class="form-control"
+        id="raffleBody"
+        rows="5"
+        cols="70"
+        [(ngModel)]="raffleBody"
+        readonly
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-default" (click)="confirmSubmition()">
+      Submit
+    </button>
+    <button type="button" class="btn btn-default" (click)="closeModal()">
+      Cancel
+    </button>
+  </div>
+</div>

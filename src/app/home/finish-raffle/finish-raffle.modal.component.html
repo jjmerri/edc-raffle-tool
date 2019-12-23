@@ -1,0 +1,137 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      Congrats on a successful raffle! Fill this form out once a winner is
+      selected and click "Finish Raffle". This will PM the winner with the sub
+      fund contribution amount and send the pertinent information to modmail.
+    </h4>
+  </div>
+
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-xs-4">
+        <div class="input-group">
+          <span
+            ><i
+              class="help-icon glyphicon glyphicon-info-sign"
+              title="The total cost of the raffle before discounts. (Total Cost - Total Discounts = amount of money taken in)"
+            ></i
+          ></span>
+          <label for="totalCost">Total Cost:</label>
+        </div>
+        <input
+          type="number"
+          id="totalCost"
+          [(ngModel)]="totalCost"
+          (change)="updateMessages()"
+        />
+      </div>
+      <div class="col-xs-4">
+        <div class="input-group">
+          <span
+            ><i
+              class="help-icon glyphicon glyphicon-info-sign"
+              title="The total of all discounts given. (Total Cost - Total Discounts = amount of money collected)"
+            ></i
+          ></span>
+          <label for="totalDiscounts">{{ discountsLabel }}</label>
+        </div>
+        <input
+          type="number"
+          id="totalDiscounts"
+          [(ngModel)]="totalDiscounts"
+          (change)="updateMessages()"
+        />
+      </div>
+      <div class="col-xs-4">
+        <div class="input-group">
+          <span
+            ><i
+              class="help-icon glyphicon glyphicon-info-sign"
+              title="The slot number that won"
+            ></i
+          ></span>
+          <label for="winningSlot">Winning Slot Number:</label>
+        </div>
+        <input
+          type="number"
+          id="winningSlot"
+          [(ngModel)]="winningSlot"
+          (change)="updateMessages()"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-4">
+        <span
+          ><i
+            class="help-icon glyphicon glyphicon-info-sign"
+            title="The username of the winner"
+          ></i
+        ></span>
+        <label for="winner">Winner:</label>
+        <input
+          class="input-disabled"
+          readonly
+          type="text"
+          id="winner"
+          [(ngModel)]="winner"
+        />
+      </div>
+      <br />
+    </div>
+    <div class="row">
+      <br />
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <label for="winnerPm">PM Body:</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <textarea
+          class="input-disabled"
+          id="winnerPm"
+          rows="8"
+          cols="75"
+          readonly
+          [(ngModel)]="winnerPm"
+        ></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <br />
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <label for="modPmNotes">Notes to include in mod PM (optional):</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <textarea
+          id="modPmNotes"
+          rows="8"
+          cols="75"
+          [(ngModel)]="modPmNotes"
+          (change)="updateMessages()"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="closeModal()">
+      Close
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm btn-default"
+      (click)="finishRaffle()"
+      [disabled]="!totalCost || !winner"
+    >
+      Finish Raffle
+    </button>
+  </div>
+</div>

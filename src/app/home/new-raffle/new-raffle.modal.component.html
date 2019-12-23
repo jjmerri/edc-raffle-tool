@@ -1,0 +1,267 @@
+<div class="modal-content">
+  <form [formGroup]="newRaffleForm" (ngSubmit)="submitRaffle()">
+    <div class="modal-header">
+      <h4 class="modal-title">Submit New Raffle</h4>
+    </div>
+
+    <div class="modal-body panel-body">
+      <div class="form-row">
+        <div class="form-group col-xs-12">
+          <label for="subreddit">Subreddit*</label>
+          <select
+            class="form-control"
+            id="subreddit"
+            formControlName="subreddit"
+          >
+            <option value="placeholder" disabled>--Choose Sub--</option>
+            <option *ngFor="let sub of subs" [ngValue]="sub">
+              {{ sub }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div *ngIf="newRaffleForm.controls.subreddit.value !== 'placeholder'">
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="sellersUsername">Seller Username*</label>
+            <input
+              class="form-control"
+              type="text"
+              id="sellersUsername"
+              name="sellersUsername"
+              placeholder="SELLERS USERNAME HERE"
+              formControlName="sellersUsername"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-6">
+            <label for="raffleType">
+              Raffle Type*
+            </label>
+            <select
+              class="form-control"
+              id="raffleType"
+              formControlName="raffleType"
+            >
+              <option value="placeholder" disabled>--Choose Type--</option>
+              <option *ngFor="let rflType of raffleTypes" [ngValue]="rflType">
+                {{ rflType }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group col-xs-6">
+            <label for="customType">Custom Type: </label>
+            <input
+              class="form-control"
+              type="text"
+              id="customType"
+              name="customType"
+              formControlName="customType"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="item-name">Item Name*</label>
+            <input
+              class="form-control"
+              type="text"
+              id="item-name"
+              name="item-name"
+              placeholder="ITEM NAME GOES HERE"
+              formControlName="itemName"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-6">
+            <label for="numSlots">Num Slots*</label>
+            <input
+              class="form-control"
+              type="number"
+              id="numSlots"
+              name="numSlots"
+              formControlName="numSlots"
+            />
+          </div>
+          <div class="form-group col-xs-6">
+            <label for="slotCost">Slot Cost*</label>
+            <input
+              class="form-control"
+              type="number"
+              id="slotCost"
+              name="slotCost"
+              formControlName="slotCost"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="approvalLink">Approval Link</label>
+            <input
+              class="form-control"
+              type="text"
+              id="approvalLink"
+              name="approvalLink"
+              placeholder="LINK HERE IF APPROVAL WAS REQUIRED"
+              formControlName="approvalLink"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="previousRaffle">Previous Raffle</label>
+            <input
+              class="form-control"
+              type="text"
+              id="previousRaffle"
+              name="previousRaffle"
+              placeholder="DATE AND LINK HERE"
+              formControlName="previousRaffle"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="priceJustification1">Price Justifications</label>
+            <input
+              class="form-control"
+              type="text"
+              id="priceJustification1"
+              name="priceJustification1"
+              placeholder="PRICE AND LINK HERE"
+              formControlName="priceJustification1"
+            />
+            <input
+              class="form-control"
+              type="text"
+              id="priceJustification2"
+              name="priceJustification2"
+              placeholder="PRICE AND LINK HERE"
+              formControlName="priceJustification2"
+            />
+            <input
+              class="form-control"
+              type="text"
+              id="priceJustification3"
+              name="priceJustification3"
+              placeholder="PRICE AND LINK HERE"
+              formControlName="priceJustification3"
+            />
+            <input
+              class="form-control"
+              type="text"
+              id="priceJustification4"
+              name="priceJustification4"
+              placeholder="PRICE AND LINK HERE"
+              formControlName="priceJustification4"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-6">
+            <label for="location">
+              Location of Item*
+            </label>
+            <select
+              class="form-control"
+              id="location"
+              formControlName="location"
+            >
+              <option value="placeholder" disabled>--Choose Location--</option>
+              <option *ngFor="let loc of locations" [ngValue]="loc">
+                {{ loc }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group col-xs-6">
+            <label for="otherLocation">Other Location: </label>
+            <input
+              class="form-control"
+              type="text"
+              id="otherLocation"
+              name="otherLocation"
+              formControlName="otherLocation"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="shipping">Will Ship International?*</label>
+            <input
+              class="form-control"
+              type="text"
+              id="shipping"
+              name="shipping"
+              placeholder="USA/CA/INTL"
+              formControlName="shipping"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="images">Images*</label>
+            <input
+              class="form-control"
+              type="text"
+              id="images"
+              name="images"
+              placeholder="FULL ALBUM HERE"
+              formControlName="images"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="escrow">Escrow*</label>
+            <input
+              class="form-control"
+              type="text"
+              id="escrow"
+              name="escrow"
+              placeholder="Y/N VERIFIED USER NAME"
+              formControlName="escrow"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-xs-12">
+            <label for="description">Description*</label>
+            <textarea
+              class="form-control"
+              id="description"
+              rows="5"
+              cols="70"
+              placeholder="PLEASE BE THOROUGH. INCLUDE CONDITION OF ITEM EXPLICITLY CALLING OUT ANY ISSUES"
+              formControlName="description"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-default" type="submit">
+        Submit
+      </button>
+      <button type="button" class="btn btn-default" (click)="closeModal()">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

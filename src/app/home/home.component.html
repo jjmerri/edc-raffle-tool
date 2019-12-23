@@ -1,130 +1,238 @@
-
-<div class="mod-chat" [hidden] = "!chatMessages || !chatMessages.length">
-  <app-mod-chat *ngIf="userName && modToolsId" (messageEventEmitter)="messageUpdate($event)" [modToolsId]="modToolsId" [username]="userName" userRole="RFLR"></app-mod-chat>
+<div class="mod-chat" [hidden]="!chatMessages || !chatMessages.length">
+  <app-mod-chat
+    *ngIf="userName && modToolsId"
+    (messageEventEmitter)="messageUpdate($event)"
+    [modToolsId]="modToolsId"
+    [username]="userName"
+    userRole="RFLR"
+  ></app-mod-chat>
 </div>
-
 
 <div class="container">
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <!-- Brand and toggle get grouped for better mobile display -->
       <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <button
+          type="button"
+          class="navbar-toggle collapsed"
+          data-toggle="collapse"
+          data-target="#bs-example-navbar-collapse-1"
+          aria-expanded="false"
+        >
           <span class="sr-only">Toggle navigation</span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <div class="navbar-brand">EDC Raffle Tool</div><div class="navbar-brand" style="font-size: small">by /u/BoyAndHisBlob</div>
+        <div class="navbar-brand">EDC Raffle Tool</div>
+        <div class="navbar-brand" style="font-size: small">
+          by /u/BoyAndHisBlob
+        </div>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li class="active"><a>Home <span class="sr-only">(current)</span></a></li>
-          <li><a style="cursor: pointer;" (click)="showTermsOfService()">Terms of Service</a></li>
-          <li><a href="https://docs.google.com/document/d/1lz07G4-So9sUXgp46FWY-i7DSJ_RCfGfrBtIU1xNQbw/edit?usp=sharing" target="_blank">Raffle Tool Guide</a></li>
+          <li class="active">
+            <a>Home <span class="sr-only">(current)</span></a>
+          </li>
           <li>
-            <a href="https://www.reddit.com/message/compose/?to=BoyAndHisBlob&subject=EDC%20Raffle%20Tool" target="_blank">Give Feedback or Request Feature</a>
+            <a style="cursor: pointer;" (click)="showTermsOfService()"
+              >Terms of Service</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://docs.google.com/document/d/1lz07G4-So9sUXgp46FWY-i7DSJ_RCfGfrBtIU1xNQbw/edit?usp=sharing"
+              target="_blank"
+              >Raffle Tool Guide</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.reddit.com/message/compose/?to=BoyAndHisBlob&subject=EDC%20Raffle%20Tool"
+              target="_blank"
+              >Give Feedback or Request Feature</a
+            >
           </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li *ngIf="!userName">
             <form class="navbar-form navbar-left">
-              <button class="btn btn-default" (click)="linkWithReddit()">Link with Reddit</button>
+              <button class="btn btn-default" (click)="linkWithReddit()">
+                Link with Reddit
+              </button>
             </form>
           </li>
           <li *ngIf="userName">
             <a>
-              <strong>{{userName}}</strong>
+              <strong>{{ userName }}</strong>
             </a>
           </li>
         </ul>
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
+      </div>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
   </nav>
 
   <div class="container" *ngIf="!userName">
     <div class="alert alert-warning alert-dismissible">
-      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      <strong>You have not linked with Reddit!</strong> Click the "Link with Reddit" button in the top right to allow the tool to auto-update your current raffle's slot list.
+      <a href="#" class="close" data-dismiss="alert" aria-label="close"
+        >&times;</a
+      >
+      <strong>You have not linked with Reddit!</strong> Click the "Link with
+      Reddit" button in the top right to allow the tool to auto-update your
+      current raffle's slot list.
     </div>
   </div>
 
   <div class="container" *ngIf="userName && !currentRaffle">
     <div class="alert alert-warning alert-dismissible">
-      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      <strong>Could not find a current raffle to auto-update!</strong> In order to find a current raffle it must be in an approved subreddit,
-      in progress, and not older than 48 hours.
-      If you would like to test the functionality you can
-      <a href="https://www.reddit.com/r/raffleTest/submit?selftext=true&title=Test%20Submission%20for%20Raffle%20Tool&text=Test%20raffle%20description" target="_blank">make a text post in /r/raffleTest/</a>
+      <a href="#" class="close" data-dismiss="alert" aria-label="close"
+        >&times;</a
+      >
+      <strong>Could not find a current raffle to auto-update!</strong> In order
+      to find a current raffle it must be in an approved subreddit, in progress,
+      and not older than 48 hours. If you would like to test the functionality
+      you can
+      <a
+        href="https://www.reddit.com/r/raffleTest/submit?selftext=true&title=Test%20Submission%20for%20Raffle%20Tool&text=Test%20raffle%20description"
+        target="_blank"
+        >make a text post in /r/raffleTest/</a
+      >
       and relink with Reddit.
     </div>
   </div>
-    
+
   <pop-over
-          #paidPopOver [my]="'top left'" [at]="'bottom right'"
-          [anchor-to]="true" [x-offset]="5" [y-offset]="5">
+    #paidPopOver
+    [my]="'top left'"
+    [at]="'bottom right'"
+    [anchor-to]="true"
+    [x-offset]="5"
+    [y-offset]="5"
+  >
     <div *ngIf="!closePopOver" class="alert alert-success">
-      <div><strong>{{paidPopoverProperties.numAffected}} slot(s)</strong> set to {{paidPopoverProperties.paid ? 'paid' : 'unpaid'}}</div>
+      <div>
+        <strong>{{ paidPopoverProperties.numAffected }} slot(s)</strong> set to
+        {{ paidPopoverProperties.paid ? 'paid' : 'unpaid' }}
+      </div>
     </div>
   </pop-over>
 
+  <div *ngIf="userName" class="text-right">
+    <a class="btn btn-sm btn-primary" (click)="openNewRaffleModal()"
+      >Post New Raffle...</a
+    >
+  </div>
+
   <div *ngIf="currentRaffle" class="col-xs-6">
     <div class="well-sm">
-      <p><a class="btn btn-sm btn-success" (click)="donateSlot()">Donate Slot to /u/BoyAndHisBlob...</a></p>
+      <p>
+        <a class="btn btn-sm btn-success" (click)="donateSlot()"
+          >Donate Slot to /u/BoyAndHisBlob...</a
+        >
+      </p>
     </div>
   </div>
   <div *ngIf="currentRaffle" class="col-xs-6">
     <div class="well-sm">
       <div class="text-right">
-        <a class="btn btn-sm btn-primary" (click)="tagUsers()">Tag Users To Raffle...</a>
-        <a class="align-middle" href="{{currentRaffle.url}}" target="_blank">Linked to: {{currentRaffle.title}}</a>
+        <a class="btn btn-sm btn-primary" (click)="tagUsers()"
+          >Tag Users To Raffle...</a
+        >
+        <a class="align-middle" href="{{ currentRaffle.url }}" target="_blank"
+          >Linked to: {{ currentRaffle.title }}</a
+        >
       </div>
     </div>
   </div>
 
   <div class="starter-template">
     <div class="col-xs-12 well" style="background: rgb(252, 252, 252);">
-
       <div class="col-xs-12">
-
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-2">
-            <p><a class="btn btn-md btn-primary" (click)="slotAssignmentWizard()">Slot Assignment...</a></p>
+            <p>
+              <a class="btn btn-md btn-primary" (click)="slotAssignmentWizard()"
+                >Slot Assignment...</a
+              >
+            </p>
           </div>
           <div class="col-xs-3">
-            <p><a class="btn btn-md btn-primary" (click)="runPaymentConfirmerWithSlotListCheck()">Payment Confirmation...</a></p>
+            <p>
+              <a
+                class="btn btn-md btn-primary"
+                (click)="runPaymentConfirmerWithSlotListCheck()"
+                >Payment Confirmation...</a
+              >
+            </p>
           </div>
           <div class="col-xs-2">
-            <p><a class="btn btn-md btn-primary" (click)="makeAnnouncement()">Make Announcement...</a></p>
+            <p>
+              <a class="btn btn-md btn-primary" (click)="makeAnnouncement()"
+                >Make Announcement...</a
+              >
+            </p>
           </div>
 
           <div class="col-xs-5">
             <div class="text-right">
-              <label for="payPalInfo"><a href="https://www.paypal.me" target="_blank">Get a PayPal.Me link here</a><br/>PayPal Info: </label>
-              <input type="text" id="payPalInfo" [(ngModel)]="payPalInfo" (focus)="showPayPalWarning($event)" (change)="modifyPayPalMe()"/>
+              <label for="payPalInfo"
+                ><a href="https://www.paypal.me" target="_blank"
+                  >Get a PayPal.Me link here</a
+                ><br />PayPal Info:
+              </label>
+              <input
+                type="text"
+                id="payPalInfo"
+                [(ngModel)]="payPalInfo"
+                (focus)="showPayPalWarning($event)"
+                (change)="modifyPayPalMe()"
+              />
             </div>
           </div>
-
         </div>
 
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-3">
             <label for="inOrderMode">In Order Mode?</label>
-            <input type="checkbox" id="inOrderMode" name="inOrderMode" [(ngModel)]="inOrderMode"/>
+            <input
+              type="checkbox"
+              id="inOrderMode"
+              name="inOrderMode"
+              [(ngModel)]="inOrderMode"
+            />
           </div>
           <div class="col-xs-2" *ngIf="canEditFlair">
             <label for="autoUpdateFlair">Auto-Update Flair?</label>
-            <input type="checkbox" id="autoUpdateFlair" name="autoUpdateFlair" [(ngModel)]="autoUpdateFlair"/>
+            <input
+              type="checkbox"
+              id="autoUpdateFlair"
+              name="autoUpdateFlair"
+              [(ngModel)]="autoUpdateFlair"
+            />
           </div>
           <div class="col-xs-4">
             <label for="customFlair">Custom Flair:</label>
-            <input type="text" id="customFlair" maxlength="47" [(ngModel)]="raffleProperties.customFlair" (change)="updateCustomFlairText()"/>
+            <input
+              type="text"
+              id="customFlair"
+              maxlength="47"
+              [(ngModel)]="raffleProperties.customFlair"
+              (change)="updateCustomFlairText()"
+            />
           </div>
           <div class="col-xs-3">
             <label for="willSendParticipantPm">Send Participant PM?</label>
-            <input type="checkbox" id="willSendParticipantPm" name="willSendParticipantPm" [(ngModel)]="raffleProperties.willSendParticipantPm" />
+            <input
+              type="checkbox"
+              id="willSendParticipantPm"
+              name="willSendParticipantPm"
+              [(ngModel)]="raffleProperties.willSendParticipantPm"
+            />
           </div>
           <div class="col-xs-12" style="height:10px;"></div>
         </div>
@@ -132,52 +240,146 @@
         <div class="row">
           <div class="col-xs-8">
             <label for="numSlots">Number of Raffle Slots:</label>
-            <input type="number" id="numSlots" [(ngModel)]="numSlots" (change)="updateRaffleSlots(numSlots)"/>
-            <button *ngIf="currentRaffle" class="btn btn-sm btn-primary" [disabled] = "botCalled" (click)="callTheBot()">Call {{botUsername}}...</button>
-            <button *ngIf="currentRaffle?.subreddit === 'WatchURaffle'" class="btn btn-sm btn-primary" (click)="openFinishRaffleModal()">Finish Raffle...</button>
+            <input
+              type="number"
+              id="numSlots"
+              [(ngModel)]="numSlots"
+              (change)="updateRaffleSlots(numSlots)"
+            />
+            <button
+              *ngIf="currentRaffle"
+              class="btn btn-sm btn-primary"
+              [disabled]="botCalled"
+              (click)="callTheBot()"
+            >
+              Call {{ botUsername }}...
+            </button>
+            <button
+              *ngIf="['WatchURaffle'].includes(currentRaffle?.subreddit)"
+              class="btn btn-sm btn-primary"
+              (click)="openFinishRaffleModal()"
+            >
+              Finish Raffle...
+            </button>
           </div>
           <div class="col-xs-4">
-            <button *ngIf="currentRaffle" class="btn btn-md btn-primary" [disabled]="unpaidUsersArray.length === 0" (click)="pageUnpaid()">Page Unpaid...</button>
-            <button *ngIf="currentRaffle" class="btn btn-md btn-primary" [disabled]="unpaidUsersArray.length === 0" (click)="removeUnpaid()">Remove Unpaid...</button>
+            <button
+              *ngIf="currentRaffle"
+              class="btn btn-md btn-primary"
+              [disabled]="unpaidUsersArray.length === 0"
+              (click)="pageUnpaid()"
+            >
+              Page Unpaid...
+            </button>
+            <button
+              *ngIf="currentRaffle"
+              class="btn btn-md btn-primary"
+              [disabled]="unpaidUsersArray.length === 0"
+              (click)="removeUnpaid()"
+            >
+              Remove Unpaid...
+            </button>
           </div>
         </div>
 
         <div class="row">
           <div class="col-xs-2">
-            <p><a class="btn btn-md btn-primary" (click)="shuffleSlots()">Shuffle All Slots...</a></p>
+            <p>
+              <a class="btn btn-md btn-primary" (click)="shuffleSlots()"
+                >Shuffle All Slots...</a
+              >
+            </p>
           </div>
           <div class="col-xs-4">
-            <p><a class="btn btn-md btn-primary" (click)="generateRandom()">Get Random Unclaimed Slot Number</a>
-              <b>{{randomSlot}}</b></p>
+            <p>
+              <a class="btn btn-md btn-primary" (click)="generateRandom()"
+                >Get Random Unclaimed Slot Number</a
+              >
+              <b>{{ randomSlot }}</b>
+            </p>
           </div>
 
           <div class="col-sm-6">
-            <strong>{{numOpenSlots}}</strong> open slots remain <strong>|</strong>
+            <strong>{{ numOpenSlots }}</strong> open slots remain
+            <strong>|</strong>
             <label for="unpaid">Unpaid: </label>
-            <input type="text" readonly id="unpaid" [(ngModel)]="unpaidUsers" (click)="copyText('unpaid')"/>
+            <input
+              type="text"
+              readonly
+              id="unpaid"
+              [(ngModel)]="unpaidUsers"
+              (click)="copyText('unpaid')"
+            />
           </div>
         </div>
-
       </div>
       <div class="row">
         <div class="col-xs-6">
-          <div *ngFor="let raffleParticipant of raffleParticipants; let i = index">
-            <label [ngClass]="{'bg-success': raffleParticipant.name === undefined || raffleParticipant.name === ''}" for="raffleParticipant{{i}}">Slot {{i + 1}}: </label>
-            <input type="text" id="raffleParticipant{{i}}" name="participant{{i}}" [(ngModel)]="raffleParticipant.name" (change)="assignSlot(raffleParticipant.name, raffleParticipant.name, i + 1, false, true, true)" />
-            <label for="paid{{i}}">Paid?</label>
-            <input type="checkbox" id="paid{{i}}" name="paid{{i}}" [disabled]="raffleParticipant.name === undefined || raffleParticipant.name === ''" [(ngModel)]="raffleParticipant.paid" (change)="updateAffectedSlots(raffleParticipant.name,$event); paidPopOver.toggle($event)"/>
+          <div
+            *ngFor="let raffleParticipant of raffleParticipants; let i = index"
+          >
+            <label
+              [ngClass]="{
+                'bg-success':
+                  raffleParticipant.name === undefined ||
+                  raffleParticipant.name === ''
+              }"
+              for="raffleParticipant{{ i }}"
+              >Slot {{ i + 1 }}:
+            </label>
+            <input
+              type="text"
+              id="raffleParticipant{{ i }}"
+              name="participant{{ i }}"
+              [(ngModel)]="raffleParticipant.name"
+              (change)="
+                assignSlot(
+                  raffleParticipant.name,
+                  raffleParticipant.name,
+                  i + 1,
+                  false,
+                  true,
+                  true
+                )
+              "
+            />
+            <label for="paid{{ i }}">Paid?</label>
+            <input
+              type="checkbox"
+              id="paid{{ i }}"
+              name="paid{{ i }}"
+              [disabled]="
+                raffleParticipant.name === undefined ||
+                raffleParticipant.name === ''
+              "
+              [(ngModel)]="raffleParticipant.paid"
+              (change)="
+                updateAffectedSlots(raffleParticipant.name, $event);
+                paidPopOver.toggle($event)
+              "
+            />
           </div>
         </div>
-          <div class="col-xs-3">
-              <div class="col-xs-2">
-                  <p><a class="btn btn-md btn-primary" (click)="markAllPaidConfirmation()">Mark All Paid...</a></p>
-              </div>
+        <div class="col-xs-3">
+          <div class="col-xs-2">
+            <p>
+              <a
+                class="btn btn-md btn-primary"
+                (click)="markAllPaidConfirmation()"
+                >Mark All Paid...</a
+              >
+            </p>
           </div>
-          <div class="col-xs-3">
-              <div class="col-xs-2">
-                  <p><a class="btn btn-md btn-primary" (click)="openSlotTextModal()">View Slot List Text...</a></p>
-              </div>
+        </div>
+        <div class="col-xs-3">
+          <div class="col-xs-2">
+            <p>
+              <a class="btn btn-md btn-primary" (click)="openSlotTextModal()"
+                >View Slot List Text...</a
+              >
+            </p>
           </div>
+        </div>
       </div>
     </div>
   </div>

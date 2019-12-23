@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { DialogRef, ModalComponent, CloseGuard } from 'ngx-modialog';
 import { Modal, BSModalContext } from 'ngx-modialog/plugins/bootstrap';
 
-import { RedditService } from '../reddit/services/reddit.service';
+import { RedditService } from '../../reddit/services/reddit.service';
 
 import swal2 from 'sweetalert2';
 
