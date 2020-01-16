@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit {
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
 
-  private subs = ['KnifeRaffle', 'lego_raffles', 'raffleTest', 'WatchURaffle'];
+  private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest'];
   private mods = {
     lego_raffles: ['viljedi', 'legorafflemod', 'Zunger', 'Nathan_Lego_Raffles'],
     WatchURaffle: [
@@ -2155,9 +2155,17 @@ export class HomeComponent implements OnInit {
                 );
                 this.botCalled = true;
 
+                let today = new Date();
+                let featureLiveDate = new Date('2020-01-20');
+
                 this.redactPayPalInfo();
                 if (['WatchURaffle'].includes(this.currentRaffle.subreddit)) {
                   this.openFinishRaffleModal();
+                } else if (
+                  ['lego_raffles'].includes(this.currentRaffle.subreddit) &&
+                  +today >= +featureLiveDate
+                ) {
+                  this.openFinishRaffleModal2();
                 } else {
                   swal2(
                     'The Bot Has Been Called!',
@@ -2266,6 +2274,59 @@ export class HomeComponent implements OnInit {
             console.error(err);
           });
       });
+  }
+  private openFinishRaffleModal2() {
+    swal2({
+      title: 'What is the dollar cost of one raffle slot?',
+      input: 'number',
+      inputPlaceholder: '3',
+      inputValidator: value => {
+        if (!value) {
+          return 'Enter a value to continue!';
+        }
+      }
+    }).then(result => {
+      console.log(result);
+      if (result && result.value) {
+        const slotCost = result.value;
+        const totalCost = slotCost * this.numSlots;
+
+        let numSlotsToPay = 0;
+        if (totalCost <= 250) {
+          numSlotsToPay = 1;
+        } else if (totalCost <= 1000) {
+          numSlotsToPay = 2;
+        } else {
+          numSlotsToPay = 3;
+        }
+
+        swal2({
+          title: 'Sub Fund Details',
+          html: `Congrats on a successful raffle! Per sub rules please send <strong>$${numSlotsToPay *
+            slotCost}</strong> to <strong>iclickhere@protonmail.com</strong> for the sub fund.`
+        });
+
+        this.redditService
+          .sendPm(
+            this.getSanitizedUserName('legorafflemod'),
+            'Sub fund contribution details',
+            `${this.userName} has been instructed to pay $${numSlotsToPay *
+              slotCost} for [${this.currentRaffle.title}](${
+              this.currentRaffle.permalink
+            })`
+          )
+          .subscribe(
+            response => {},
+            err => {
+              this.loggingService.logMessage(
+                'openFinishRaffleModal2:' + JSON.stringify(err),
+                LoggingLevel.ERROR
+              );
+              console.error(err);
+            }
+          );
+      }
+    });
   }
 
   private redactPayPalInfo() {

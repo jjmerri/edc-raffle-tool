@@ -21,13 +21,13 @@ export class NewRaffleModalComponent
   public subs: string[];
   public locations = ['USA', 'CAN', 'Other'];
   public raffleTypes = [
-    'Blue',
-    'Charity',
     'Giveaway',
-    'Gold',
-    'Main',
-    'NM',
+    'Charity',
     'Step',
+    'NM',
+    'Blue',
+    'Main',
+    'Gold',
     'Custom'
   ];
 
