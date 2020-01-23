@@ -2325,6 +2325,8 @@ export class HomeComponent implements OnInit {
               console.error(err);
             }
           );
+          
+          this.updateFlair(this.completeFlairId, 'Complete');
       }
     });
   }
