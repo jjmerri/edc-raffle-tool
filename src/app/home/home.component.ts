@@ -137,6 +137,8 @@ export class HomeComponent implements OnInit {
     PenRaffle: ['Turokman123']
   };
 
+  private auditPercentageMap = {WatchURaffle: .03};
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private oauthSerice: OauthService,
@@ -1662,7 +1664,7 @@ export class HomeComponent implements OnInit {
     return updatedText;
   }
 
-  private loadRaffleStorage(raffleName: string, userId: string) {
+  private loadRaffleStorage(raffleName: string, userId: string): Promise<any> {
     this.databaseService.getProcessedComments(userId, raffleName).subscribe(
       comments => {
         if (comments) {
@@ -1694,7 +1696,7 @@ export class HomeComponent implements OnInit {
         }
       });
 
-    this.loadRaffleProperties(raffleName, userId);
+    return this.loadRaffleProperties(raffleName, userId);
   }
 
   private loadRaffleProperties(
@@ -1951,7 +1953,9 @@ export class HomeComponent implements OnInit {
 
                       this.setSubredditSettings(submission.subreddit);
 
-                      this.loadRaffleStorage(submission.name, this.userId);
+                      this.loadRaffleStorage(submission.name, this.userId).then(() => {
+                        this.auditRaffle();
+                      });
 
                       this.sendOneTimeNotifications();
 
@@ -3182,5 +3186,44 @@ export class HomeComponent implements OnInit {
           console.error(err);
         }
       );
+  }
+
+  private auditRaffle() {
+    const auditPercentage = this.auditPercentageMap[this.currentRaffle.subreddit];
+    const randomNum = Math.random();
+    const title = this.currentRaffle.title.toUpperCase();
+    if(!this.raffleProperties.auditChecked && auditPercentage && randomNum <= auditPercentage && (title.includes('NM') || title.includes('BLUE'))) {
+      this.loggingService.logMessage(
+        `${auditPercentage * 100}% of raffles are randomly selected for audit: ${this.currentRaffle.permalink}`,
+        LoggingLevel.INFO
+      );
+
+      this.redditService
+        .sendPm(
+          '/r/' + this.currentRaffle.subreddit,
+          'Raffle Audit',
+          `${auditPercentage * 100}% of raffles are randomly selected for audit. [${title}](${this.currentRaffle.permalink}) has been selected.`
+        )
+        .subscribe(
+          postResponse => {},
+          err => {
+            this.loggingService.logMessage(
+              'send pm auditRaffle:' + JSON.stringify(err),
+              LoggingLevel.ERROR
+            );
+            console.error(err);
+          }
+        );
+
+        swal2({
+          title: 'Raffle Selected For Audit',
+          text: `As a part of keeping pricing fair, ${auditPercentage * 100}% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have any questions.`,
+          type: 'info',
+        });
+    }
+
+    this.raffleProperties.auditChecked = true;
+    this.updateRaffleProperties();
+
   }
 }
