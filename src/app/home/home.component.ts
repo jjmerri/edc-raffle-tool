@@ -603,9 +603,15 @@ export class HomeComponent implements OnInit {
     slotList
   ): string {
     let payPalInfo = this.getPaypalInfo();
+    let auditText = '';
+
+    if(this.raffleProperties.audited) {
+      auditText = `The Raffle Tool has randomly selected this raffle for a price audit to be conducted by the mods.\n\n`;
+    }
 
     return (
       '<raffle-tool>\n\n' +
+      auditText +
       payPalInfo +
       '**[Tip BoyAndHisBlob](https://blobware-tips.firebaseapp.com)**\n\n' +
       'Number of vacant slots: ' +
@@ -3192,11 +3198,15 @@ export class HomeComponent implements OnInit {
     const auditPercentage = this.auditPercentageMap[this.currentRaffle.subreddit];
     const randomNum = Math.random();
     const title = this.currentRaffle.title.toUpperCase();
+    this.raffleProperties.audited = false;
+
     if(!this.raffleProperties.auditChecked && auditPercentage && randomNum <= auditPercentage && (title.includes('NM') || title.includes('BLUE'))) {
       this.loggingService.logMessage(
         `${auditPercentage * 100}% of raffles are randomly selected for audit: ${this.currentRaffle.permalink}`,
         LoggingLevel.INFO
       );
+
+      this.raffleProperties.audited = true;
 
       this.redditService
         .sendPm(
@@ -3217,7 +3227,7 @@ export class HomeComponent implements OnInit {
 
         swal2({
           title: 'Raffle Selected For Audit',
-          text: `As a part of keeping pricing fair, ${auditPercentage * 100}% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have any questions.`,
+          text: `As a part of keeping pricing fair, ${auditPercentage * 100}% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have questions.`,
           type: 'info',
         });
     }

@@ -5,6 +5,7 @@ export class RaffleProperties {
   public latestSessionId: string;
   public willSendParticipantPm: boolean;
   public auditChecked: boolean;
+  public audited: boolean;
 
   constructor() {
     this.customFlair = '';
@@ -13,5 +14,6 @@ export class RaffleProperties {
     this.latestSessionId = '';
     this.willSendParticipantPm = true;
     this.auditChecked = false;
+    this.audited = false;
   }
 }
