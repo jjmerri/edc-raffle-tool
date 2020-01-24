@@ -709,8 +709,7 @@ export class HomeComponent implements OnInit {
           this.pmMessage +
             (this.payPalInfo
               ? '**Please find my PayPal info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
-                'Because Reddit flags PayPal links as spam the link actually performs a redirect through The Raffle Tool and will look like:\n\n' +
-                '    https://redirect-ddff2.firebaseapp.com/index.html?redirectUrl=https://www.paypal.me/usersPayPalMe\n\n'
+                'Because Reddit flags PayPal links as spam the link actually performs a redirect through The Raffle Tool and will not link directly to PayPal\n\n'
               : '') +
             '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n'
         )
