@@ -6,6 +6,7 @@ import { AngularFireStorage } from '@angular/fire/storage';
 import { ActivatedRoute, Params } from '@angular/router';
 import { FuckAdBlock } from 'fuckadblock';
 import * as he from 'he';
+import * as LogRocket from 'logrocket';
 import { overlayConfigFactory } from 'ngx-modialog';
 import { BSModalContext, Modal } from 'ngx-modialog/plugins/bootstrap';
 import { Observable } from 'rxjs/Observable';
@@ -151,6 +152,7 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    LogRocket.init(environment.logrocketId);
     this.loadStorage();
     if (!this.hasSeenTermsOfService) {
       this.showTermsOfService();
@@ -1939,6 +1941,10 @@ export class HomeComponent implements OnInit {
         if (userDetailsResponse.name) {
           this.userName = userDetailsResponse.name;
           this.userId = userDetailsResponse.id;
+
+          LogRocket.identify(this.userName, {
+            userId: this.userId
+          });
 
           this.redditService
             .getCurrentRaffleSubmissions(userDetailsResponse.name)

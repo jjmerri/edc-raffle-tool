@@ -36,6 +36,7 @@
     "fuckadblock": "^3.2.1",
     "he": "^1.1.1",
     "jquery": "^3.4.0",
+    "logrocket": "^1.0.6",
     "ng2-pop-over": "^0.9.37",
     "ngx-loggly-logger": "^5.0.0",
     "ngx-modialog": "^3.0.3",
