@@ -136,7 +136,7 @@ export class HomeComponent implements OnInit {
     PenRaffle: ['Turokman123']
   };
 
-  private auditPercentageMap = {WatchURaffle: .03};
+  private auditPercentageMap = { WatchURaffle: 0.03 };
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -396,7 +396,9 @@ export class HomeComponent implements OnInit {
                     this.redditService
                       .updatePostText(postText, this.currentRaffle.name)
                       .subscribe(
-                        postResponse => {},
+                        postResponse => {
+                          this.updateRaffleProperties();
+                        },
                         err => {
                           this.loggingService.logMessage(
                             'updatePostText over MAX:' + JSON.stringify(err),
@@ -604,7 +606,7 @@ export class HomeComponent implements OnInit {
     let payPalInfo = this.getPaypalInfo();
     let auditText = '';
 
-    if(this.raffleProperties.audited) {
+    if (this.raffleProperties.audited) {
       auditText = `The Raffle Tool has randomly selected this raffle for a price audit to be conducted by the mods.\n\n`;
     }
 
@@ -1957,9 +1959,11 @@ export class HomeComponent implements OnInit {
 
                       this.setSubredditSettings(submission.subreddit);
 
-                      this.loadRaffleStorage(submission.name, this.userId).then(() => {
-                        this.auditRaffle();
-                      });
+                      this.loadRaffleStorage(submission.name, this.userId).then(
+                        () => {
+                          this.auditRaffle();
+                        }
+                      );
 
                       this.sendOneTimeNotifications();
 
@@ -2333,8 +2337,8 @@ export class HomeComponent implements OnInit {
               console.error(err);
             }
           );
-          
-          this.updateFlair(this.completeFlairId, 'Complete');
+
+        this.updateFlair(this.completeFlairId, 'Complete');
       }
     });
   }
@@ -3109,6 +3113,9 @@ export class HomeComponent implements OnInit {
   }
 
   private updateRaffleProperties() {
+    this.raffleProperties.lastUpdated = this.currentRaffle.edited
+      ? new Date(this.currentRaffle.edited * 1000)
+      : undefined;
     this.databaseService
       .storeRaffleProperties(
         this.userId,
@@ -3193,14 +3200,24 @@ export class HomeComponent implements OnInit {
   }
 
   private auditRaffle() {
-    const auditPercentage = this.auditPercentageMap[this.currentRaffle.subreddit];
+    const auditPercentage = this.auditPercentageMap[
+      this.currentRaffle.subreddit
+    ];
     const randomNum = Math.random();
     const title = this.currentRaffle.title.toUpperCase();
     this.raffleProperties.audited = false;
 
-    if(!this.raffleProperties.auditChecked && auditPercentage && randomNum <= auditPercentage && (title.includes('NM') || title.includes('BLUE'))) {
+    if (
+      !this.raffleProperties.auditChecked &&
+      auditPercentage &&
+      randomNum <= auditPercentage &&
+      (title.includes('NM') || title.includes('BLUE'))
+    ) {
       this.loggingService.logMessage(
-        `${auditPercentage * 100}% of raffles are randomly selected for audit: ${this.currentRaffle.permalink}`,
+        `${auditPercentage *
+          100}% of raffles are randomly selected for audit: ${
+          this.currentRaffle.permalink
+        }`,
         LoggingLevel.INFO
       );
 
@@ -3210,7 +3227,10 @@ export class HomeComponent implements OnInit {
         .sendPm(
           '/r/' + this.currentRaffle.subreddit,
           'Raffle Audit',
-          `${auditPercentage * 100}% of raffles are randomly selected for audit. [${title}](${this.currentRaffle.permalink}) has been selected.`
+          `${auditPercentage *
+            100}% of raffles are randomly selected for audit. [${title}](${
+            this.currentRaffle.permalink
+          }) has been selected.`
         )
         .subscribe(
           postResponse => {},
@@ -3223,15 +3243,15 @@ export class HomeComponent implements OnInit {
           }
         );
 
-        swal2({
-          title: 'Raffle Selected For Audit',
-          text: `As a part of keeping pricing fair, ${auditPercentage * 100}% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have questions.`,
-          type: 'info',
-        });
+      swal2({
+        title: 'Raffle Selected For Audit',
+        text: `As a part of keeping pricing fair, ${auditPercentage *
+          100}% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have questions.`,
+        type: 'info'
+      });
     }
 
     this.raffleProperties.auditChecked = true;
     this.updateRaffleProperties();
-
   }
 }

@@ -7,6 +7,7 @@ export class RaffleProperties {
   public auditChecked: boolean;
   public audited: boolean;
   public inOrderMode: boolean;
+  public lastUpdated: Date;
 
   constructor() {
     this.customFlair = '';
@@ -17,5 +18,6 @@ export class RaffleProperties {
     this.auditChecked = false;
     this.audited = false;
     this.inOrderMode = false;
+    this.lastUpdated;
   }
 }
