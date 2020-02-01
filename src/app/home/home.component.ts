@@ -75,7 +75,6 @@ export class HomeComponent implements OnInit {
   private tosKey = 'showTermsOfService_09182017';
   private numPayPmsProcessed = 0;
   private botUsername = 'callthebot';
-  private inOrderMode = false;
   private autoUpdateFlair = false;
   private raffleProperties: RaffleProperties = new RaffleProperties();
 
@@ -425,7 +424,7 @@ export class HomeComponent implements OnInit {
                 );
             }
 
-            if (this.inOrderMode) {
+            if (this.raffleProperties.inOrderMode) {
               flairText = 'In Progress';
               flairId = this.customRainbowFlairId;
             } else if (this.numOpenSlots === 0 && numUnpaidUsers === 0) {
@@ -1279,7 +1278,7 @@ export class HomeComponent implements OnInit {
             comment: comments[commentIndex],
             callingComponent: this,
             numOpenSlots: this.numOpenSlots,
-            inOrderMode: this.inOrderMode
+            inOrderMode: this.raffleProperties.inOrderMode
           },
           BSModalContext
         )

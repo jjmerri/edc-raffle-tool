@@ -203,7 +203,8 @@
               type="checkbox"
               id="inOrderMode"
               name="inOrderMode"
-              [(ngModel)]="inOrderMode"
+              [(ngModel)]="raffleProperties.inOrderMode"
+              (change)="updateRaffleProperties()"
             />
           </div>
           <div class="col-xs-2" *ngIf="canEditFlair">
@@ -232,6 +233,7 @@
               id="willSendParticipantPm"
               name="willSendParticipantPm"
               [(ngModel)]="raffleProperties.willSendParticipantPm"
+              (change)="updateRaffleProperties()"
             />
           </div>
           <div class="col-xs-12" style="height:10px;"></div>

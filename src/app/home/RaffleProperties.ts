@@ -6,6 +6,7 @@ export class RaffleProperties {
   public willSendParticipantPm: boolean;
   public auditChecked: boolean;
   public audited: boolean;
+  public inOrderMode: boolean;
 
   constructor() {
     this.customFlair = '';
@@ -15,5 +16,6 @@ export class RaffleProperties {
     this.willSendParticipantPm = true;
     this.auditChecked = false;
     this.audited = false;
+    this.inOrderMode = false;
   }
 }
