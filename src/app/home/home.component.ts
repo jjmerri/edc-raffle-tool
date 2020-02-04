@@ -152,7 +152,18 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    LogRocket.init(environment.logrocketId);
+    LogRocket.init(environment.logrocketId, {
+      network: {
+        requestSanitizer: request => {
+          if (request.url.toLowerCase().indexOf('access_token') !== -1) {
+            return null;
+          }
+
+          request.headers['Authorization'] = null;
+          return request;
+        }
+      }
+    });
     this.loadStorage();
     if (!this.hasSeenTermsOfService) {
       this.showTermsOfService();
