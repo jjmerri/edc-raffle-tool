@@ -152,18 +152,6 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    LogRocket.init(environment.logrocketId, {
-      network: {
-        requestSanitizer: request => {
-          if (request.url.toLowerCase().indexOf('access_token') !== -1) {
-            return null;
-          }
-
-          request.headers['Authorization'] = null;
-          return request;
-        }
-      }
-    });
     this.loadStorage();
     if (!this.hasSeenTermsOfService) {
       this.showTermsOfService();
@@ -1953,6 +1941,19 @@ export class HomeComponent implements OnInit {
           this.userName = userDetailsResponse.name;
           this.userId = userDetailsResponse.id;
 
+          //init here to avoid anonymous sessions
+          LogRocket.init(environment.logrocketId, {
+            network: {
+              requestSanitizer: request => {
+                if (request.url.toLowerCase().indexOf('access_token') !== -1) {
+                  return null;
+                }
+      
+                request.headers['Authorization'] = null;
+                return request;
+              }
+            }
+          });
           LogRocket.identify(this.userName, {
             userId: this.userId
           });
