@@ -1,6 +1,6 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/firebase', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/firebase', '/deploy']
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/firebase']
   - name: 'gcr.io/cloud-builders/npm'
