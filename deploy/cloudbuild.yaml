@@ -1,0 +1,9 @@
+steps:
+  - name: node:10.15.1
+    entrypoint: npm
+    args: ['install']
+  - name: node:10.15.1
+    entrypoint: npm
+    args: ['run', 'build:test']
+  - name: 'gcr.io/test-edc-raffle-tool/firebase'
+    args: ['deploy', '--project', 'prod', '--token', '${_FIREBASE_TOKEN}']
