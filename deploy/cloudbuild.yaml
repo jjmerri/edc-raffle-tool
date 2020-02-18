@@ -1,13 +1,13 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/firebase', './deploy']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/firebase']
+  # - name: 'gcr.io/cloud-builders/docker'
+  #   args: ['build', '-t', 'gcr.io/$PROJECT_ID/firebase', './deploy']
+  # - name: 'gcr.io/cloud-builders/docker'
+  #   args: ['push', 'gcr.io/$PROJECT_ID/firebase']
   - name: node:10.15.1
     entrypoint: npm
     args: ['install']
   - name: node:10.15.1
     entrypoint: npm
     args: ['run', 'build:test']
-  - name: 'gcr.io/test-edc-raffle-tool/firebase'
-    args: ['deploy', '--project', 'test', '--token', '${_FIREBASE_TOKEN}']
+  - name: 'gcr.io/$PROJECT_ID/firebase'
+    args: ['deploy', '-P', '$PROJECT_ID', '--token', '${_FIREBASE_TOKEN}']
