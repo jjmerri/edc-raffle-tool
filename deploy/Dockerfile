@@ -1,8 +1,6 @@
-# use latest Node LTS (Erbium)
-FROM node:erbium
+# use latest Node LTS (Erbium)	
+FROM node:erbium	
+# install Firebase CLI	
+RUN npm install -g firebase-tools	
 
-# install Angular CLI
-RUN npm install -g @angular/cli --unsafe
-
-# install Firebase CLI
-RUN npm install -g firebase-tools
+ENTRYPOINT ["/usr/local/bin/firebase"] 
