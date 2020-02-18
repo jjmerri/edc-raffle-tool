@@ -8,6 +8,6 @@ steps:
     args: ['install']
   - name: node:10.15.1
     entrypoint: npm
-    args: ['run', 'build:test']
+    args: ['run', 'build:${_ENV}']
   - name: 'gcr.io/$PROJECT_ID/firebase'
     args: ['deploy', '-P', '$PROJECT_ID', '--token', '${_FIREBASE_TOKEN}']

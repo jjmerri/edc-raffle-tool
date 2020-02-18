@@ -1,0 +1,7 @@
+{
+  "projects": {
+	"default": "test-edc-raffle-tool",
+	"test": "test-edc-raffle-tool",
+	"prod": "edc-raffle-tool"
+  }
+}
