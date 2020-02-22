@@ -1156,6 +1156,7 @@ export class HomeComponent implements OnInit {
             if (this.interuptSlotAssignmentHelper) {
               this.showModChatMessage();
             } else {
+              this.hasCommentsToProcess = false;
               swal2(
                 '',
                 'No more slot requests at this time. Check back later.',
@@ -1284,7 +1285,6 @@ export class HomeComponent implements OnInit {
             }
 
             if (result) {
-              this.hasCommentsToProcess = false;
               this.confirmedComments.push(comments[commentIndex].data.name);
 
               this.databaseService
