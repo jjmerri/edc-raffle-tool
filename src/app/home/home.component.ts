@@ -139,6 +139,9 @@ export class HomeComponent implements OnInit {
 
   private auditPercentageMap = { WatchURaffle: 0.03 };
 
+  private hasCommentsToProcess: boolean = false;
+  private hasPmsToProcess: boolean = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private oauthSerice: OauthService,
@@ -654,6 +657,7 @@ export class HomeComponent implements OnInit {
   }
 
   private updateAffectedSlots(name: string, event: any) {
+    this.hasPmsToProcess = false;
     let numAffected = 1;
 
     this.closePopOver = false;
@@ -1022,6 +1026,7 @@ export class HomeComponent implements OnInit {
             );
         }
 
+        this.hasPmsToProcess = false;
         this.raffleProperties.skippedPms.push(message.data.name);
         this.updateRaffleProperties();
 
@@ -1106,6 +1111,8 @@ export class HomeComponent implements OnInit {
   }
 
   private markAsPaid(userName: string) {
+    this.hasPmsToProcess = false;
+
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
       if (
@@ -1142,41 +1149,7 @@ export class HomeComponent implements OnInit {
       )
       .subscribe(
         comments => {
-          const currentDate = new Date();
-          const currentDateSeconds = currentDate.getTime() / 1000;
-          let youngestSkippedCommentTime = null;
-          for (let x = 0; x < comments.length; x++) {
-            const commentAge =
-              currentDateSeconds - comments[x].data.created_utc;
-            // remove comments < 5 seconds old to give time for Reddit data to replicate to all servers
-            // This helps prevent comments processing out of order
-            //check if greater than 0 because system time might not be right
-            if (
-              comments[x].data.author === 'AutoModerator' ||
-              (commentAge >= 0 && commentAge < 10) ||
-              (youngestSkippedCommentTime &&
-                comments[x].data.created_utc >= youngestSkippedCommentTime)
-            ) {
-              if (
-                comments[x].data.author !== 'AutoModerator' &&
-                (!youngestSkippedCommentTime ||
-                  youngestSkippedCommentTime > comments[x].data.created_utc)
-              ) {
-                youngestSkippedCommentTime = comments[x].data.created_utc;
-              }
-
-              comments.splice(x, 1);
-              x--; //we removed one so we need to check the same index next
-            }
-          }
-
-          let nextCommentIndex = -1;
-          for (let x = 0; x < comments.length; x++) {
-            if (this.confirmedComments.indexOf(comments[x].data.name) === -1) {
-              nextCommentIndex = x;
-              break;
-            }
-          }
+          let nextCommentIndex = this.getNextCommentIndex(comments);
           if (nextCommentIndex >= 0) {
             this.showSlotAssignmentModal(comments, nextCommentIndex);
           } else {
@@ -1311,6 +1284,7 @@ export class HomeComponent implements OnInit {
             }
 
             if (result) {
+              this.hasCommentsToProcess = false;
               this.confirmedComments.push(comments[commentIndex].data.name);
 
               this.databaseService
@@ -1948,7 +1922,7 @@ export class HomeComponent implements OnInit {
                 if (request.url.toLowerCase().indexOf('access_token') !== -1) {
                   return null;
                 }
-      
+
                 request.headers['Authorization'] = null;
                 return request;
               }
@@ -1982,6 +1956,8 @@ export class HomeComponent implements OnInit {
                           this.auditRaffle();
                         }
                       );
+
+                      this.startCommentPmTimer();
 
                       this.sendOneTimeNotifications();
 
@@ -2595,6 +2571,8 @@ export class HomeComponent implements OnInit {
   }
 
   private markAllRequestedAsPaid(userName: string) {
+    this.hasPmsToProcess = false;
+
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
       if (
@@ -2625,6 +2603,8 @@ export class HomeComponent implements OnInit {
   }
 
   private markAllPaid() {
+    this.hasPmsToProcess = false;
+
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
       if (raffler.name) {
@@ -3271,5 +3251,106 @@ export class HomeComponent implements OnInit {
 
     this.raffleProperties.auditChecked = true;
     this.updateRaffleProperties();
+  }
+
+  private startCommentPmTimer() {
+    const commentTimer = Observable.timer(0, 15 * 1000);
+    const pmTimer = Observable.timer(0, 15 * 1000);
+
+    commentTimer.subscribe(() => {
+      if (!this.hasCommentsToProcess && this.numOpenSlots > 0) {
+        this.redditService
+          .getTopLevelComments(
+            this.currentRaffle.permalink,
+            this.currentRaffle.name
+          )
+          .subscribe(comments => {
+            this.hasCommentsToProcess =
+              this.getNextCommentIndex(comments) !== -1;
+          });
+      } else {
+        if (this.numOpenSlots === 0) {
+          this.hasCommentsToProcess = false;
+        }
+      }
+    });
+
+    pmTimer.subscribe(() => {
+      if (!this.hasPmsToProcess && this.unpaidUsersArray.length) {
+        this.redditService
+          .getPmsAfter(this.currentRaffle.created_utc)
+          .subscribe(messages => {
+            if (!messages || !messages.length) {
+              this.hasPmsToProcess = false;
+              return;
+            }
+
+            for (let message of messages) {
+              if (!message.data.author) {
+                continue;
+              }
+              const slotNumberMap = this.getSlotNumberMap(message.data.author);
+              const authorPaid = this.isUserPaid(message.data.author);
+
+              if (
+                slotNumberMap.size &&
+                !authorPaid &&
+                this.raffleProperties.skippedPms.indexOf(message.data.name) ===
+                  -1
+              ) {
+                this.hasPmsToProcess = true;
+                return;
+              } else {
+                continue;
+              }
+            }
+
+            this.hasPmsToProcess = false;
+            return;
+          });
+      } else {
+        if (!this.unpaidUsersArray.length) {
+          this.hasPmsToProcess = false;
+        }
+      }
+    });
+  }
+
+  private getNextCommentIndex(comments): number {
+    const currentDate = new Date();
+    const currentDateSeconds = currentDate.getTime() / 1000;
+    let youngestSkippedCommentTime = null;
+    for (let x = 0; x < comments.length; x++) {
+      const commentAge = currentDateSeconds - comments[x].data.created_utc;
+      // remove comments < 5 seconds old to give time for Reddit data to replicate to all servers
+      // This helps prevent comments processing out of order
+      //check if greater than 0 because system time might not be right
+      if (
+        comments[x].data.author === 'AutoModerator' ||
+        (commentAge >= 0 && commentAge < 10) ||
+        (youngestSkippedCommentTime &&
+          comments[x].data.created_utc >= youngestSkippedCommentTime)
+      ) {
+        if (
+          comments[x].data.author !== 'AutoModerator' &&
+          (!youngestSkippedCommentTime ||
+            youngestSkippedCommentTime > comments[x].data.created_utc)
+        ) {
+          youngestSkippedCommentTime = comments[x].data.created_utc;
+        }
+
+        comments.splice(x, 1);
+        x--; //we removed one so we need to check the same index next
+      }
+    }
+
+    let nextCommentIndex = -1;
+    for (let x = 0; x < comments.length; x++) {
+      if (this.confirmedComments.indexOf(comments[x].data.name) === -1) {
+        nextCommentIndex = x;
+        break;
+      }
+    }
+    return nextCommentIndex;
   }
 }
