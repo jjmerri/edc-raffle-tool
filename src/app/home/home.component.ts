@@ -2201,6 +2201,69 @@ export class HomeComponent implements OnInit {
             );
         }
       });
+    } else if (this.numSlots === 1) {
+      swal2({
+        title: 'Number of slots not set!',
+        text: 'Set the number of slots before calling for your escrow slots.',
+        type: 'info',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+      });
+    } else if (
+      !this.raffleProperties.escrowBotCalled &&
+      this.numOpenSlots === this.numSlots
+    ) {
+      //no slots assigned yet
+      swal2({
+        title: 'How many escrow slots to call for?',
+        input: 'number',
+        inputPlaceholder: '3',
+        inputValidator: value => {
+          if (!value || parseInt(value) <= 0) {
+            return 'Enter the number of escrow slots to continue.';
+          }
+        }
+      }).then(result => {
+        if (result.value) {
+          this.redditService
+            .postComment(
+              `/u/${this.botUsername} ${result.value} ${this.numSlots}`,
+              this.currentRaffle.name
+            )
+            .subscribe(
+              res => {
+                this.raffleProperties.escrowBotCalled = true;
+                this.updateRaffleProperties();
+
+                this.loggingService.logMessage(
+                  'callTheEscrowBot:' + JSON.stringify(res),
+                  LoggingLevel.INFO
+                );
+
+                swal2(
+                  'The Bot Has Been Called!',
+                  'The bot should respond to your comment shortly with your escrow slots.',
+                  'success'
+                );
+              },
+              err => {
+                this.loggingService.logMessage(
+                  'callTheEscrowBotError:' + JSON.stringify(err),
+                  LoggingLevel.ERROR
+                );
+                console.error(err);
+
+                swal2(
+                  'Error Calling The Escrow Bot!',
+                  'There was an error calling the bot. ' +
+                    'This could be a Reddit issue. Wait a minute, check your raffle to see if it was definitely not called ' +
+                    "and if it wasn't, call it manually or try clicking the call the bot button again.",
+                  'error'
+                );
+              }
+            );
+        }
+      });
     } else {
       swal2({
         title: 'You Cant Call The Bot Yet!',

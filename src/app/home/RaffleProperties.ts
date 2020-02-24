@@ -8,6 +8,7 @@ export class RaffleProperties {
   public audited: boolean;
   public inOrderMode: boolean;
   public lastUpdated: Date;
+  public escrowBotCalled: boolean;
 
   constructor() {
     this.customFlair = '';
@@ -19,5 +20,6 @@ export class RaffleProperties {
     this.audited = false;
     this.inOrderMode = false;
     this.lastUpdated;
+    this.escrowBotCalled = false;
   }
 }
