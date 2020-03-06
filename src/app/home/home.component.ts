@@ -2161,15 +2161,11 @@ export class HomeComponent implements OnInit {
                 );
                 this.botCalled = true;
 
-                let today = new Date();
-                let featureLiveDate = new Date('2020-01-20');
-
                 this.redactPayPalInfo();
                 if (['WatchURaffle'].includes(this.currentRaffle.subreddit)) {
                   this.openFinishRaffleModal();
                 } else if (
-                  ['lego_raffles'].includes(this.currentRaffle.subreddit) &&
-                  +today >= +featureLiveDate
+                  ['lego_raffles'].includes(this.currentRaffle.subreddit)
                 ) {
                   this.openFinishRaffleModal2();
                 } else {
@@ -2372,7 +2368,7 @@ export class HomeComponent implements OnInit {
         swal2({
           title: 'Sub Fund Details',
           html: `Congrats on a successful raffle! Per sub rules please send <strong>$${numSlotsToPay *
-            slotCost}</strong> to <strong>iclickhere@protonmail.com</strong> for the sub fund.`
+            slotCost}</strong> to <strong>iclickhere@protonmail.com</strong> for the sub fund. Hold payment and send in at the end of the week.`
         });
 
         this.redditService
