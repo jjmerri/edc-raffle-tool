@@ -1,10 +1,8 @@
-
-import {empty as observableEmpty, throwError as observableThrowError,  Observable ,  Observer } from 'rxjs';
-
-import {catchError, expand} from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
+import { empty as observableEmpty, Observable, Observer, throwError as observableThrowError } from 'rxjs';
+import { catchError, expand } from 'rxjs/operators';
 
 import { DatabaseService } from '../../database/services/database.service';
 import { OauthService } from '../../oauth/services/oauth.service';
@@ -205,7 +203,9 @@ export class RedditService {
 
   public updatePostText(postText: string, thing_id: string): Observable<any> {
     if (!postText) {
-      return observableThrowError({ error: 'cannot update post to empty string' });
+      return observableThrowError({
+        error: 'cannot update post to empty string'
+      });
     }
 
     return Observable.create(observer => {
@@ -313,7 +313,9 @@ export class RedditService {
 
   public postComment(commentText: string, thing_id: string): Observable<any> {
     if (!commentText) {
-      return observableThrowError({ error: 'cannot update post to empty string' });
+      return observableThrowError({
+        error: 'cannot update post to empty string'
+      });
     }
 
     return Observable.create(observer => {
@@ -418,31 +420,33 @@ export class RedditService {
       let messages: any = [];
       let itemCount = 0;
 
-      this.getInbox('', itemCount).pipe(
-        expand(inboxItems => {
-          let listCount = 0;
-          for (let message of inboxItems.data.children) {
-            listCount++;
-            itemCount++;
-            if (message.data.created_utc > createdAfter) {
-              if (message.kind === 't4') {
-                messages.push(message);
-              }
-              if (listCount === inboxItems.data.children.length) {
-                if (inboxItems.data.after) {
-                  return this.getInbox(inboxItems.data.after, itemCount);
-                } else {
-                  return observableEmpty();
+      this.getInbox('', itemCount)
+        .pipe(
+          expand(inboxItems => {
+            let listCount = 0;
+            for (let message of inboxItems.data.children) {
+              listCount++;
+              itemCount++;
+              if (message.data.created_utc > createdAfter) {
+                if (message.kind === 't4') {
+                  messages.push(message);
                 }
+                if (listCount === inboxItems.data.children.length) {
+                  if (inboxItems.data.after) {
+                    return this.getInbox(inboxItems.data.after, itemCount);
+                  } else {
+                    return observableEmpty();
+                  }
+                }
+              } else {
+                observer.next(messages);
+                observer.complete();
+                return observableEmpty();
               }
-            } else {
-              observer.next(messages);
-              observer.complete();
-              return observableEmpty();
             }
-          }
-        }),
-        catchError(error => observer.error(error)),)
+          }),
+          catchError(error => observer.error(error))
+        )
         .subscribe(resp => {});
     });
   }
@@ -454,41 +458,43 @@ export class RedditService {
     return Observable.create(observer => {
       let topLevelComments = [];
 
-      this.getComments(permalink, false, [], link_id, '').pipe(
-        expand(comments => {
-          let child_ids = '';
+      this.getComments(permalink, false, [], link_id, '')
+        .pipe(
+          expand(comments => {
+            let child_ids = '';
 
-          for (let z = 0; z < comments.length; z++) {
-            let comment = comments[z];
-            if (comment.kind === 't1' && comment.data.depth === 0) {
-              topLevelComments.push(comment);
-            }
+            for (let z = 0; z < comments.length; z++) {
+              let comment = comments[z];
+              if (comment.kind === 't1' && comment.data.depth === 0) {
+                topLevelComments.push(comment);
+              }
 
-            if (z + 1 === comments.length) {
-              if (comment.kind === 'more') {
-                return this.getComments(
-                  '',
-                  true,
-                  comment.data.children,
-                  link_id,
-                  comment.data.name
-                );
-              } else {
-                observer.next(topLevelComments.reverse());
-                observer.complete();
-                return observableEmpty();
+              if (z + 1 === comments.length) {
+                if (comment.kind === 'more') {
+                  return this.getComments(
+                    '',
+                    true,
+                    comment.data.children,
+                    link_id,
+                    comment.data.name
+                  );
+                } else {
+                  observer.next(topLevelComments.reverse());
+                  observer.complete();
+                  return observableEmpty();
+                }
               }
             }
-          }
 
-          //no comments on post
-          if (topLevelComments.length === 0 && comments.length === 0) {
-            observer.next(topLevelComments);
-            observer.complete();
-            return observableEmpty();
-          }
-        }),
-        catchError(error => observer.error(error)),)
+            //no comments on post
+            if (topLevelComments.length === 0 && comments.length === 0) {
+              observer.next(topLevelComments);
+              observer.complete();
+              return observableEmpty();
+            }
+          }),
+          catchError(error => observer.error(error))
+        )
         .subscribe(resp => {});
     });
   }
@@ -763,7 +769,7 @@ export class RedditService {
     });
   }
 
-  private handleErrorObservable(error: Response | any) {
+  private handleErrorObservable(error: HttpResponse<any> | any) {
     console.error(error.message || error);
     return observableThrowError(error.message || error);
   }

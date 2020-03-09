@@ -9,7 +9,8 @@ import { Observable } from 'rxjs';
   styleUrls: ['./mod-chat.component.css']
 })
 export class ModChatComponent implements OnInit {
-  @ViewChild('chatScroll') private myScrollContainer: ElementRef;
+  @ViewChild('chatScroll', { static: false })
+  private myScrollContainer: ElementRef;
 
   @Output() messageEventEmitter = new EventEmitter();
 
