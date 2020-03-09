@@ -1,8 +1,10 @@
+
+import {throwError as observableThrowError, of as observableOf, Observable, Observer} from 'rxjs';
+
+import {catchError, share, map} from 'rxjs/operators';
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
 import {Response} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
-import {Observer} from 'rxjs/Observer';
 import {environment} from '../../../environments/environment';
 
 @Injectable()
@@ -23,7 +25,7 @@ export class OauthService {
     private expireTime: number;
 
     constructor(private http: HttpClient) {
-        this.accessTokenObservable = new Observable(observer => this.accessTokenObserver = observer).share();
+        this.accessTokenObservable = new Observable(observer => this.accessTokenObserver = observer).pipe(share());
     }
 
     public requestAccessToken(authCode: string, state: string): Observable<any> {
@@ -51,7 +53,7 @@ export class OauthService {
         if ((Math.round(currentDate.getTime() / 1000)) >= this.expireTime) {
             return this.refreshAccessToken();
         } else {
-            return Observable.of({access_token: this.accessToken}).map(o => o);
+            return observableOf({access_token: this.accessToken}).pipe(map(o => o));
         }
     }
 
@@ -64,7 +66,7 @@ export class OauthService {
     private retrieveAccessToken(authCode: string, state: string): Observable<any> {
         if (this.state !== state) {
             console.error('States dont match!', this.state, state);
-            return Observable.throw('States do not match!');
+            return observableThrowError('States do not match!');
         }
 
         let form = new FormData();
@@ -74,13 +76,13 @@ export class OauthService {
 
         let headers = new HttpHeaders({ 'Authorization': 'Basic ' + btoa(this.client_id + ':' + this.client_secret) });
         headers.append('Accept', 'application/json');
-        return this.http.post(this.accessTokenUrl, form, {headers: headers})
-        .catch(this.handleErrorObservable);
+        return this.http.post(this.accessTokenUrl, form, {headers: headers}).pipe(
+        catchError(this.handleErrorObservable));
     }
 
     private handleErrorObservable (error: Response | any) {
         console.error(error.message || error);
-        return Observable.throw(error.message || error);
+        return observableThrowError(error.message || error);
     }
 
     private refreshAccessToken(): Observable<any> {

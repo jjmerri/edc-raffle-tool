@@ -1,3 +1,5 @@
+
+import {timer as observableTimer,  Observable } from 'rxjs';
 import 'rxjs/Rx';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -9,7 +11,6 @@ import * as he from 'he';
 import * as LogRocket from 'logrocket';
 import { overlayConfigFactory } from 'ngx-modialog';
 import { BSModalContext, Modal } from 'ngx-modialog/plugins/bootstrap';
-import { Observable } from 'rxjs/Observable';
 import * as _swal from 'sweetalert';
 import { SweetAlert } from 'sweetalert/typings/core';
 import swal2 from 'sweetalert2';
@@ -3313,8 +3314,8 @@ export class HomeComponent implements OnInit {
   }
 
   private startCommentPmTimer() {
-    const commentTimer = Observable.timer(0, 15 * 1000);
-    const pmTimer = Observable.timer(0, 15 * 1000);
+    const commentTimer = observableTimer(0, 15 * 1000);
+    const pmTimer = observableTimer(0, 15 * 1000);
 
     commentTimer.subscribe(() => {
       if (!this.hasCommentsToProcess && this.numOpenSlots > 0) {

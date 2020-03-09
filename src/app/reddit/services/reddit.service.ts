@@ -1,8 +1,10 @@
+
+import {empty as observableEmpty, throwError as observableThrowError,  Observable ,  Observer } from 'rxjs';
+
+import {catchError, expand} from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
 
 import { DatabaseService } from '../../database/services/database.service';
 import { OauthService } from '../../oauth/services/oauth.service';
@@ -203,7 +205,7 @@ export class RedditService {
 
   public updatePostText(postText: string, thing_id: string): Observable<any> {
     if (!postText) {
-      return Observable.throw({ error: 'cannot update post to empty string' });
+      return observableThrowError({ error: 'cannot update post to empty string' });
     }
 
     return Observable.create(observer => {
@@ -272,7 +274,7 @@ export class RedditService {
 
   public sendPm(recipient: string, subject: string, messageText: string) {
     if (!messageText) {
-      return Observable.throw({ error: 'cannot send empty PM!' });
+      return observableThrowError({ error: 'cannot send empty PM!' });
     }
 
     return Observable.create(observer => {
@@ -311,7 +313,7 @@ export class RedditService {
 
   public postComment(commentText: string, thing_id: string): Observable<any> {
     if (!commentText) {
-      return Observable.throw({ error: 'cannot update post to empty string' });
+      return observableThrowError({ error: 'cannot update post to empty string' });
     }
 
     return Observable.create(observer => {
@@ -416,8 +418,8 @@ export class RedditService {
       let messages: any = [];
       let itemCount = 0;
 
-      this.getInbox('', itemCount)
-        .expand(inboxItems => {
+      this.getInbox('', itemCount).pipe(
+        expand(inboxItems => {
           let listCount = 0;
           for (let message of inboxItems.data.children) {
             listCount++;
@@ -430,17 +432,17 @@ export class RedditService {
                 if (inboxItems.data.after) {
                   return this.getInbox(inboxItems.data.after, itemCount);
                 } else {
-                  return Observable.empty();
+                  return observableEmpty();
                 }
               }
             } else {
               observer.next(messages);
               observer.complete();
-              return Observable.empty();
+              return observableEmpty();
             }
           }
-        })
-        .catch(error => observer.error(error))
+        }),
+        catchError(error => observer.error(error)),)
         .subscribe(resp => {});
     });
   }
@@ -452,8 +454,8 @@ export class RedditService {
     return Observable.create(observer => {
       let topLevelComments = [];
 
-      this.getComments(permalink, false, [], link_id, '')
-        .expand(comments => {
+      this.getComments(permalink, false, [], link_id, '').pipe(
+        expand(comments => {
           let child_ids = '';
 
           for (let z = 0; z < comments.length; z++) {
@@ -474,7 +476,7 @@ export class RedditService {
               } else {
                 observer.next(topLevelComments.reverse());
                 observer.complete();
-                return Observable.empty();
+                return observableEmpty();
               }
             }
           }
@@ -483,10 +485,10 @@ export class RedditService {
           if (topLevelComments.length === 0 && comments.length === 0) {
             observer.next(topLevelComments);
             observer.complete();
-            return Observable.empty();
+            return observableEmpty();
           }
-        })
-        .catch(error => observer.error(error))
+        }),
+        catchError(error => observer.error(error)),)
         .subscribe(resp => {});
     });
   }
@@ -721,7 +723,7 @@ export class RedditService {
     body: string
   ): Observable<any> {
     if (!subreddit || !title || !body) {
-      return Observable.throw({
+      return observableThrowError({
         error: 'Cannot submit without subreddit, title, and body'
       });
     }
@@ -763,6 +765,6 @@ export class RedditService {
 
   private handleErrorObservable(error: Response | any) {
     console.error(error.message || error);
-    return Observable.throw(error.message || error);
+    return observableThrowError(error.message || error);
   }
 }
