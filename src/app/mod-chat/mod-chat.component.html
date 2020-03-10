@@ -1,58 +1,137 @@
 <div class="panel panel-primary">
-    <div class="panel-heading" id="accordion">
-        <span class="glyphicon glyphicon-comment"></span> Mod Chat <span *ngIf="showNewMessageText" id="newMessageText" class="blink_me" style="color: orange; font-weight: bold"> New Message!</span>
-        <div class="btn-group pull-right">
-            <a id="collapseButton" type="button" class="btn btn-default btn-xs" data-toggle="collapse" data-parent="#accordion"
-               href="#collapseOne" (click)="collapse()">
-                <span class="glyphicon glyphicon-chevron-down"></span>
-            </a>
-        </div>
+  <div class="panel-heading" id="accordion">
+    <span class="glyphicon glyphicon-comment"></span> Mod Chat
+    <span
+      *ngIf="showNewMessageText"
+      id="newMessageText"
+      class="blink_me"
+      style="color: orange; font-weight: bold"
+    >
+      New Message!</span
+    >
+    <div class="btn-group pull-right">
+      <a
+        id="collapseButton"
+        type="button"
+        class="btn btn-default btn-xs"
+        data-toggle="collapse"
+        data-parent="#accordion"
+        href="#collapseOne"
+        (click)="collapse()"
+      >
+        <span class="glyphicon glyphicon-chevron-down"></span>
+      </a>
     </div>
-    <div *ngIf="!username" class="panel-footer">
-        <div class="input-group">
-            <input #updatedUsername id="btn-input" type="text" class="form-control input-sm"
-                   placeholder="Enter Mod Username For Chat" (keyup.enter)="updateUsername($event.target.value)"/>
-            <span class="input-group-btn">
-                            <button class="btn btn-warning btn-sm" id="btn-chat" (click)="updateUsername(updatedUsername.value)">
-                                Enter Name</button>
-                        </span>
-        </div>
+  </div>
+  <div *ngIf="!username" class="panel-footer">
+    <div class="input-group">
+      <input
+        #updatedUsername
+        id="btn-input"
+        type="text"
+        class="form-control input-sm"
+        placeholder="Enter Mod Username For Chat"
+        (keyup.enter)="updateUsername($event.target.value)"
+      />
+      <span class="input-group-btn">
+        <button
+          class="btn btn-warning btn-sm"
+          id="btn-chat"
+          (click)="updateUsername(updatedUsername.value)"
+        >
+          Enter Name
+        </button>
+      </span>
     </div>
-    <div *ngIf="username" class="panel-collapse collapse in" id="collapseOne">
-        <div #chatScroll name="chatBody" class="panel-body">
-            <ul class="chat">
-                <li [ngClass]="{'left clearfix': chatMessage.username.toUpperCase() !== username.toUpperCase(), 'right clearfix': chatMessage.username.toUpperCase() === username.toUpperCase()}" *ngFor="let chatMessage of chatMessages | async; let i = index">
-                                <span [ngClass]="{'chat-img pull-left': chatMessage.username.toUpperCase() !== username.toUpperCase(), 'chat-img pull-right': chatMessage.username.toUpperCase() === username.toUpperCase()}">
-                                    <img src="http://placehold.it/50/{{chatMessage.userRole === 'MOD' ? '55e75e' : '55C1E7'}}/fff&text={{chatMessage.userRole}}" alt="User Avatar" class="img-circle"/>
-                                </span>
-                    <div class="chat-body clearfix">
-                        <div *ngIf="chatMessage.username.toUpperCase() !== username.toUpperCase()" class="header">
-                            <strong  class="primary-font">{{chatMessage.username}}</strong>
-                            <small class="pull-right text-muted">
-                                <span class="glyphicon glyphicon-time"></span>{{chatMessage.timeSent | timeAgo}}
-                            </small>
-                        </div>
-                        <div *ngIf="chatMessage.username.toUpperCase() === username.toUpperCase()" class="header">
-                            <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>{{chatMessage.timeSent | timeAgo}}
-                            </small>
-                            <strong class="pull-right primary-font">{{chatMessage.username}}</strong>
-                        </div>
-                        <p [ngClass]="{'pull-right': chatMessage.username.toUpperCase() === username.toUpperCase()}">
-                            {{chatMessage.message}}
-                        </p>
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <div class="panel-footer">
-            <div class="input-group">
-                <input #messageToSend id="btn-input" type="text" class="form-control input-sm"
-                       placeholder="Type your message here..." (keyup.enter)="chatSend($event.target.value)" [(ngModel)]="msgVal"/>
-                <span class="input-group-btn">
-                            <button class="btn btn-warning btn-sm" id="btn-chat" (click)="chatSend(messageToSend.value)">
-                                Send</button>
-                        </span>
+  </div>
+  <div *ngIf="username" class="panel-collapse collapse in" id="collapseOne">
+    <div #chatScroll name="chatBody" class="panel-body">
+      <ul class="chat">
+        <li
+          [ngClass]="{
+            'left clearfix':
+              chatMessage.username.toUpperCase() !== username.toUpperCase(),
+            'right clearfix':
+              chatMessage.username.toUpperCase() === username.toUpperCase()
+          }"
+          *ngFor="let chatMessage of chatMessages | async; let i = index"
+        >
+          <span
+            [ngClass]="{
+              'chat-img pull-left':
+                chatMessage.username.toUpperCase() !== username.toUpperCase(),
+              'chat-img pull-right':
+                chatMessage.username.toUpperCase() === username.toUpperCase()
+            }"
+          >
+            <img
+              src="http://placehold.it/50/{{
+                chatMessage.userRole === 'MOD' ? '55e75e' : '55C1E7'
+              }}/fff&text={{ chatMessage.userRole }}"
+              alt="User Avatar"
+              class="img-circle"
+            />
+          </span>
+          <div class="chat-body clearfix">
+            <div
+              *ngIf="
+                chatMessage.username.toUpperCase() !== username.toUpperCase()
+              "
+              class="header"
+            >
+              <strong class="primary-font">{{ chatMessage.username }}</strong>
+              <small class="pull-right text-muted">
+                <span class="glyphicon glyphicon-time"></span
+                >{{ chatMessage.timeSent | timeago: live }}
+              </small>
             </div>
-        </div>
+            <div
+              *ngIf="
+                chatMessage.username.toUpperCase() === username.toUpperCase()
+              "
+              class="header"
+            >
+              <small class=" text-muted"
+                ><span class="glyphicon glyphicon-time"></span
+                >{{ chatMessage.timeSent | timeago: live }}
+              </small>
+              <strong class="pull-right primary-font">{{
+                chatMessage.username
+              }}</strong>
+            </div>
+            <p
+              [ngClass]="{
+                'pull-right':
+                  chatMessage.username.toUpperCase() === username.toUpperCase()
+              }"
+            >
+              {{ chatMessage.message }}
+            </p>
+          </div>
+        </li>
+      </ul>
     </div>
+    <div class="panel-footer">
+      <div class="input-group">
+        <input
+          #messageToSend
+          id="btn-input"
+          type="text"
+          class="form-control input-sm"
+          placeholder="Type your message here..."
+          (keyup.enter)="chatSend($event.target.value)"
+          [(ngModel)]="msgVal"
+        />
+        <span class="input-group-btn">
+          <button
+            class="btn btn-warning btn-sm"
+            id="btn-chat"
+            (click)="chatSend(messageToSend.value)"
+          >
+            Send
+          </button>
+        </span>
+      </div>
+    </div>
+  </div>
 </div>

@@ -18,26 +18,26 @@ export class FinishRaffleModalComponent
   private context: FinishRaffleModalContext;
   private raffle: any;
   private payPalInfo: string;
-  private totalCost: number;
-  private totalDiscounts = 0;
-  private winner: string;
+  public totalCost: number;
+  public totalDiscounts = 0;
+  public winner: string;
   private raffleParticipants: any[];
-  private winnerPm: string;
+  public winnerPm: string;
   private modPm: string;
-  private modPmNotes: string;
-  private winningSlot: number;
+  public modPmNotes: string;
+  public winningSlot: number;
   private subFees = {
     WatchURaffle: 0.01,
     lego_raffles: 0.03,
     raffleTest: 0.03
   };
   private subFee: number;
-  private discountsLabels = {
+  public discountsLabels = {
     WatchURaffle: 'Total Discounts:',
     lego_raffles: 'Discounts + Shipping:',
     raffleTest: 'Discounts + Shipping:'
   };
-  private discountsLabel: string;
+  public discountsLabel: string;
 
   private winnerPlaceholder = '{WINNER_PLACEHOLDER}';
   private permalinkPlaceholder = '{PERMALINK_PLACEHOLDER}';
@@ -122,7 +122,7 @@ export class FinishRaffleModalComponent
     this.payPalInfo = this.context.payPalInfo;
   }
 
-  private updateMessages() {
+  public updateMessages() {
     let numWinnerSlots = 0;
     if (
       this.winningSlot &&
@@ -236,7 +236,7 @@ export class FinishRaffleModalComponent
     );
   }
 
-  private finishRaffle() {
+  public finishRaffle() {
     this.dialog.close({
       winnerPm: this.winnerPm,
       winner: this.winner,
@@ -244,7 +244,7 @@ export class FinishRaffleModalComponent
     });
   }
 
-  private closeModal() {
+  public closeModal() {
     this.dialog.close();
   }
 

@@ -1,5 +1,3 @@
-
-import {timer as observableTimer,  Observable } from 'rxjs';
 import 'rxjs/Rx';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -11,6 +9,7 @@ import * as he from 'he';
 import * as LogRocket from 'logrocket';
 import { overlayConfigFactory } from 'ngx-modialog';
 import { BSModalContext, Modal } from 'ngx-modialog/plugins/bootstrap';
+import { Observable, timer as observableTimer } from 'rxjs';
 import * as _swal from 'sweetalert';
 import { SweetAlert } from 'sweetalert/typings/core';
 import swal2 from 'sweetalert2';
@@ -45,20 +44,20 @@ const swal: SweetAlert = _swal as any;
 export class HomeComponent implements OnInit {
   private readonly MAX_SUBMISSION_LENGTH = 40000;
 
-  private raffleParticipants = [{ name: '', paid: false, requester: '' }];
-  private numSlots = 1;
-  private randomSlot: number;
-  private commentText: string;
-  private unpaidUsers: string;
+  public raffleParticipants = [{ name: '', paid: false, requester: '' }];
+  public numSlots = 1;
+  public randomSlot: number;
+  public commentText: string;
+  public unpaidUsers: string;
   private unpaidUsersArray = [];
-  private userName: string;
+  public userName: string;
   private userId: string;
-  private currentRaffle;
+  public currentRaffle;
   private raffleImported = false;
   private payPalMessageShown = false;
   private paidPopoverProperties = {};
-  private closePopOver = false;
-  private numOpenSlots = this.numSlots;
+  public closePopOver = false;
+  public numOpenSlots = this.numSlots;
   private payPalInfo: string;
   private pmMessage =
     'Thank you for participating in the raffle.\n\n' +
@@ -90,8 +89,8 @@ export class HomeComponent implements OnInit {
   private paypalPmRecipients = [];
   private showAdBlockerMessage = true;
   private hasSeenTermsOfService = false;
-  private modToolsId = '';
-  private chatMessages: any[];
+  public modToolsId = '';
+  public chatMessages: any[];
   private isSlotAssignmentHelperRunning = false;
   private interuptSlotAssignmentHelper = false;
   private haveShownModChatMessage = false;
@@ -186,7 +185,7 @@ export class HomeComponent implements OnInit {
     this.updateRaffleSlots(this.numSlots);
   }
 
-  private updateRaffleSlots(updatedNumSlots: number) {
+  public updateRaffleSlots(updatedNumSlots: number) {
     const prevSpots = this.raffleParticipants.length;
     let lossOfData = false;
     for (let i = updatedNumSlots; i < prevSpots; i++) {
@@ -235,7 +234,7 @@ export class HomeComponent implements OnInit {
     this.updateCommentText();
   }
 
-  private generateRandom() {
+  public generateRandom() {
     this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
       if (randomSlot) {
         this.randomSlot = randomSlot;
@@ -1833,7 +1832,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private showTermsOfService() {
+  public showTermsOfService() {
     this.modal
       .open(
         TermsOfServiceModalComponent,
@@ -2049,7 +2048,7 @@ export class HomeComponent implements OnInit {
     localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
   }
 
-  private shuffleSlots() {
+  public shuffleSlots() {
     swal2({
       title: 'Shuffle All Slots?',
       text:
@@ -2650,7 +2649,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private markAllPaidConfirmation() {
+  public markAllPaidConfirmation() {
     swal2({
       title: 'Are You Sure You Want To Mark All Users As Paid?',
       confirmButtonText: 'Mark all paid',
@@ -3192,7 +3191,7 @@ export class HomeComponent implements OnInit {
       );
   }
 
-  private openSlotTextModal() {
+  public openSlotTextModal() {
     this.modal
       .open(
         SlotTextModalComponent,

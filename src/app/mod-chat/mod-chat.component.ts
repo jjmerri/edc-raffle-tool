@@ -21,7 +21,7 @@ export class ModChatComponent implements OnInit {
   private chatMessagesRef: AngularFireList<any>;
   private chatMessages: Observable<any[]>;
   private msgVal = '';
-  private showNewMessageText = false;
+  public showNewMessageText = false;
 
   constructor(private afdb: AngularFireDatabase) {}
 
@@ -72,7 +72,7 @@ export class ModChatComponent implements OnInit {
     }
   }
 
-  private collapse() {
+  public collapse() {
     this.showNewMessageText = false;
 
     setTimeout(() => {

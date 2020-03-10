@@ -8,6 +8,7 @@ import { PopoverModule } from 'ng2-pop-over';
 import { LogglyService } from 'ngx-loggly-logger';
 import { ModalModule } from 'ngx-modialog';
 import { BootstrapModalModule } from 'ngx-modialog/plugins/bootstrap';
+import { TimeagoModule } from 'ngx-timeago';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
@@ -44,7 +45,8 @@ export const firebaseConfig = {
     RedirectModule,
     PopoverModule,
     ModalModule.forRoot(),
-    BootstrapModalModule
+    BootstrapModalModule,
+    TimeagoModule.forRoot()
   ],
   providers: [
     OauthService,

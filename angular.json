@@ -16,13 +16,8 @@
             "main": "src/main.ts",
             "tsConfig": "src/tsconfig.json",
             "polyfills": "src/polyfills.ts",
-            "assets": [
-              "src/assets",
-              "src/favicon.ico"
-            ],
-            "styles": [
-              "src/styles.css"
-            ],
+            "assets": ["src/assets", "src/favicon.ico"],
+            "styles": ["src/styles.css"],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/sweetalert2/dist/sweetalert2.js",
@@ -39,6 +34,15 @@
               ]
             },
             "test": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -99,21 +103,14 @@
               "node_modules/sweetalert2/dist/sweetalert2.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js"
             ],
-            "styles": [
-              "src/styles.css"
-            ],
-            "assets": [
-              "src/assets",
-              "src/favicon.ico"
-            ]
+            "styles": ["src/styles.css"],
+            "assets": ["src/assets", "src/favicon.ico"]
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "src/tsconfig.json"
-            ],
+            "tsConfig": ["src/tsconfig.json"],
             "exclude": []
           }
         }
@@ -134,9 +131,7 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "e2e/tsconfig.json"
-            ],
+            "tsConfig": ["e2e/tsconfig.json"],
             "exclude": []
           }
         }
