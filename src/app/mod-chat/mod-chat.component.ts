@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import * as jQuery from 'jquery';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-mod-chat',
@@ -9,7 +9,8 @@ import { Observable } from 'rxjs/Observable';
   styleUrls: ['./mod-chat.component.css']
 })
 export class ModChatComponent implements OnInit {
-  @ViewChild('chatScroll') private myScrollContainer: ElementRef;
+  @ViewChild('chatScroll', { static: false })
+  private myScrollContainer: ElementRef;
 
   @Output() messageEventEmitter = new EventEmitter();
 
