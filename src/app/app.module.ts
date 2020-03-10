@@ -1,14 +1,14 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { FirebaseOptionsToken } from '@angular/fire';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/storage';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { AngularFireModule } from 'angularfire2';
 import { PopoverModule } from 'ng2-pop-over';
 import { LogglyService } from 'ngx-loggly-logger';
 import { ModalModule } from 'ngx-modialog';
 import { BootstrapModalModule } from 'ngx-modialog/plugins/bootstrap';
-import { TimeagoModule } from 'ngx-timeago';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
@@ -27,13 +27,14 @@ export const firebaseConfig = {
   authDomain: environment.firebaseAuthDomain,
   databaseURL: environment.firebaseDatabaseUrl,
   storageBucket: environment.firebaseStorageBucket,
-  messagingSenderId: environment.firebaseSenderId
+  messagingSenderId: environment.firebaseSenderId,
+  projectId: environment.projectId
 };
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
-    AngularFireModule.initializeApp(firebaseConfig),
+    AngularFirestoreModule,
     AngularFireStorageModule,
     BrowserModule,
     FormsModule,
@@ -45,8 +46,7 @@ export const firebaseConfig = {
     RedirectModule,
     PopoverModule,
     ModalModule.forRoot(),
-    BootstrapModalModule,
-    TimeagoModule.forRoot()
+    BootstrapModalModule
   ],
   providers: [
     OauthService,
@@ -54,7 +54,8 @@ export const firebaseConfig = {
     DatabaseService,
     LogglyService,
     LoggingService,
-    NotificationService
+    NotificationService,
+    { provide: FirebaseOptionsToken, useValue: firebaseConfig }
   ],
   bootstrap: [AppComponent]
 })

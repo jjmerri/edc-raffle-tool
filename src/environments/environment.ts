@@ -11,6 +11,7 @@ export const environment = {
   baseUri: '',
   databaseUri: '',
   logrocketId: '',
+  projectId: '',
 
   firebaseApiKey: '',
   firebaseAuthDomain: '',

@@ -6,6 +6,7 @@ export const environment = {
   baseUri: 'http://localhost:4200',
   databaseUri: 'https://dev-edc-raffle-tool.firebaseio.com',
   logrocketId: 'qjy4tt/raffle-tool-dev',
+  projectId: 'dev-edc-raffle-tool',
 
   firebaseApiKey: 'AIzaSyAi6_CqaO23NrJfsOSRGBzXOtY8VUSJncE',
   firebaseAuthDomain: 'dev-edc-raffle-tool.firebaseapp.com',
