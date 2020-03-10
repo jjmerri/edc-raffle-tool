@@ -70,7 +70,7 @@ export class NewRaffleModalComponent
     this.subscribeToFieldChanges();
   }
 
-  private submitRaffle() {
+  public submitRaffle() {
     if (this.newRaffleForm.valid) {
       this.openNewRaffleModal();
     } else {
@@ -78,7 +78,7 @@ export class NewRaffleModalComponent
     }
   }
 
-  private closeModal() {
+  public closeModal() {
     this.dialog.close();
   }
 

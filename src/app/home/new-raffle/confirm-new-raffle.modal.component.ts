@@ -13,9 +13,9 @@ export class ConfirmNewRaffleModalContext extends BSModalContext {
 export class ConfirmNewRaffleModalComponent
   implements OnInit, ModalComponent<ConfirmNewRaffleModalContext> {
   private context: ConfirmNewRaffleModalContext;
-  private raffleTitle: string;
-  private raffleBody: string;
-  private subreddit: string;
+  public raffleTitle: string;
+  public raffleBody: string;
+  public subreddit: string;
 
   private raffleForm: any;
 
@@ -88,11 +88,11 @@ export class ConfirmNewRaffleModalComponent
     return value ? `\n${text}${value}` : '';
   }
 
-  private closeModal() {
+  public closeModal() {
     this.dialog.close();
   }
 
-  private confirmSubmition() {
+  public confirmSubmition() {
     this.dialog.close({
       raffleTitle: this.raffleTitle,
       raffleBody: this.raffleBody,

@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { AngularFirestore } from '@angular/fire/firestore';
 import * as jQuery from 'jquery';
 import { Observable } from 'rxjs';
 
@@ -18,15 +18,15 @@ export class ModChatComponent implements OnInit {
   @Input() username = '';
   @Input() userRole = 'MOD';
 
-  private chatMessagesRef: AngularFireList<any>;
+  private chatMessagesRef: any;
   private chatMessages: Observable<any[]>;
   private msgVal = '';
-  private showNewMessageText = false;
+  public showNewMessageText = false;
 
-  constructor(private afdb: AngularFireDatabase) {}
+  constructor(private afdb: AngularFirestore) {}
 
   ngOnInit() {
-    this.chatMessagesRef = this.afdb.list(
+    this.chatMessagesRef = this.afdb.collection(
       '/mod_tools/' + this.modToolsId + '/messages'
     );
     this.chatMessages = this.chatMessagesRef.valueChanges();
@@ -72,7 +72,7 @@ export class ModChatComponent implements OnInit {
     }
   }
 
-  private collapse() {
+  public collapse() {
     this.showNewMessageText = false;
 
     setTimeout(() => {
