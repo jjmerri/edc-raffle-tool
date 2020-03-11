@@ -1,12 +1,12 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
 import * as jQuery from 'jquery';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-mod-chat',
   templateUrl: './mod-chat.component.html',
-  styleUrls: ['./mod-chat.component.css']
+  styleUrls: ['./mod-chat.component.css'],
 })
 export class ModChatComponent implements OnInit {
   @ViewChild('chatScroll', { static: false })
@@ -23,14 +23,12 @@ export class ModChatComponent implements OnInit {
   private msgVal = '';
   public showNewMessageText = false;
 
-  constructor(private afdb: AngularFirestore) {}
+  constructor(private afdb: AngularFireDatabase) {}
 
   ngOnInit() {
-    this.chatMessagesRef = this.afdb.collection(
-      '/mod_tools/' + this.modToolsId + '/messages'
-    );
+    this.chatMessagesRef = this.afdb.list('/mod_tools/' + this.modToolsId + '/messages');
     this.chatMessages = this.chatMessagesRef.valueChanges();
-    this.chatMessages.subscribe(updatedMessages => {
+    this.chatMessages.subscribe((updatedMessages) => {
       this.messageEventEmitter.emit(updatedMessages);
 
       setTimeout(() => {
@@ -57,7 +55,7 @@ export class ModChatComponent implements OnInit {
         message: message,
         username: this.username,
         userRole: this.userRole,
-        timeSent: Date.now()
+        timeSent: Date.now(),
       });
       this.msgVal = '';
     }
