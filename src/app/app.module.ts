@@ -1,8 +1,8 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { FirebaseOptionsToken } from '@angular/fire';
-import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireModule } from '@angular/fire';
 import { AngularFireStorageModule } from '@angular/fire/storage';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { PopoverModule } from 'ng2-pop-over';
@@ -28,13 +28,13 @@ export const firebaseConfig = {
   databaseURL: environment.firebaseDatabaseUrl,
   storageBucket: environment.firebaseStorageBucket,
   messagingSenderId: environment.firebaseSenderId,
-  projectId: environment.projectId
+  projectId: environment.projectId,
 };
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
-    AngularFirestoreModule,
+    AngularFireModule.initializeApp(firebaseConfig),
     AngularFireStorageModule,
     BrowserModule,
     FormsModule,
@@ -46,17 +46,10 @@ export const firebaseConfig = {
     RedirectModule,
     PopoverModule,
     ModalModule.forRoot(),
-    BootstrapModalModule
+    BootstrapModalModule,
+    AngularFireDatabaseModule,
   ],
-  providers: [
-    OauthService,
-    RedditService,
-    DatabaseService,
-    LogglyService,
-    LoggingService,
-    NotificationService,
-    { provide: FirebaseOptionsToken, useValue: firebaseConfig }
-  ],
-  bootstrap: [AppComponent]
+  providers: [OauthService, RedditService, DatabaseService, LogglyService, LoggingService, NotificationService],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
