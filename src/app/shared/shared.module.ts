@@ -10,6 +10,6 @@ import { ModChatModule } from '../mod-chat/mod-chat.module';
   declarations: [ModChatComponent],
   exports: [ModChatComponent],
   entryComponents: [],
-  providers: []
+  providers: [],
 })
 export class SharedModule {}

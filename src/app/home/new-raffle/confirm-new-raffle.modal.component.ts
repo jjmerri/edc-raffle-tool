@@ -8,10 +8,9 @@ export class ConfirmNewRaffleModalContext extends BSModalContext {
 
 @Component({
   selector: 'app-confirm-new-raffle',
-  templateUrl: './confirm-new-raffle.modal.component.html'
+  templateUrl: './confirm-new-raffle.modal.component.html',
 })
-export class ConfirmNewRaffleModalComponent
-  implements OnInit, ModalComponent<ConfirmNewRaffleModalContext> {
+export class ConfirmNewRaffleModalComponent implements OnInit, ModalComponent<ConfirmNewRaffleModalContext> {
   private context: ConfirmNewRaffleModalContext;
   public raffleTitle: string;
   public raffleBody: string;
@@ -26,41 +25,21 @@ export class ConfirmNewRaffleModalComponent
 
   ngOnInit() {
     const raffleType =
-      this.raffleForm.raffleType !== 'Custom'
-        ? this.raffleForm.raffleType
-        : this.raffleForm.customType;
+      this.raffleForm.raffleType !== 'Custom' ? this.raffleForm.raffleType : this.raffleForm.customType;
 
     this.raffleTitle = `[${raffleType}] ${this.raffleForm.itemName} - ${this.raffleForm.numSlots} spots at $${this.raffleForm.slotCost}/ea`;
     this.raffleBody = this.getRaffleBody(this.raffleForm);
     this.subreddit = this.raffleForm.subreddit;
   }
   private getRaffleBody(raffleForm: any): string {
-    const approvalText = this.getOptionalText(
-      '**Approval:**|',
-      raffleForm.approvalLink
-    );
+    const approvalText = this.getOptionalText('**Approval:**|', raffleForm.approvalLink);
 
-    let priceJustificationText = this.getOptionalText(
-      '**Price Justification:**|',
-      raffleForm.priceJustification1
-    );
-    priceJustificationText += this.getOptionalText(
-      '**Price Justification:**|',
-      raffleForm.priceJustification2
-    );
-    priceJustificationText += this.getOptionalText(
-      '**Price Justification:**|',
-      raffleForm.priceJustification3
-    );
-    priceJustificationText += this.getOptionalText(
-      '**Price Justification:**|',
-      raffleForm.priceJustification4
-    );
+    let priceJustificationText = this.getOptionalText('**Price Justification:**|', raffleForm.priceJustification1);
+    priceJustificationText += this.getOptionalText('**Price Justification:**|', raffleForm.priceJustification2);
+    priceJustificationText += this.getOptionalText('**Price Justification:**|', raffleForm.priceJustification3);
+    priceJustificationText += this.getOptionalText('**Price Justification:**|', raffleForm.priceJustification4);
 
-    let previousRaffleText = this.getOptionalText(
-      '**Previous Raffle (If applicable)**|',
-      raffleForm.previousRaffle
-    );
+    let previousRaffleText = this.getOptionalText('**Previous Raffle (If applicable)**|', raffleForm.previousRaffle);
 
     return (
       `**Item Name:**|${raffleForm.itemName}
@@ -71,11 +50,7 @@ export class ConfirmNewRaffleModalComponent
       previousRaffleText +
       priceJustificationText +
       `
-**Location/Country:**|${
-        this.raffleForm.location !== 'Other'
-          ? this.raffleForm.location
-          : this.raffleForm.otherLocation
-      }
+**Location/Country:**|${this.raffleForm.location !== 'Other' ? this.raffleForm.location : this.raffleForm.otherLocation}
 **Will ship international?**|${raffleForm.shipping}
 **Timestamp/pics:**|${raffleForm.images}
 **Seller:**|${raffleForm.sellerUsername}
@@ -96,7 +71,7 @@ export class ConfirmNewRaffleModalComponent
     this.dialog.close({
       raffleTitle: this.raffleTitle,
       raffleBody: this.raffleBody,
-      ...this.raffleForm
+      ...this.raffleForm,
     });
   }
 }

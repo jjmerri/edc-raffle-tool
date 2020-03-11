@@ -11,10 +11,9 @@ export class FinishRaffleModalContext extends BSModalContext {
 @Component({
   selector: 'app-raffle-picker',
   templateUrl: './finish-raffle.modal.component.html',
-  styleUrls: ['./finish-raffle.modal.component.css']
+  styleUrls: ['./finish-raffle.modal.component.css'],
 })
-export class FinishRaffleModalComponent
-  implements OnInit, ModalComponent<FinishRaffleModalContext> {
+export class FinishRaffleModalComponent implements OnInit, ModalComponent<FinishRaffleModalContext> {
   private context: FinishRaffleModalContext;
   private raffle: any;
   private payPalInfo: string;
@@ -29,13 +28,13 @@ export class FinishRaffleModalComponent
   private subFees = {
     WatchURaffle: 0.01,
     lego_raffles: 0.03,
-    raffleTest: 0.03
+    raffleTest: 0.03,
   };
   private subFee: number;
   public discountsLabels = {
     WatchURaffle: 'Total Discounts:',
     lego_raffles: 'Discounts + Shipping:',
-    raffleTest: 'Discounts + Shipping:'
+    raffleTest: 'Discounts + Shipping:',
   };
   public discountsLabel: string;
 
@@ -139,17 +138,14 @@ export class FinishRaffleModalComponent
       if (
         this.raffleParticipants[x].name &&
         this.winner &&
-        this.raffleParticipants[x].name.toUpperCase() ===
-          this.winner.toUpperCase()
+        this.raffleParticipants[x].name.toUpperCase() === this.winner.toUpperCase()
       ) {
         numWinnerSlots++;
       }
     }
 
     let winnersContribution =
-      (this.totalCost -
-        this.totalDiscounts -
-        (this.totalCost / this.raffleParticipants.length) * numWinnerSlots) *
+      (this.totalCost - this.totalDiscounts - (this.totalCost / this.raffleParticipants.length) * numWinnerSlots) *
       this.subFee;
 
     if (winnersContribution < 0) {
@@ -160,79 +156,39 @@ export class FinishRaffleModalComponent
       return;
     }
 
-    this.winnerPm = this.pmDefault.replace(
-      new RegExp(this.winnerPlaceholder, 'ig'),
-      this.winner
-    );
-    this.winnerPm = this.winnerPm.replace(
-      new RegExp(this.paypalPlaceHolder, 'ig'),
-      this.payPalInfo
-    );
+    this.winnerPm = this.pmDefault.replace(new RegExp(this.winnerPlaceholder, 'ig'), this.winner);
+    this.winnerPm = this.winnerPm.replace(new RegExp(this.paypalPlaceHolder, 'ig'), this.payPalInfo);
     this.winnerPm = this.winnerPm.replace(
       new RegExp(this.winnersContributionPlaceholder, 'ig'),
-      winnersContribution.toFixed(2)
+      winnersContribution.toFixed(2),
     );
-    this.winnerPm = this.winnerPm.replace(
-      new RegExp(this.totalCostPlaceholder, 'ig'),
-      this.totalCost.toFixed(2)
-    );
+    this.winnerPm = this.winnerPm.replace(new RegExp(this.totalCostPlaceholder, 'ig'), this.totalCost.toFixed(2));
     this.winnerPm = this.winnerPm.replace(
       new RegExp(this.totalDiscountsPlaceholder, 'ig'),
-      this.totalDiscounts.toFixed(2)
+      this.totalDiscounts.toFixed(2),
     );
     this.winnerPm = this.winnerPm.replace(
       new RegExp(this.numSlotsPlaceholder, 'ig'),
-      this.raffleParticipants.length.toString()
+      this.raffleParticipants.length.toString(),
     );
-    this.winnerPm = this.winnerPm.replace(
-      new RegExp(this.numWinnerSlotsPlaceholder, 'ig'),
-      numWinnerSlots.toString()
-    );
-    this.winnerPm = this.winnerPm.replace(
-      new RegExp(this.subFeePlaceHolder, 'ig'),
-      (this.subFee * 100).toString()
-    );
+    this.winnerPm = this.winnerPm.replace(new RegExp(this.numWinnerSlotsPlaceholder, 'ig'), numWinnerSlots.toString());
+    this.winnerPm = this.winnerPm.replace(new RegExp(this.subFeePlaceHolder, 'ig'), (this.subFee * 100).toString());
 
-    this.modPm =
-      this.winnerPm +
-      '\n\n' +
-      this.infoTable +
-      (this.modPmNotes ? '\n\nNOTES:\n\n' + this.modPmNotes : '');
-    this.modPm = this.modPm.replace(
-      new RegExp(this.permalinkPlaceholder, 'ig'),
-      this.raffle.permalink
-    );
-    this.modPm = this.modPm.replace(
-      new RegExp(this.winnerPlaceholder, 'ig'),
-      '/u/' + this.winner
-    );
-    this.modPm = this.modPm.replace(
-      new RegExp(this.opPlaceholder, 'ig'),
-      '/u/' + this.raffle.author
-    );
-    this.modPm = this.modPm.replace(
-      new RegExp(this.totalCostPlaceholder, 'ig'),
-      this.totalCost.toFixed(2)
-    );
-    this.modPm = this.modPm.replace(
-      new RegExp(this.totalDiscountsPlaceholder, 'ig'),
-      this.totalDiscounts.toFixed(2)
-    );
+    this.modPm = this.winnerPm + '\n\n' + this.infoTable + (this.modPmNotes ? '\n\nNOTES:\n\n' + this.modPmNotes : '');
+    this.modPm = this.modPm.replace(new RegExp(this.permalinkPlaceholder, 'ig'), this.raffle.permalink);
+    this.modPm = this.modPm.replace(new RegExp(this.winnerPlaceholder, 'ig'), '/u/' + this.winner);
+    this.modPm = this.modPm.replace(new RegExp(this.opPlaceholder, 'ig'), '/u/' + this.raffle.author);
+    this.modPm = this.modPm.replace(new RegExp(this.totalCostPlaceholder, 'ig'), this.totalCost.toFixed(2));
+    this.modPm = this.modPm.replace(new RegExp(this.totalDiscountsPlaceholder, 'ig'), this.totalDiscounts.toFixed(2));
     this.modPm = this.modPm.replace(
       new RegExp(this.numSlotsPlaceholder, 'ig'),
-      this.raffleParticipants.length.toString()
+      this.raffleParticipants.length.toString(),
     );
-    this.modPm = this.modPm.replace(
-      new RegExp(this.numWinnerSlotsPlaceholder, 'ig'),
-      numWinnerSlots.toString()
-    );
-    this.modPm = this.modPm.replace(
-      new RegExp(this.datePlaceholder, 'ig'),
-      this.getCurrentDate()
-    );
+    this.modPm = this.modPm.replace(new RegExp(this.numWinnerSlotsPlaceholder, 'ig'), numWinnerSlots.toString());
+    this.modPm = this.modPm.replace(new RegExp(this.datePlaceholder, 'ig'), this.getCurrentDate());
     this.modPm = this.modPm.replace(
       new RegExp(this.winnersContributionPlaceholder, 'ig'),
-      winnersContribution.toFixed(2)
+      winnersContribution.toFixed(2),
     );
   }
 
@@ -240,7 +196,7 @@ export class FinishRaffleModalComponent
     this.dialog.close({
       winnerPm: this.winnerPm,
       winner: this.winner,
-      modPm: this.modPm
+      modPm: this.modPm,
     });
   }
 

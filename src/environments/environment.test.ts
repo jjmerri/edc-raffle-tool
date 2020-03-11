@@ -12,5 +12,5 @@ export const environment = {
   firebaseAuthDomain: 'test-edc-raffle-tool.firebaseapp.com',
   firebaseDatabaseUrl: 'https://test-edc-raffle-tool.firebaseio.com',
   firebaseStorageBucket: 'test-edc-raffle-tool.appspot.com',
-  firebaseSenderId: '706389352579'
+  firebaseSenderId: '706389352579',
 };

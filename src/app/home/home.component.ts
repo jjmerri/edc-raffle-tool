@@ -39,7 +39,7 @@ const swal: SweetAlert = _swal as any;
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
   private readonly MAX_SUBMISSION_LENGTH = 40000;
@@ -94,8 +94,7 @@ export class HomeComponent implements OnInit {
   private isSlotAssignmentHelperRunning = false;
   private interuptSlotAssignmentHelper = false;
   private haveShownModChatMessage = false;
-  private redirectUrl =
-    'https://redirect-ddff2.firebaseapp.com/index.html?redirectUrl=';
+  private redirectUrl = 'https://redirect-ddff2.firebaseapp.com/index.html?redirectUrl=';
   private modToolsDiscordUrl = null;
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
@@ -110,14 +109,9 @@ export class HomeComponent implements OnInit {
       'WatchRaffleMod2',
       'WatchRaffleMod3',
       'WatchRaffleMod4',
-      'WatchRaffleMod5'
+      'WatchRaffleMod5',
     ],
-    testingground4bots: [
-      'raffleTestMod1',
-      'raffleTestMod2',
-      'raffleTestMod3',
-      'raffleTestMod4'
-    ],
+    testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
     KnifeRaffle: [
       'Plazzed',
       'accidentlyporn',
@@ -128,13 +122,13 @@ export class HomeComponent implements OnInit {
       'NoProfile7',
       'Walt_the_White',
       'slumblor',
-      'BrianR383'
+      'BrianR383',
     ],
     SSBM: ['UNKNOWN'],
     RocketLeagueExchange: ['UNKNOWN'],
     Knife_Swap: ['UNKNOWN'],
     raffleTest: ['BoyAndHisBlob'],
-    PenRaffle: ['Turokman123']
+    PenRaffle: ['Turokman123'],
   };
 
   private auditPercentageMap = { WatchURaffle: 0.03 };
@@ -151,7 +145,7 @@ export class HomeComponent implements OnInit {
     private loggingService: LoggingService,
     private notificationService: NotificationService,
     private angularFireStorage: AngularFireStorage,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   ngOnInit() {
@@ -163,19 +157,14 @@ export class HomeComponent implements OnInit {
 
     this.activatedRoute.queryParams.subscribe((params: Params) => {
       if (params['code']) {
-        this.oauthSerice
-          .requestAccessToken(params['code'], params['state'])
-          .subscribe(res => {
-            if (res.success === true) {
-              this.loadRaffle();
-            } else {
-              this.loggingService.logMessage(
-                'error retrieving access token',
-                LoggingLevel.ERROR
-              );
-              console.error('error retrieving access token', res);
-            }
-          });
+        this.oauthSerice.requestAccessToken(params['code'], params['state']).subscribe((res) => {
+          if (res.success === true) {
+            this.loadRaffle();
+          } else {
+            this.loggingService.logMessage('error retrieving access token', LoggingLevel.ERROR);
+            console.error('error retrieving access token', res);
+          }
+        });
       }
 
       if (params['modtober_subreddit']) {
@@ -204,8 +193,8 @@ export class HomeComponent implements OnInit {
         type: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Reduce Slots'
-      }).then(result => {
+        confirmButtonText: 'Reduce Slots',
+      }).then((result) => {
         if (result.value) {
           this.updateNumberOfSlots(updatedNumSlots);
         } else if (result.dismiss) {
@@ -225,17 +214,14 @@ export class HomeComponent implements OnInit {
         this.raffleParticipants[x] = { name: '', paid: false, requester: '' };
       }
     } else if (updatedNumSlots < prevSpots) {
-      this.raffleParticipants.splice(
-        updatedNumSlots,
-        prevSpots - updatedNumSlots
-      );
+      this.raffleParticipants.splice(updatedNumSlots, prevSpots - updatedNumSlots);
     }
 
     this.updateCommentText();
   }
 
   public generateRandom() {
-    this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
+    this.getRandomUnclaimedSlotNumber().subscribe((randomSlot) => {
       if (randomSlot) {
         this.randomSlot = randomSlot;
         document.getElementById('raffleParticipant' + (randomSlot - 1)).focus();
@@ -244,7 +230,7 @@ export class HomeComponent implements OnInit {
   }
 
   private getRandomUnclaimedSlotNumber(): Observable<any> {
-    return Observable.create(observer => {
+    return Observable.create((observer) => {
       const openRaffleSlots = [];
       for (let x = 0; x < this.raffleParticipants.length; x++) {
         if (!this.raffleParticipants[x].name) {
@@ -264,10 +250,8 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private getNextUnclaimedSlotNumbers(
-    numRequestedSlots: number
-  ): Observable<any> {
-    return Observable.create(observer => {
+  private getNextUnclaimedSlotNumbers(numRequestedSlots: number): Observable<any> {
+    return Observable.create((observer) => {
       const openRaffleSlots = [];
       let numFoundSlots = 0;
       for (let x = 0; x < this.raffleParticipants.length; x++) {
@@ -311,18 +295,9 @@ export class HomeComponent implements OnInit {
         numSlotsTaken++;
       }
       this.commentText +=
-        x +
-        1 +
-        ' ' +
-        (raffler.name ? '/u/' + raffler.name + ' ' : '') +
-        (raffler.paid ? '**PAID**' : '') +
-        '\n\n';
+        x + 1 + ' ' + (raffler.name ? '/u/' + raffler.name + ' ' : '') + (raffler.paid ? '**PAID**' : '') + '\n\n';
 
-      if (
-        !raffler.paid &&
-        raffler.name &&
-        this.unpaidUsers.indexOf('/u/' + raffler.name + ' ') === -1
-      ) {
+      if (!raffler.paid && raffler.name && this.unpaidUsers.indexOf('/u/' + raffler.name + ' ') === -1) {
         numUnpaidUsers++;
         this.unpaidUsers += '/u/' + raffler.name + ' ';
         this.unpaidUsersArray.push(raffler.name);
@@ -336,145 +311,112 @@ export class HomeComponent implements OnInit {
     this.numOpenSlots = this.numSlots - numSlotsTaken;
 
     if (this.currentRaffle) {
-      this.redditService
-        .getSubmission(this.currentRaffle.permalink + '.json')
-        .subscribe(
-          getSubmissionResponse => {
-            this.raffleProperties.latestSessionId = this.loggingService.sessionId;
-            this.updateRaffleProperties();
+      this.redditService.getSubmission(this.currentRaffle.permalink + '.json').subscribe(
+        (getSubmissionResponse) => {
+          this.raffleProperties.latestSessionId = this.loggingService.sessionId;
+          this.updateRaffleProperties();
 
-            this.currentRaffle = getSubmissionResponse[0].data.children[0].data;
-            const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
-            const escapedRe = /\\<raffle\\-tool\\>[\s\S]*\\<\/raffle\\-tool\\>/;
+          this.currentRaffle = getSubmissionResponse[0].data.children[0].data;
+          const re = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
+          const escapedRe = /\\<raffle\\-tool\\>[\s\S]*\\<\/raffle\\-tool\\>/;
 
-            let txt: any;
-            let flairText = '';
-            let flairId = '';
-            txt = document.createElement('textareatmp');
-            txt.innerHTML = this.currentRaffle.selftext;
-            let postText = txt.innerText;
+          let txt: any;
+          let flairText = '';
+          let flairId = '';
+          txt = document.createElement('textareatmp');
+          txt.innerHTML = this.currentRaffle.selftext;
+          let postText = txt.innerText;
 
-            let slotText = this.getSlotListText(
-              this.numOpenSlots,
-              numUnpaidUsers,
-              numUnpaidSlots,
-              this.commentText
-            );
+          let slotText = this.getSlotListText(this.numOpenSlots, numUnpaidUsers, numUnpaidSlots, this.commentText);
 
-            if (
-              postText.indexOf('<raffle-tool>') !== -1 &&
-              postText.indexOf('</raffle-tool>') !== -1
-            ) {
-              postText = postText.replace(re, slotText);
-            } else if (
-              postText.indexOf('\\<raffle\\-tool\\>') !== -1 &&
-              postText.indexOf('\\</raffle\\-tool\\>') !== -1
-            ) {
-              postText = postText.replace(escapedRe, slotText);
-            } else {
-              postText += '\n\n' + slotText + '\n\n';
-            }
+          if (postText.indexOf('<raffle-tool>') !== -1 && postText.indexOf('</raffle-tool>') !== -1) {
+            postText = postText.replace(re, slotText);
+          } else if (
+            postText.indexOf('\\<raffle\\-tool\\>') !== -1 &&
+            postText.indexOf('\\</raffle\\-tool\\>') !== -1
+          ) {
+            postText = postText.replace(escapedRe, slotText);
+          } else {
+            postText += '\n\n' + slotText + '\n\n';
+          }
 
-            if (postText.length > this.MAX_SUBMISSION_LENGTH) {
-              const ref = this.angularFireStorage.ref(
-                'slot_lists/' + this.currentRaffle.name
-              );
-              ref
-                .putString(slotText, 'raw', { contentType: 'text/plain' })
-                .then(snapshot => {
-                  ref.getDownloadURL().subscribe(url => {
-                    this.raffleProperties.slotListFileDownloadUrl = url;
+          if (postText.length > this.MAX_SUBMISSION_LENGTH) {
+            const ref = this.angularFireStorage.ref('slot_lists/' + this.currentRaffle.name);
+            ref.putString(slotText, 'raw', { contentType: 'text/plain' }).then((snapshot) => {
+              ref.getDownloadURL().subscribe((url) => {
+                this.raffleProperties.slotListFileDownloadUrl = url;
+                this.updateRaffleProperties();
+                slotText = this.getSlotListText(
+                  this.numOpenSlots,
+                  numUnpaidUsers,
+                  numUnpaidSlots,
+                  'The slot list contains ' +
+                    this.numSlots +
+                    ' slots ' +
+                    'and is too large to post. The current slot list can be found [here.](' +
+                    url +
+                    ')',
+                );
+                postText = postText.replace(re, slotText);
+                this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
+                  (postResponse) => {
                     this.updateRaffleProperties();
-                    slotText = this.getSlotListText(
-                      this.numOpenSlots,
-                      numUnpaidUsers,
-                      numUnpaidSlots,
-                      'The slot list contains ' +
-                        this.numSlots +
-                        ' slots ' +
-                        'and is too large to post. The current slot list can be found [here.](' +
-                        url +
-                        ')'
-                    );
-                    postText = postText.replace(re, slotText);
-                    this.redditService
-                      .updatePostText(postText, this.currentRaffle.name)
-                      .subscribe(
-                        postResponse => {
-                          this.updateRaffleProperties();
-                        },
-                        err => {
-                          this.loggingService.logMessage(
-                            'updatePostText over MAX:' + JSON.stringify(err),
-                            LoggingLevel.ERROR
-                          );
-                          console.error(err);
-                        }
-                      );
-                  });
-                });
-            } else {
-              this.redditService
-                .updatePostText(postText, this.currentRaffle.name)
-                .subscribe(
-                  postResponse => {
-                    this.currentRaffle = postResponse.json.data.things[0].data;
                   },
-                  err => {
+                  (err) => {
                     this.loggingService.logMessage(
-                      'updatePostText:' + JSON.stringify(err),
-                      LoggingLevel.ERROR
+                      'updatePostText over MAX:' + JSON.stringify(err),
+                      LoggingLevel.ERROR,
                     );
                     console.error(err);
-                  }
+                  },
                 );
-            }
-
-            if (this.raffleProperties.inOrderMode) {
-              flairText = 'In Progress';
-              flairId = this.customRainbowFlairId;
-            } else if (this.numOpenSlots === 0 && numUnpaidUsers === 0) {
-              flairText = 'Ready To Summon RNGesus!';
-              flairId = this.customRainbowFlairId;
-            } else if (this.numOpenSlots === 0 && numUnpaidUsers !== 0) {
-              flairText = 'Collecting Payments';
-              flairId = this.collectingPaymentsFlairId;
-            } else {
-              flairText =
-                (this.raffleProperties.customFlair
-                  ? this.raffleProperties.customFlair + ' - '
-                  : '') +
-                this.numOpenSlots +
-                ' Slots Left';
-              flairId = this.customRainbowFlairId;
-            }
-
-            this.updateFlair(flairId, flairText);
-
-            this.loggingService.logMessage(
-              this.commentText,
-              LoggingLevel.SLOT_LIST
+              });
+            });
+          } else {
+            this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
+              (postResponse) => {
+                this.currentRaffle = postResponse.json.data.things[0].data;
+              },
+              (err) => {
+                this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
+                console.error(err);
+              },
             );
-
-            // prevents overwriting the saved participant list when it hasn't been fully loaded from an import yet
-            if (this.hasRequesters(this.raffleParticipants)) {
-              this.databaseService
-                .storeRaffleParticipants(
-                  this.userId,
-                  this.currentRaffle.name,
-                  this.raffleParticipants
-                )
-                .subscribe();
-            }
-          },
-          err => {
-            this.loggingService.logMessage(
-              'getSubmission:' + JSON.stringify(err),
-              LoggingLevel.ERROR
-            );
-            console.error(err);
           }
-        );
+
+          if (this.raffleProperties.inOrderMode) {
+            flairText = 'In Progress';
+            flairId = this.customRainbowFlairId;
+          } else if (this.numOpenSlots === 0 && numUnpaidUsers === 0) {
+            flairText = 'Ready To Summon RNGesus!';
+            flairId = this.customRainbowFlairId;
+          } else if (this.numOpenSlots === 0 && numUnpaidUsers !== 0) {
+            flairText = 'Collecting Payments';
+            flairId = this.collectingPaymentsFlairId;
+          } else {
+            flairText =
+              (this.raffleProperties.customFlair ? this.raffleProperties.customFlair + ' - ' : '') +
+              this.numOpenSlots +
+              ' Slots Left';
+            flairId = this.customRainbowFlairId;
+          }
+
+          this.updateFlair(flairId, flairText);
+
+          this.loggingService.logMessage(this.commentText, LoggingLevel.SLOT_LIST);
+
+          // prevents overwriting the saved participant list when it hasn't been fully loaded from an import yet
+          if (this.hasRequesters(this.raffleParticipants)) {
+            this.databaseService
+              .storeRaffleParticipants(this.userId, this.currentRaffle.name, this.raffleParticipants)
+              .subscribe();
+          }
+        },
+        (err) => {
+          this.loggingService.logMessage('getSubmission:' + JSON.stringify(err), LoggingLevel.ERROR);
+          console.error(err);
+        },
+      );
     }
   }
 
@@ -490,27 +432,24 @@ export class HomeComponent implements OnInit {
 
   public importRaffleSlots(raffle: any) {
     this.getCurrentSlotListString(raffle).subscribe(
-      slotList => {
+      (slotList) => {
         this.loadSlotList(slotList);
       },
-      err => {
-        this.loggingService.logMessage(
-          'importRaffleSlots:' + JSON.stringify(err),
-          LoggingLevel.ERROR
-        );
+      (err) => {
+        this.loggingService.logMessage('importRaffleSlots:' + JSON.stringify(err), LoggingLevel.ERROR);
         console.error(err);
 
         swal2(
           'Error Importing Raffle Slots!',
           'Please relink The Raffle Tool. If you continue to get this error PM BoyAndHisBlob.',
-          'error'
+          'error',
         );
-      }
+      },
     );
   }
 
   private getCurrentSlotListString(raffle: any): Observable<any> {
-    return Observable.create(observer => {
+    return Observable.create((observer) => {
       const postSlotListRe = /<raffle-tool>[\s\S]*<\/raffle-tool>/;
 
       const externalSlotListRe = /<raffle-tool>[\s\S]*\[here.\]\(([^)]+)\)[\s\S]*<\/raffle-tool>/;
@@ -529,18 +468,16 @@ export class HomeComponent implements OnInit {
       if (externalMatches) {
         const headers = new HttpHeaders({});
         headers.append('Accept', 'text/plain');
-        this.http
-          .get(externalMatches[1], { headers: headers, responseType: 'text' })
-          .subscribe(
-            slotList => {
-              observer.next(slotList.toString());
-              observer.complete();
-            },
-            err => {
-              console.error(err);
-              observer.error(err);
-            }
-          );
+        this.http.get(externalMatches[1], { headers: headers, responseType: 'text' }).subscribe(
+          (slotList) => {
+            observer.next(slotList.toString());
+            observer.complete();
+          },
+          (err) => {
+            console.error(err);
+            observer.error(err);
+          },
+        );
       } else if (postMatches) {
         observer.next(postMatches[0]);
         observer.complete();
@@ -558,7 +495,7 @@ export class HomeComponent implements OnInit {
           'This could be due to browser compatibility issues. ' +
           'Please try to link again and if you get the same error try a different browser. ' +
           'DO NOT UPDATE YOUR RAFFLE BEFORE RELINKING! You could delete your slot list!',
-        'error'
+        'error',
       );
     } else {
       this.raffleParticipants = raffleParticipants;
@@ -590,7 +527,7 @@ export class HomeComponent implements OnInit {
           raffleParticipants.push({
             name: matchedUsername[1],
             paid: paidString.toLowerCase().indexOf('paid') !== -1,
-            requester: ''
+            requester: '',
           });
         } else {
           raffleParticipants.push({ name: '', paid: false, requester: '' });
@@ -601,12 +538,7 @@ export class HomeComponent implements OnInit {
     return raffleParticipants;
   }
 
-  private getSlotListText(
-    numOpenSlots,
-    numUnpaidUsers,
-    numUnpaidSlots,
-    slotList
-  ): string {
+  private getSlotListText(numOpenSlots, numUnpaidUsers, numUnpaidSlots, slotList): string {
     let payPalInfo = this.getPaypalInfo();
     let auditText = '';
 
@@ -647,8 +579,7 @@ export class HomeComponent implements OnInit {
         payPalText = 'https://www.paypal.me';
       }
       if (ppRegEx.test(this.payPalInfo) || pp2RegEx.test(this.payPalInfo)) {
-        payPalFormatted =
-          '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
+        payPalFormatted = '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
       }
       return '**PayPal Info: ' + payPalFormatted + '**\n\n&#x200b;\n\n';
     } else {
@@ -674,7 +605,7 @@ export class HomeComponent implements OnInit {
 
     this.paidPopoverProperties = {
       numAffected: numAffected,
-      paid: event.target.checked
+      paid: event.target.checked,
     };
 
     this.updateCommentText();
@@ -692,7 +623,7 @@ export class HomeComponent implements OnInit {
       swal2(
         '',
         "Entering your PayPal info will cause your PayPal link to be displayed in your raffle. You won't get this message again.",
-        'info'
+        'info',
       );
       this.payPalMessageShown = true;
     }
@@ -703,8 +634,7 @@ export class HomeComponent implements OnInit {
       recipient &&
       this.raffleProperties.willSendParticipantPm &&
       this.paypalPmRecipients.indexOf(recipient.toUpperCase()) === -1 &&
-      ((this.currentRaffle.subreddit !== 'testingground4bots' &&
-        this.currentRaffle.subreddit !== 'raffleTest') ||
+      ((this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') ||
         this.userName.toUpperCase() === recipient.toUpperCase())
     ) {
       const subject = 'PayPal Info For: ' + this.currentRaffle.title;
@@ -717,34 +647,25 @@ export class HomeComponent implements OnInit {
               ? '**Please find my PayPal info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
                 'Because Reddit flags PayPal links as spam the link actually performs a redirect through The Raffle Tool and will not link directly to PayPal\n\n'
               : '') +
-            '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n'
+            '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n',
         )
         .subscribe(
-          res => {},
-          err => {
-            this.loggingService.logMessage(
-              'sendPm:' + JSON.stringify(err),
-              LoggingLevel.ERROR
-            );
+          (res) => {},
+          (err) => {
+            this.loggingService.logMessage('sendPm:' + JSON.stringify(err), LoggingLevel.ERROR);
             console.error(err);
 
             swal2(
               'Error Sending PayPal PM!',
-              'There was an error sending the PayPal PM to ' +
-                recipient +
-                ' Please send them a PM manually.',
-              'error'
+              'There was an error sending the PayPal PM to ' + recipient + ' Please send them a PM manually.',
+              'error',
             );
-          }
+          },
         );
       this.paypalPmRecipients.push(recipient.toUpperCase());
       this.databaseService
-        .storePaypalPmRecipients(
-          this.userId,
-          this.currentRaffle.name,
-          this.paypalPmRecipients
-        )
-        .subscribe(res => {});
+        .storePaypalPmRecipients(this.userId, this.currentRaffle.name, this.paypalPmRecipients)
+        .subscribe((res) => {});
     }
   }
 
@@ -764,17 +685,15 @@ export class HomeComponent implements OnInit {
         type: 'info',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Donate Slot'
-      }).then(result => {
+        confirmButtonText: 'Donate Slot',
+      }).then((result) => {
         if (result.value) {
-          this.redditService
-            .postComment(commentText, this.currentRaffle.name)
-            .subscribe();
+          this.redditService.postComment(commentText, this.currentRaffle.name).subscribe();
 
           swal2(
             'Donation Comment Posted!',
             'Please process the slot request in the order it was recieved in the queue and thank you again for your generosity!',
-            'success'
+            'success',
           );
         }
       });
@@ -782,7 +701,7 @@ export class HomeComponent implements OnInit {
   }
 
   private runPaymentConfirmerWithSlotListCheck() {
-    this.slotListUpToDate().subscribe(slotListsMatch => {
+    this.slotListUpToDate().subscribe((slotListsMatch) => {
       if (!slotListsMatch) {
         swal2({
           title: 'Your Slot List Is Out Of Date!',
@@ -795,14 +714,11 @@ export class HomeComponent implements OnInit {
           showCancelButton: true,
           cancelButtonText: 'Continue Anyway',
           confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Relink'
-        }).then(result => {
+          confirmButtonText: 'Relink',
+        }).then((result) => {
           if (result.value) {
             this.linkWithReddit();
-          } else if (
-            result.dismiss &&
-            result.dismiss === swal2.DismissReason.cancel
-          ) {
+          } else if (result.dismiss && result.dismiss === swal2.DismissReason.cancel) {
             this.runPaymentConfirmer();
           } else {
             return;
@@ -817,45 +733,42 @@ export class HomeComponent implements OnInit {
   private runPaymentConfirmer() {
     this.numPayPmsProcessed = 0;
     this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe(
-      messages => {
+      (messages) => {
         if (messages && messages.length) {
           try {
             this.showPm(messages, messages.length - 1);
           } catch (err) {
             this.loggingService.logMessage(
               'runPaymentConfirmer stack:' + JSON.stringify(err.stack),
-              LoggingLevel.ERROR
+              LoggingLevel.ERROR,
             );
             this.loggingService.logMessage(
               'runPaymentConfirmer messages:' + JSON.stringify(messages),
-              LoggingLevel.ERROR
+              LoggingLevel.ERROR,
             );
             console.error(err);
             swal2(
               'Error Running Payment Confirmer!',
               'Please wait a few minutes and try again. ' +
                 'If the issue persists send a PM to BoyAndHisBlob and confirm payments manually.',
-              'error'
+              'error',
             );
           }
         } else {
           this.showNoUnpaidPms();
         }
       },
-      err => {
-        this.loggingService.logMessage(
-          'getPmsAfter:' + JSON.stringify(err),
-          LoggingLevel.ERROR
-        );
+      (err) => {
+        this.loggingService.logMessage('getPmsAfter:' + JSON.stringify(err), LoggingLevel.ERROR);
         console.error(err);
 
         swal2(
           'Error Retrieving PMs!',
           'There was an error retrieving your PMs. This could be an issue with Reddit. ' +
             'Try again and if the error persists please let BoyAndHisBlob know so he can check the logs.',
-          'error'
+          'error',
         );
-      }
+      },
     );
   }
 
@@ -876,9 +789,7 @@ export class HomeComponent implements OnInit {
     const message = messages[messageIndex];
     const slotNumberMap = this.getSlotNumberMap(message.data.author);
     const authorPaid = this.isUserPaid(message.data.author);
-    const numTotalSlotsUnpaidRequested = this.getNumUnpaidRequestedSlots(
-      message.data.author
-    );
+    const numTotalSlotsUnpaidRequested = this.getNumUnpaidRequestedSlots(message.data.author);
     const pmReplyElementName = 'pmReplyTextArea';
 
     let authorHasSlots = false;
@@ -925,10 +836,7 @@ export class HomeComponent implements OnInit {
 
     if (authorRequestedForAnother) {
       requestedSlotHtml +=
-        '<h4 class="text-left"> Requested Slots:</h4>' +
-        '<ul class="list-group col-xs-9">' +
-        dialogText +
-        '</ul>';
+        '<h4 class="text-left"> Requested Slots:</h4>' + '<ul class="list-group col-xs-9">' + dialogText + '</ul>';
     }
 
     requestedSlotHtml +=
@@ -950,19 +858,9 @@ export class HomeComponent implements OnInit {
     const contentDiv: any = document.createElement('div');
     contentDiv.innerHTML = requestedSlotHtml;
 
-    if (
-      slotNumberMap.size &&
-      !authorPaid &&
-      this.raffleProperties.skippedPms.indexOf(message.data.name) === -1
-    ) {
-      this.loggingService.logMessage(
-        'slotNumberMap:' + JSON.stringify(slotNumberMap),
-        LoggingLevel.INFO
-      );
-      this.loggingService.logMessage(
-        'message:' + JSON.stringify(message),
-        LoggingLevel.INFO
-      );
+    if (slotNumberMap.size && !authorPaid && this.raffleProperties.skippedPms.indexOf(message.data.name) === -1) {
+      this.loggingService.logMessage('slotNumberMap:' + JSON.stringify(slotNumberMap), LoggingLevel.INFO);
+      this.loggingService.logMessage('message:' + JSON.stringify(message), LoggingLevel.INFO);
 
       this.numPayPmsProcessed++;
       swal({
@@ -971,29 +869,28 @@ export class HomeComponent implements OnInit {
         className: 'payment-confirmation-modal',
         buttons: {
           markAll: {
-            text:
-              'Mark All ' + numTotalSlotsRequested + ' Requested Slots Paid',
+            text: 'Mark All ' + numTotalSlotsRequested + ' Requested Slots Paid',
             value: 'markAll',
             visible: authorRequestedForAnother,
             className: 'btn-primary',
-            closeModal: true
+            closeModal: true,
           },
           markUser: {
             text: 'Mark User Paid',
             value: 'markUser',
             visible: authorHasSlots,
             className: 'btn-primary',
-            closeModal: true
+            closeModal: true,
           },
           skip: {
             text: 'Skip PM',
             value: 'skip',
             visible: true,
             className: 'swal-button--cancel btn-secondary',
-            closeModal: true
-          }
-        }
-      }).then(value => {
+            closeModal: true,
+          },
+        },
+      }).then((value) => {
         switch (value) {
           case 'markAll':
             this.markAllRequestedAsPaid(message.data.author);
@@ -1012,18 +909,13 @@ export class HomeComponent implements OnInit {
         replyTextArea = document.getElementById(pmReplyElementName);
 
         if (replyTextArea.value) {
-          this.redditService
-            .postComment(replyTextArea.value, message.data.name)
-            .subscribe(
-              response => {},
-              err => {
-                this.loggingService.logMessage(
-                  'error sending PM Reply:' + JSON.stringify(err),
-                  LoggingLevel.ERROR
-                );
-                console.error('error sending PM Reply:', err);
-              }
-            );
+          this.redditService.postComment(replyTextArea.value, message.data.name).subscribe(
+            (response) => {},
+            (err) => {
+              this.loggingService.logMessage('error sending PM Reply:' + JSON.stringify(err), LoggingLevel.ERROR);
+              console.error('error sending PM Reply:', err);
+            },
+          );
         }
 
         this.hasPmsToProcess = false;
@@ -1041,10 +933,7 @@ export class HomeComponent implements OnInit {
     let numUserSlots = 0;
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
-      if (
-        raffler.name &&
-        raffler.name.toUpperCase() === userName.toUpperCase()
-      ) {
+      if (raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) {
         numUserSlots++;
       }
 
@@ -1059,10 +948,8 @@ export class HomeComponent implements OnInit {
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
       if (
-        (raffler.name &&
-          raffler.name.toUpperCase() === userName.toUpperCase()) ||
-        (raffler.requester &&
-          raffler.requester.toUpperCase() === userName.toUpperCase())
+        (raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
+        (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
       ) {
         if (slotNumberMap.has(raffler.name)) {
           slotNumberMap.set(raffler.name, slotNumberMap.get(raffler.name) + 1);
@@ -1084,8 +971,7 @@ export class HomeComponent implements OnInit {
         raffler.name &&
         !raffler.paid &&
         (raffler.name.toUpperCase() === userName.toUpperCase() ||
-          (raffler.requester &&
-            raffler.requester.toUpperCase() === userName.toUpperCase()))
+          (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase()))
       ) {
         return false;
       }
@@ -1100,11 +986,7 @@ export class HomeComponent implements OnInit {
     const allPaid = this.isAllPaid();
 
     if (allPaid) {
-      swal2(
-        'All slots are marked paid, congrats on a successful raffle!',
-        '',
-        'info'
-      );
+      swal2('All slots are marked paid, congrats on a successful raffle!', '', 'info');
     } else {
       swal2('No more PMs from unpaid raffle participants.', '', 'info');
     }
@@ -1115,10 +997,7 @@ export class HomeComponent implements OnInit {
 
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
-      if (
-        raffler.name &&
-        raffler.name.toUpperCase() === userName.toUpperCase()
-      ) {
+      if (raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) {
         raffler.paid = true;
       }
 
@@ -1142,47 +1021,35 @@ export class HomeComponent implements OnInit {
   }
 
   private slotAssignmentWizard() {
-    this.redditService
-      .getTopLevelComments(
-        this.currentRaffle.permalink,
-        this.currentRaffle.name
-      )
-      .subscribe(
-        comments => {
-          let nextCommentIndex = this.getNextCommentIndex(comments);
-          if (nextCommentIndex >= 0) {
-            this.showSlotAssignmentModal(comments, nextCommentIndex);
+    this.redditService.getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name).subscribe(
+      (comments) => {
+        let nextCommentIndex = this.getNextCommentIndex(comments);
+        if (nextCommentIndex >= 0) {
+          this.showSlotAssignmentModal(comments, nextCommentIndex);
+        } else {
+          if (this.interuptSlotAssignmentHelper) {
+            this.showModChatMessage();
           } else {
-            if (this.interuptSlotAssignmentHelper) {
-              this.showModChatMessage();
-            } else {
-              this.hasCommentsToProcess = false;
-              swal2(
-                '',
-                'No more slot requests at this time. Check back later.',
-                'info'
-              );
-            }
-
-            this.isSlotAssignmentHelperRunning = false;
-            this.interuptSlotAssignmentHelper = false;
+            this.hasCommentsToProcess = false;
+            swal2('', 'No more slot requests at this time. Check back later.', 'info');
           }
-        },
-        err => {
-          this.loggingService.logMessage(
-            'getTopLevelComments:' + JSON.stringify(err),
-            LoggingLevel.ERROR
-          );
-          console.error(err);
 
-          swal2(
-            'Error Getting Post Comments!',
-            'There was an error retrieving comments for your raffle. ' +
-              'This could be a temporary Reddit issue. Wait a minute and try again. If the error persists please let BoyAndHisBlob know.',
-            'error'
-          );
+          this.isSlotAssignmentHelperRunning = false;
+          this.interuptSlotAssignmentHelper = false;
         }
-      );
+      },
+      (err) => {
+        this.loggingService.logMessage('getTopLevelComments:' + JSON.stringify(err), LoggingLevel.ERROR);
+        console.error(err);
+
+        swal2(
+          'Error Getting Post Comments!',
+          'There was an error retrieving comments for your raffle. ' +
+            'This could be a temporary Reddit issue. Wait a minute and try again. If the error persists please let BoyAndHisBlob know.',
+          'error',
+        );
+      },
+    );
   }
 
   private showSlotAssignmentModal(comments: any, commentIndex: number) {
@@ -1192,9 +1059,7 @@ export class HomeComponent implements OnInit {
       this.interuptSlotAssignmentHelper = false;
 
       this.showModChatMessage();
-    } else if (
-      this.confirmedComments.indexOf(comments[commentIndex].data.name) !== -1
-    ) {
+    } else if (this.confirmedComments.indexOf(comments[commentIndex].data.name) !== -1) {
       //need to double check we havent processed this because reddit sometimes retrieves comments out of order
       if (commentIndex < comments.length - 1) {
         this.showSlotAssignmentModal(comments, commentIndex + 1);
@@ -1204,7 +1069,7 @@ export class HomeComponent implements OnInit {
       }
     } else {
       this.slotListUpToDate().subscribe(
-        slotListsMatch => {
+        (slotListsMatch) => {
           if (!slotListsMatch) {
             swal2({
               title: 'Your Slot List Is Out Of Date!',
@@ -1217,14 +1082,11 @@ export class HomeComponent implements OnInit {
               showCancelButton: true,
               cancelButtonText: 'Continue Anyway',
               confirmButtonColor: '#3085d6',
-              confirmButtonText: 'Relink'
-            }).then(result => {
+              confirmButtonText: 'Relink',
+            }).then((result) => {
               if (result.value) {
                 this.linkWithReddit();
-              } else if (
-                result.dismiss &&
-                result.dismiss === swal2.DismissReason.cancel
-              ) {
+              } else if (result.dismiss && result.dismiss === swal2.DismissReason.cancel) {
                 this.openSlotConfirmationModal(comments, commentIndex);
               } else {
                 return;
@@ -1234,13 +1096,13 @@ export class HomeComponent implements OnInit {
             this.openSlotConfirmationModal(comments, commentIndex);
           }
         },
-        err => {
+        (err) => {
           this.loggingService.logMessage(
             'showSlotAssignmentModal slotListUpToDate:' + JSON.stringify(err),
-            LoggingLevel.ERROR
+            LoggingLevel.ERROR,
           );
           console.error(err);
-        }
+        },
       );
     }
   }
@@ -1255,32 +1117,22 @@ export class HomeComponent implements OnInit {
             comment: comments[commentIndex],
             callingComponent: this,
             numOpenSlots: this.numOpenSlots,
-            inOrderMode: this.raffleProperties.inOrderMode
+            inOrderMode: this.raffleProperties.inOrderMode,
           },
-          BSModalContext
-        )
+          BSModalContext,
+        ),
       )
-      .then(dialogRef => {
+      .then((dialogRef) => {
         dialogRef.result
-          .then(result => {
-            this.loggingService.logMessage(
-              'result:' + JSON.stringify(result),
-              LoggingLevel.INFO
-            );
-            if (
-              result &&
-              result.slotAssignments &&
-              result.slotAssignments.length > 0
-            ) {
-              this.loggingService.logMessage(
-                'comment:' + JSON.stringify(comments[commentIndex]),
-                LoggingLevel.INFO
-              );
+          .then((result) => {
+            this.loggingService.logMessage('result:' + JSON.stringify(result), LoggingLevel.INFO);
+            if (result && result.slotAssignments && result.slotAssignments.length > 0) {
+              this.loggingService.logMessage('comment:' + JSON.stringify(comments[commentIndex]), LoggingLevel.INFO);
               this.sendConfirmationReply(
                 this.assignSlots(result.slotAssignments),
                 result.confirmationMessageText,
                 comments[commentIndex].data.name,
-                comments[commentIndex].data.author
+                comments[commentIndex].data.author,
               );
             }
 
@@ -1288,18 +1140,11 @@ export class HomeComponent implements OnInit {
               this.confirmedComments.push(comments[commentIndex].data.name);
 
               this.databaseService
-                .storeProcessedComments(
-                  this.userId,
-                  this.currentRaffle.name,
-                  this.confirmedComments
-                )
+                .storeProcessedComments(this.userId, this.currentRaffle.name, this.confirmedComments)
                 .subscribe(
-                  res => {},
-                  err => {
-                    this.loggingService.logMessage(
-                      'storeProcessedComments:' + JSON.stringify(err),
-                      LoggingLevel.ERROR
-                    );
+                  (res) => {},
+                  (err) => {
+                    this.loggingService.logMessage('storeProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
                     console.error(err);
 
                     alert(
@@ -1308,9 +1153,9 @@ export class HomeComponent implements OnInit {
                         'You might have to process the slot request again. ' +
                         'Check to see if the requested slots are in the tool after relinking. ' +
                         'If not then process the request again like you normally would. ' +
-                        'Otherwise skip it since it was already processed.'
+                        'Otherwise skip it since it was already processed.',
                     );
-                  }
+                  },
                 );
 
               if (commentIndex < comments.length - 1) {
@@ -1324,7 +1169,7 @@ export class HomeComponent implements OnInit {
               this.interuptSlotAssignmentHelper = false;
             }
           })
-          .catch(error => {
+          .catch((error) => {
             this.isSlotAssignmentHelperRunning = false;
             this.interuptSlotAssignmentHelper = false;
           });
@@ -1332,94 +1177,72 @@ export class HomeComponent implements OnInit {
   }
 
   private slotListUpToDate(): Observable<boolean> {
-    return Observable.create(observer => {
+    return Observable.create((observer) => {
       this.loadRaffleProperties(this.currentRaffle.name, this.userId)
         .then(() => {
-          if (
-            this.raffleProperties.latestSessionId !==
-            this.loggingService.sessionId
-          ) {
-            this.redditService
-              .getPostByName(this.currentRaffle.name)
-              .subscribe(raffle => {
-                this.getCurrentSlotListString(
-                  raffle.data.children[0].data
-                ).subscribe(
-                  slotList => {
-                    let slotListsMatch = true;
-                    const raffleParticipants = this.createRaffleParticipants(
-                      slotList
-                    );
-                    for (let i = 0; i < raffleParticipants.length; i++) {
-                      if (
-                        raffleParticipants[i].name !==
-                          this.raffleParticipants[i].name ||
-                        raffleParticipants[i].paid !==
-                          this.raffleParticipants[i].paid
-                      ) {
-                        slotListsMatch = false;
-                        break;
-                      }
+          if (this.raffleProperties.latestSessionId !== this.loggingService.sessionId) {
+            this.redditService.getPostByName(this.currentRaffle.name).subscribe((raffle) => {
+              this.getCurrentSlotListString(raffle.data.children[0].data).subscribe(
+                (slotList) => {
+                  let slotListsMatch = true;
+                  const raffleParticipants = this.createRaffleParticipants(slotList);
+                  for (let i = 0; i < raffleParticipants.length; i++) {
+                    if (
+                      raffleParticipants[i].name !== this.raffleParticipants[i].name ||
+                      raffleParticipants[i].paid !== this.raffleParticipants[i].paid
+                    ) {
+                      slotListsMatch = false;
+                      break;
                     }
+                  }
 
-                    //update here in case slot assigner doesnt finish before next one comes up
-                    if (slotListsMatch) {
-                      this.raffleProperties.latestSessionId = this.loggingService.sessionId;
-                      this.databaseService
-                        .storeRaffleProperties(
-                          this.userId,
-                          this.currentRaffle.name,
-                          this.raffleProperties
-                        )
-                        .subscribe(
-                          response => {
-                            observer.next(slotListsMatch);
-                            observer.complete();
-                          },
-                          err => {
-                            this.loggingService.logMessage(
-                              'updateRaffleProperties slotListUpToDate:' +
-                                JSON.stringify(err),
-                              LoggingLevel.ERROR
-                            );
-                            console.error(err);
-                            observer.error(err);
-                            observer.complete();
-                          }
-                        );
-                    } else {
-                      observer.next(slotListsMatch);
-                      observer.complete();
-                    }
-                  },
-                  err => {
-                    this.loggingService.logMessage(
-                      'slotListUpToDate:' + JSON.stringify(err),
-                      LoggingLevel.ERROR
-                    );
-                    console.error(err);
-                    observer.error(err);
+                  //update here in case slot assigner doesnt finish before next one comes up
+                  if (slotListsMatch) {
+                    this.raffleProperties.latestSessionId = this.loggingService.sessionId;
+                    this.databaseService
+                      .storeRaffleProperties(this.userId, this.currentRaffle.name, this.raffleProperties)
+                      .subscribe(
+                        (response) => {
+                          observer.next(slotListsMatch);
+                          observer.complete();
+                        },
+                        (err) => {
+                          this.loggingService.logMessage(
+                            'updateRaffleProperties slotListUpToDate:' + JSON.stringify(err),
+                            LoggingLevel.ERROR,
+                          );
+                          console.error(err);
+                          observer.error(err);
+                          observer.complete();
+                        },
+                      );
+                  } else {
+                    observer.next(slotListsMatch);
                     observer.complete();
                   }
-                );
-              });
+                },
+                (err) => {
+                  this.loggingService.logMessage('slotListUpToDate:' + JSON.stringify(err), LoggingLevel.ERROR);
+                  console.error(err);
+                  observer.error(err);
+                  observer.complete();
+                },
+              );
+            });
           } else {
             /*assume the slot list is up to date if the session hasn't changed*/
             observer.next(true);
             observer.complete();
           }
         })
-        .catch(err => {
-          this.loggingService.logMessage(
-            'slotListUpToDate' + JSON.stringify(err),
-            LoggingLevel.ERROR
-          );
+        .catch((err) => {
+          this.loggingService.logMessage('slotListUpToDate' + JSON.stringify(err), LoggingLevel.ERROR);
           console.error('slotListUpToDate:', err);
           swal2(
             'Error Verifying Slot List!',
             'There was an error verifying that you have the current slot list. ' +
               'Please try again and if you continue to get this error message relink The Raffle Tool.',
-            'error'
+            'error',
           );
         });
     });
@@ -1436,7 +1259,7 @@ export class HomeComponent implements OnInit {
         assignee: slotAssignment.username,
         calledSlots: [],
         randomSlots: [],
-        inOrderSlots: []
+        inOrderSlots: [],
       });
 
       if (slotsToAssignString) {
@@ -1448,13 +1271,11 @@ export class HomeComponent implements OnInit {
             assignedSlots[i].calledSlots.push(+calledSlot);
             this.assignSlot(
               slotAssignment.username,
-              slotAssignment.requester
-                ? slotAssignment.requester
-                : slotAssignment.username,
+              slotAssignment.requester ? slotAssignment.requester : slotAssignment.username,
               calledSlot,
               slotAssignment.donateSlot,
               false,
-              false
+              false,
             );
             slotAssignment.donateSlot = false;
           }
@@ -1466,18 +1287,16 @@ export class HomeComponent implements OnInit {
       const slotAssignment = slotAssignments[i];
       if (slotAssignment.randomSlots) {
         for (let x = 0; x < slotAssignment.randomSlots; x++) {
-          this.getRandomUnclaimedSlotNumber().subscribe(randomSlot => {
+          this.getRandomUnclaimedSlotNumber().subscribe((randomSlot) => {
             if (randomSlot) {
               assignedSlots[i].randomSlots.push(randomSlot);
               this.assignSlot(
                 slotAssignment.username,
-                slotAssignment.requester
-                  ? slotAssignment.requester
-                  : slotAssignment.username,
+                slotAssignment.requester ? slotAssignment.requester : slotAssignment.username,
                 randomSlot,
                 slotAssignment.donateSlot,
                 false,
-                false
+                false,
               );
 
               slotAssignment.donateSlot = false;
@@ -1490,27 +1309,23 @@ export class HomeComponent implements OnInit {
     for (let i = 0; i < slotAssignments.length; i++) {
       const slotAssignment = slotAssignments[i];
       if (slotAssignment.inOrderSlots) {
-        this.getNextUnclaimedSlotNumbers(slotAssignment.inOrderSlots).subscribe(
-          inOrderSlots => {
-            if (inOrderSlots) {
-              for (let j = 0; j < inOrderSlots.length; j++) {
-                const inOrderSlot = inOrderSlots[j];
-                assignedSlots[i].inOrderSlots.push(inOrderSlot);
-                this.assignSlot(
-                  slotAssignment.username,
-                  slotAssignment.requester
-                    ? slotAssignment.requester
-                    : slotAssignment.username,
-                  inOrderSlot,
-                  slotAssignment.donateSlot,
-                  false,
-                  false
-                );
-              }
-              slotAssignment.donateSlot = false;
+        this.getNextUnclaimedSlotNumbers(slotAssignment.inOrderSlots).subscribe((inOrderSlots) => {
+          if (inOrderSlots) {
+            for (let j = 0; j < inOrderSlots.length; j++) {
+              const inOrderSlot = inOrderSlots[j];
+              assignedSlots[i].inOrderSlots.push(inOrderSlot);
+              this.assignSlot(
+                slotAssignment.username,
+                slotAssignment.requester ? slotAssignment.requester : slotAssignment.username,
+                inOrderSlot,
+                slotAssignment.donateSlot,
+                false,
+                false,
+              );
             }
+            slotAssignment.donateSlot = false;
           }
-        );
+        });
       }
     }
 
@@ -1537,7 +1352,7 @@ export class HomeComponent implements OnInit {
     slotNumber: number,
     paid: boolean,
     forceAssignment: boolean,
-    updateText: boolean
+    updateText: boolean,
   ) {
     if (this.isSlotAvailable(slotNumber) || forceAssignment) {
       this.raffleParticipants[slotNumber - 1].name = username;
@@ -1554,67 +1369,57 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private sendConfirmationReply(
-    slotAssignments: any,
-    confirmationMessage: string,
-    commentId: string,
-    author: string
-  ) {
-    this.redditService
-      .postComment(
-        this.getCommentText(slotAssignments, confirmationMessage),
-        commentId
-      )
-      .subscribe(
-        response => {
-          if (!response || !response.json || !response.json.data) {
-            this.loggingService.logMessage(
-              'error sending confirmation response:' + JSON.stringify(response),
-              LoggingLevel.ERROR
-            );
-            console.error('error sending confirmation response', response);
-            let threadLocked = false;
-            if (response.json.errors && response.json.errors.length) {
-              for (let x = 0; x < response.json.errors.length; x++) {
-                const errors = response.json.errors[x];
-                for (let i = 0; i < errors.length; i++) {
-                  if (errors[x] === 'THREAD_LOCKED') {
-                    threadLocked = true;
-                  }
+  private sendConfirmationReply(slotAssignments: any, confirmationMessage: string, commentId: string, author: string) {
+    this.redditService.postComment(this.getCommentText(slotAssignments, confirmationMessage), commentId).subscribe(
+      (response) => {
+        if (!response || !response.json || !response.json.data) {
+          this.loggingService.logMessage(
+            'error sending confirmation response:' + JSON.stringify(response),
+            LoggingLevel.ERROR,
+          );
+          console.error('error sending confirmation response', response);
+          let threadLocked = false;
+          if (response.json.errors && response.json.errors.length) {
+            for (let x = 0; x < response.json.errors.length; x++) {
+              const errors = response.json.errors[x];
+              for (let i = 0; i < errors.length; i++) {
+                if (errors[x] === 'THREAD_LOCKED') {
+                  threadLocked = true;
                 }
               }
             }
-            if (threadLocked) {
-              alert(
-                'YOUR RAFFLE HAS BEEN LOCKED BY THE MODS!!! Please go look at your post and work with the mods to resolve the issue.'
-              );
-            } else {
-              swal2(
-                'Error Sending Confirmation Message To ' + author + '!',
-                'If this is the only error message you receive ' +
-                  'then check that their slots were assigned properly and manually reply to them. ' +
-                  'If you got or get another error message telling you to relink the tool then follow the instructions in that message.',
-                'error'
-              );
-            }
           }
-        },
-        error => {
-          this.loggingService.logMessage(
-            'error sending confirmation response:' + JSON.stringify(error),
-            LoggingLevel.ERROR
-          );
-          console.error('error sending confirmation response', error);
-
-          swal2(
-            'Error Sending Confirmation Message To ' + author + '!',
-            'If this is the only error message you receive ' +
-              'then check that their slots were assigned properly and manually reply to them. ' +
-              'If you got or get another error message telling you to relink the tool then follow the instructions in that message.',
-            'error'
-          );
+          if (threadLocked) {
+            alert(
+              'YOUR RAFFLE HAS BEEN LOCKED BY THE MODS!!! Please go look at your post and work with the mods to resolve the issue.',
+            );
+          } else {
+            swal2(
+              'Error Sending Confirmation Message To ' + author + '!',
+              'If this is the only error message you receive ' +
+                'then check that their slots were assigned properly and manually reply to them. ' +
+                'If you got or get another error message telling you to relink the tool then follow the instructions in that message.',
+              'error',
+            );
+          }
         }
-      );
+      },
+      (error) => {
+        this.loggingService.logMessage(
+          'error sending confirmation response:' + JSON.stringify(error),
+          LoggingLevel.ERROR,
+        );
+        console.error('error sending confirmation response', error);
+
+        swal2(
+          'Error Sending Confirmation Message To ' + author + '!',
+          'If this is the only error message you receive ' +
+            'then check that their slots were assigned properly and manually reply to them. ' +
+            'If you got or get another error message telling you to relink the tool then follow the instructions in that message.',
+          'error',
+        );
+      },
+    );
   }
 
   private getCommentText(slotAssignments: any, commentText: string): string {
@@ -1624,21 +1429,16 @@ export class HomeComponent implements OnInit {
       const allSlots =
         slotAssignment.inOrderSlots.join(', ') +
         slotAssignment.calledSlots.join(', ') +
-        (slotAssignment.calledSlots.length && slotAssignment.randomSlots.length
-          ? ', '
-          : '') +
+        (slotAssignment.calledSlots.length && slotAssignment.randomSlots.length ? ', ' : '') +
         slotAssignment.randomSlots.join(', ');
-      updatedText = updatedText.replace(
-        new RegExp('{' + slotAssignment.assignee + '_ALL_SLOTS' + '}', 'ig'),
-        allSlots
-      );
+      updatedText = updatedText.replace(new RegExp('{' + slotAssignment.assignee + '_ALL_SLOTS' + '}', 'ig'), allSlots);
       updatedText = updatedText.replace(
         new RegExp('{' + slotAssignment.assignee + '_CALLED_SLOTS' + '}', 'ig'),
-        slotAssignment.calledSlots.join(', ')
+        slotAssignment.calledSlots.join(', '),
       );
       updatedText = updatedText.replace(
         new RegExp('{' + slotAssignment.assignee + '_RANDOM_SLOTS' + '}', 'ig'),
-        slotAssignment.randomSlots.join(', ')
+        slotAssignment.randomSlots.join(', '),
       );
     }
 
@@ -1647,16 +1447,13 @@ export class HomeComponent implements OnInit {
 
   private loadRaffleStorage(raffleName: string, userId: string): Promise<any> {
     this.databaseService.getProcessedComments(userId, raffleName).subscribe(
-      comments => {
+      (comments) => {
         if (comments) {
           this.confirmedComments = comments;
         }
       },
-      err => {
-        this.loggingService.logMessage(
-          'getProcessedComments:' + JSON.stringify(err),
-          LoggingLevel.ERROR
-        );
+      (err) => {
+        this.loggingService.logMessage('getProcessedComments:' + JSON.stringify(err), LoggingLevel.ERROR);
         console.error(err);
 
         swal2(
@@ -1664,29 +1461,24 @@ export class HomeComponent implements OnInit {
           'There was an error retrieving comments you already processed. ' +
             'This could cause you to process comments again. Try relinking The Raffle Tool to resolve the issue. ' +
             'If it persists please let BoyAndHisBlob know.',
-          'error'
+          'error',
         );
-      }
+      },
     );
 
-    this.databaseService
-      .getPaypalPmRecipients(userId, raffleName)
-      .subscribe(paypalPmRecipients => {
-        if (paypalPmRecipients) {
-          this.paypalPmRecipients = paypalPmRecipients;
-        }
-      });
+    this.databaseService.getPaypalPmRecipients(userId, raffleName).subscribe((paypalPmRecipients) => {
+      if (paypalPmRecipients) {
+        this.paypalPmRecipients = paypalPmRecipients;
+      }
+    });
 
     return this.loadRaffleProperties(raffleName, userId);
   }
 
-  private loadRaffleProperties(
-    raffleName: string,
-    userId: string
-  ): Promise<any> {
+  private loadRaffleProperties(raffleName: string, userId: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.databaseService.getRaffleProperties(userId, raffleName).subscribe(
-        raffleProperties => {
+        (raffleProperties) => {
           if (raffleProperties) {
             if (!raffleProperties.skippedPms) {
               raffleProperties.skippedPms = [];
@@ -1697,14 +1489,11 @@ export class HomeComponent implements OnInit {
           }
           resolve();
         },
-        err => {
-          this.loggingService.logMessage(
-            'loadRaffleProperties:' + JSON.stringify(err),
-            LoggingLevel.ERROR
-          );
+        (err) => {
+          this.loggingService.logMessage('loadRaffleProperties:' + JSON.stringify(err), LoggingLevel.ERROR);
           console.error(err);
           reject(err);
-        }
+        },
       );
     });
   }
@@ -1715,16 +1504,12 @@ export class HomeComponent implements OnInit {
       this.hasSeenTermsOfService = hasSeenTermsOfService;
     }
 
-    const shownNewFeatureMessage = JSON.parse(
-      localStorage.getItem('shownNewFeatureMessage')
-    );
+    const shownNewFeatureMessage = JSON.parse(localStorage.getItem('shownNewFeatureMessage'));
     if (shownNewFeatureMessage !== null) {
       this.shownNewFeatureMessage = shownNewFeatureMessage;
     }
 
-    const showAdBlockerMessage = JSON.parse(
-      localStorage.getItem('showAdBlockerMessage')
-    );
+    const showAdBlockerMessage = JSON.parse(localStorage.getItem('showAdBlockerMessage'));
     if (showAdBlockerMessage !== null) {
       this.showAdBlockerMessage = showAdBlockerMessage;
     }
@@ -1744,15 +1529,14 @@ export class HomeComponent implements OnInit {
           'Your PayPal info will now be posted at the top of the slot list instead of in the PM that goes to the participant. ' +
           'The PM will still get sent, just not with your PayPal info. ' +
           'If you don\'t want PMs to send at all you can uncheck the "Send Participant PM." checkbox.',
-        'info'
-      ).then(result => {
+        'info',
+      ).then((result) => {
         if (result.value) {
           localStorage.setItem('shownNewFeatureMessage', JSON.stringify(true));
         } else if (result.dismiss) {
           localStorage.setItem(
-            this.currentRaffle.name +
-              '_shownNewFeatureMessageSlotAssignmentHelper',
-            JSON.stringify(true)
+            this.currentRaffle.name + '_shownNewFeatureMessageSlotAssignmentHelper',
+            JSON.stringify(true),
           );
         }
       });
@@ -1775,8 +1559,8 @@ export class HomeComponent implements OnInit {
         showCancelButton: true,
         cancelButtonText: 'Cancel',
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Donate Slot!'
-      }).then(result => {
+        confirmButtonText: 'Donate Slot!',
+      }).then((result) => {
         if (result.value) {
           this.donateModSlot();
         }
@@ -1785,7 +1569,7 @@ export class HomeComponent implements OnInit {
   }
 
   private selectRaffle(raffles: any, selectedRaffleId: string): any {
-    return Observable.create(observer => {
+    return Observable.create((observer) => {
       if (raffles && raffles.length > 1 && !selectedRaffleId) {
         this.modal
           .open(
@@ -1793,22 +1577,19 @@ export class HomeComponent implements OnInit {
             overlayConfigFactory(
               {
                 isBlocking: true,
-                raffles: raffles
+                raffles: raffles,
               },
-              BSModalContext
-            )
+              BSModalContext,
+            ),
           )
-          .then(dialogRef => {
+          .then((dialogRef) => {
             dialogRef.result
-              .then(raffle => {
+              .then((raffle) => {
                 observer.next(raffle);
                 observer.complete();
               })
-              .catch(err => {
-                this.loggingService.logMessage(
-                  'selectRaffle:' + JSON.stringify(err),
-                  LoggingLevel.ERROR
-                );
+              .catch((err) => {
+                this.loggingService.logMessage('selectRaffle:' + JSON.stringify(err), LoggingLevel.ERROR);
                 console.error(err);
                 observer.error(err);
                 observer.complete();
@@ -1819,9 +1600,9 @@ export class HomeComponent implements OnInit {
           observer.next(raffles[0]);
         } else {
           observer.next(
-            raffles.find(raffle => {
+            raffles.find((raffle) => {
               return raffle.id === selectedRaffleId;
-            })
+            }),
           );
         }
         observer.complete();
@@ -1838,24 +1619,18 @@ export class HomeComponent implements OnInit {
         TermsOfServiceModalComponent,
         overlayConfigFactory(
           {
-            isBlocking: true
+            isBlocking: true,
           },
-          BSModalContext
-        )
+          BSModalContext,
+        ),
       )
-      .then(dialogRef => {
+      .then((dialogRef) => {
         dialogRef.result
-          .then(userAgreementIndicator => {
-            localStorage.setItem(
-              this.tosKey,
-              JSON.stringify(userAgreementIndicator)
-            );
+          .then((userAgreementIndicator) => {
+            localStorage.setItem(this.tosKey, JSON.stringify(userAgreementIndicator));
           })
-          .catch(err => {
-            this.loggingService.logMessage(
-              'showTermsOfService:' + JSON.stringify(err),
-              LoggingLevel.ERROR
-            );
+          .catch((err) => {
+            this.loggingService.logMessage('showTermsOfService:' + JSON.stringify(err), LoggingLevel.ERROR);
             console.error(err);
           });
       });
@@ -1864,10 +1639,7 @@ export class HomeComponent implements OnInit {
   private donateModSlot() {
     const mod = this.getRandomMod(this.currentRaffle.subreddit);
 
-    const randomModUrl =
-      this.raffleToolUri +
-      '?modtober_subreddit=' +
-      this.currentRaffle.subreddit;
+    const randomModUrl = this.raffleToolUri + '?modtober_subreddit=' + this.currentRaffle.subreddit;
 
     const commentText =
       '#Modtober Is Here!!!\n\n' +
@@ -1883,15 +1655,13 @@ export class HomeComponent implements OnInit {
       ' a fun, fair, and safe community for everyone.' +
       '\n\nThis slot request will be processed in the order it was received in the queue.';
 
-    this.redditService
-      .postComment(commentText, this.currentRaffle.name)
-      .subscribe(response => {
-        swal2(
-          'Donation Comment Posted!',
-          'Please process the slot request in the order it was recieved in the queue and thank you for your generosity!',
-          'success'
-        );
-      });
+    this.redditService.postComment(commentText, this.currentRaffle.name).subscribe((response) => {
+      swal2(
+        'Donation Comment Posted!',
+        'Please process the slot request in the order it was recieved in the queue and thank you for your generosity!',
+        'success',
+      );
+    });
   }
 
   private getRandomMod(subreddit: string): string {
@@ -1910,7 +1680,7 @@ export class HomeComponent implements OnInit {
 
   private loadRaffle(newRaffleId = '', newRaffleFormData: any = {}) {
     this.redditService.getUserDetails().subscribe(
-      userDetailsResponse => {
+      (userDetailsResponse) => {
         if (userDetailsResponse.name) {
           this.userName = userDetailsResponse.name;
           this.userId = userDetailsResponse.id;
@@ -1918,82 +1688,69 @@ export class HomeComponent implements OnInit {
           //init here to avoid anonymous sessions
           LogRocket.init(environment.logrocketId, {
             network: {
-              requestSanitizer: request => {
+              requestSanitizer: (request) => {
                 if (request.url.toLowerCase().indexOf('access_token') !== -1) {
                   return null;
                 }
 
                 request.headers['Authorization'] = null;
                 return request;
-              }
-            }
+              },
+            },
           });
           LogRocket.identify(this.userName, {
-            userId: this.userId
+            userId: this.userId,
           });
 
-          this.redditService
-            .getCurrentRaffleSubmissions(userDetailsResponse.name)
-            .subscribe(
-              submissionsResponse => {
-                if (submissionsResponse && submissionsResponse.length > 0) {
-                  this.selectRaffle(submissionsResponse, newRaffleId).subscribe(
-                    submission => {
-                      this.currentRaffle = submission;
-                      this.initLoggingService();
+          this.redditService.getCurrentRaffleSubmissions(userDetailsResponse.name).subscribe(
+            (submissionsResponse) => {
+              if (submissionsResponse && submissionsResponse.length > 0) {
+                this.selectRaffle(submissionsResponse, newRaffleId).subscribe((submission) => {
+                  this.currentRaffle = submission;
+                  this.initLoggingService();
 
-                      if (!newRaffleId) {
-                        this.importRaffleSlots(submission);
-                      } else {
-                        this.numSlots = newRaffleFormData.numSlots;
-                        this.updateNumberOfSlots(newRaffleFormData.numSlots);
-                      }
+                  if (!newRaffleId) {
+                    this.importRaffleSlots(submission);
+                  } else {
+                    this.numSlots = newRaffleFormData.numSlots;
+                    this.updateNumberOfSlots(newRaffleFormData.numSlots);
+                  }
 
-                      this.setSubredditSettings(submission.subreddit);
+                  this.setSubredditSettings(submission.subreddit);
 
-                      this.loadRaffleStorage(submission.name, this.userId).then(
-                        () => {
-                          this.auditRaffle();
-                        }
-                      );
+                  this.loadRaffleStorage(submission.name, this.userId).then(() => {
+                    this.auditRaffle();
+                  });
 
-                      this.startCommentPmTimer();
+                  this.startCommentPmTimer();
 
-                      this.sendOneTimeNotifications();
+                  this.sendOneTimeNotifications();
 
-                      if (this.hasNewFeature) {
-                        this.showNewFeatureMessage();
-                      }
-                      this.showModAppreciationMessage();
-                    }
-                  );
-                }
-              },
-              err => {
-                this.loggingService.logMessage(
-                  'getCurrentRaffleSubmissions:' + JSON.stringify(err),
-                  LoggingLevel.ERROR
-                );
-                console.error(err);
+                  if (this.hasNewFeature) {
+                    this.showNewFeatureMessage();
+                  }
+                  this.showModAppreciationMessage();
+                });
               }
-            );
+            },
+            (err) => {
+              this.loggingService.logMessage('getCurrentRaffleSubmissions:' + JSON.stringify(err), LoggingLevel.ERROR);
+              console.error(err);
+            },
+          );
         }
       },
-      err => {
-        this.loggingService.logMessage(
-          'getUserDetails:' + JSON.stringify(err),
-          LoggingLevel.ERROR
-        );
+      (err) => {
+        this.loggingService.logMessage('getUserDetails:' + JSON.stringify(err), LoggingLevel.ERROR);
         console.error(err);
-      }
+      },
     );
   }
 
   private showModtoberModMessage(subreddit: string) {
     const randomMod = this.getRandomMod(subreddit);
 
-    const randomModUrl =
-      this.raffleToolUri + '?modtober_subreddit=' + subreddit;
+    const randomModUrl = this.raffleToolUri + '?modtober_subreddit=' + subreddit;
 
     if (randomMod) {
       swal2({
@@ -2007,8 +1764,8 @@ export class HomeComponent implements OnInit {
         showCancelButton: true,
         cancelButtonText: 'Cancel',
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Copy And Close'
-      }).then(result => {
+        confirmButtonText: 'Copy And Close',
+      }).then((result) => {
         if (result.value) {
           const commentText =
             '#Modtober Is Here!!!\n\n' +
@@ -2057,8 +1814,8 @@ export class HomeComponent implements OnInit {
       type: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
-      confirmButtonText: 'Shuffle Slots'
-    }).then(result => {
+      confirmButtonText: 'Shuffle Slots',
+    }).then((result) => {
       if (result.value) {
         this.shuffleAllSlots();
       }
@@ -2069,28 +1826,20 @@ export class HomeComponent implements OnInit {
     const participants = this.raffleParticipants;
     for (let i = participants.length; i; i--) {
       const j = Math.floor(Math.random() * i);
-      [participants[i - 1], participants[j]] = [
-        participants[j],
-        participants[i - 1]
-      ];
+      [participants[i - 1], participants[j]] = [participants[j], participants[i - 1]];
     }
     this.updateCommentText();
   }
 
   private updateFlair(flairId: string, flairText: string) {
-    if (
-      this.autoUpdateFlair &&
-      this.currentRaffle.link_flair_text !== flairText
-    ) {
-      this.redditService
-        .updateFlair(this.currentRaffle.name, flairId, flairText)
-        .subscribe(resp => {});
+    if (this.autoUpdateFlair && this.currentRaffle.link_flair_text !== flairText) {
+      this.redditService.updateFlair(this.currentRaffle.name, flairId, flairText).subscribe((resp) => {});
     }
   }
 
   private setSubredditSettings(subreddit: string) {
     this.databaseService.getSubredditSettings(subreddit).subscribe(
-      subredditSettings => {
+      (subredditSettings) => {
         if (subredditSettings) {
           this.notificationSettings = subredditSettings.notification;
           this.botUsername = subredditSettings.botName;
@@ -2110,19 +1859,15 @@ export class HomeComponent implements OnInit {
         } else {
           swal2({
             title: 'Error getting subreddit settings!',
-            text:
-              'Please try relinking the raffle tool. If the error persists please contact BoyAndHisBlob.',
+            text: 'Please try relinking the raffle tool. If the error persists please contact BoyAndHisBlob.',
             type: 'error',
             confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
           });
         }
       },
-      err => {
-        this.loggingService.logMessage(
-          'getSubredditSettings:' + JSON.stringify(err),
-          LoggingLevel.ERROR
-        );
+      (err) => {
+        this.loggingService.logMessage('getSubredditSettings:' + JSON.stringify(err), LoggingLevel.ERROR);
         console.error(err);
 
         swal2(
@@ -2130,9 +1875,9 @@ export class HomeComponent implements OnInit {
           'There was an error retrieving subreddit specific settings! ' +
             'Try relinking The Raffle Tool to resolve the issue. ' +
             'If it persists please let BoyAndHisBlob know.',
-          'error'
+          'error',
         );
-      }
+      },
     );
   }
 
@@ -2140,49 +1885,37 @@ export class HomeComponent implements OnInit {
     if (this.numOpenSlots === 0 && !this.unpaidUsers) {
       swal2({
         title: 'Call The Bot?',
-        text:
-          'Click "Call The Bot" to post a comment that will summon the bot to pick a winner.',
+        text: 'Click "Call The Bot" to post a comment that will summon the bot to pick a winner.',
         type: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'Call The Bot'
-      }).then(result => {
+        confirmButtonText: 'Call The Bot',
+      }).then((result) => {
         if (result.value) {
           this.redditService
-            .postComment(
-              '/u/' + this.botUsername + ' ' + this.numSlots,
-              this.currentRaffle.name
-            )
+            .postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name)
             .subscribe(
-              res => {
-                this.loggingService.logMessage(
-                  'callTheBot:' + JSON.stringify(res),
-                  LoggingLevel.INFO
-                );
+              (res) => {
+                this.loggingService.logMessage('callTheBot:' + JSON.stringify(res), LoggingLevel.INFO);
                 this.botCalled = true;
 
                 this.redactPayPalInfo();
                 if (['WatchURaffle'].includes(this.currentRaffle.subreddit)) {
                   this.openFinishRaffleModal();
-                } else if (
-                  ['lego_raffles'].includes(this.currentRaffle.subreddit)
-                ) {
+                } else if (['lego_raffles'].includes(this.currentRaffle.subreddit)) {
                   this.openFinishRaffleModal2();
                 } else {
                   swal2(
                     'The Bot Has Been Called!',
                     'Congrats on a successful raffle! The bot should respond to your comment shortly.',
-                    'success'
+                    'success',
                   );
 
                   this.updateFlair(this.completeFlairId, 'Complete');
                 }
               },
-              err => {
-                this.loggingService.logMessage(
-                  'callTheBotError:' + JSON.stringify(err),
-                  LoggingLevel.ERROR
-                );
+              (err) => {
+                this.loggingService.logMessage('callTheBotError:' + JSON.stringify(err), LoggingLevel.ERROR);
                 console.error(err);
 
                 swal2(
@@ -2191,9 +1924,9 @@ export class HomeComponent implements OnInit {
                     'This could be a Reddit issue. Wait a minute, check your raffle to see if it was definitely not called ' +
                     "and if it wasn't, call it manually or try clicking the call the bot button again. " +
                     "If you call it manually, don't forget to change your raffle's flair to Complete.",
-                  'error'
+                  'error',
                 );
-              }
+              },
             );
         }
       });
@@ -2203,50 +1936,38 @@ export class HomeComponent implements OnInit {
         text: 'Set the number of slots before calling for your escrow slots.',
         type: 'info',
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
       });
-    } else if (
-      !this.raffleProperties.escrowBotCalled &&
-      this.numOpenSlots === this.numSlots
-    ) {
+    } else if (!this.raffleProperties.escrowBotCalled && this.numOpenSlots === this.numSlots) {
       //no slots assigned yet
       swal2({
         title: 'How many escrow slots to call for?',
         input: 'number',
         inputPlaceholder: '3',
-        inputValidator: value => {
+        inputValidator: (value) => {
           if (!value || parseInt(value) <= 0) {
             return 'Enter the number of escrow slots to continue.';
           }
-        }
-      }).then(result => {
+        },
+      }).then((result) => {
         if (result.value) {
           this.redditService
-            .postComment(
-              `/u/${this.botUsername} ${result.value} ${this.numSlots}`,
-              this.currentRaffle.name
-            )
+            .postComment(`/u/${this.botUsername} ${result.value} ${this.numSlots}`, this.currentRaffle.name)
             .subscribe(
-              res => {
+              (res) => {
                 this.raffleProperties.escrowBotCalled = true;
                 this.updateRaffleProperties();
 
-                this.loggingService.logMessage(
-                  'callTheEscrowBot:' + JSON.stringify(res),
-                  LoggingLevel.INFO
-                );
+                this.loggingService.logMessage('callTheEscrowBot:' + JSON.stringify(res), LoggingLevel.INFO);
 
                 swal2(
                   'The Bot Has Been Called!',
                   'The bot should respond to your comment shortly with your escrow slots.',
-                  'success'
+                  'success',
                 );
               },
-              err => {
-                this.loggingService.logMessage(
-                  'callTheEscrowBotError:' + JSON.stringify(err),
-                  LoggingLevel.ERROR
-                );
+              (err) => {
+                this.loggingService.logMessage('callTheEscrowBotError:' + JSON.stringify(err), LoggingLevel.ERROR);
                 console.error(err);
 
                 swal2(
@@ -2254,20 +1975,19 @@ export class HomeComponent implements OnInit {
                   'There was an error calling the bot. ' +
                     'This could be a Reddit issue. Wait a minute, check your raffle to see if it was definitely not called ' +
                     "and if it wasn't, call it manually or try clicking the call the bot button again.",
-                  'error'
+                  'error',
                 );
-              }
+              },
             );
         }
       });
     } else {
       swal2({
         title: 'You Cant Call The Bot Yet!',
-        text:
-          'You can only call the bot when all slots are filled and everyone is paid.',
+        text: 'You can only call the bot when all slots are filled and everyone is paid.',
         type: 'info',
         confirmButtonColor: '#3085d6',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
       });
     }
   }
@@ -2281,14 +2001,14 @@ export class HomeComponent implements OnInit {
             isBlocking: true,
             raffleParticipants: this.raffleParticipants,
             raffle: this.currentRaffle,
-            payPalInfo: this.getPaypalInfo()
+            payPalInfo: this.getPaypalInfo(),
           },
-          BSModalContext
-        )
+          BSModalContext,
+        ),
       )
-      .then(dialogRef => {
+      .then((dialogRef) => {
         dialogRef.result
-          .then(result => {
+          .then((result) => {
             if (result) {
               this.updateFlair(this.completeFlairId, 'Complete');
             }
@@ -2298,44 +2018,31 @@ export class HomeComponent implements OnInit {
                 .sendPm(
                   '/r/' + this.currentRaffle.subreddit,
                   'Raffle Complete - Sub Fund Contribution Info',
-                  result.modPm
+                  result.modPm,
                 )
                 .subscribe(
-                  postResponse => {},
-                  err => {
-                    this.loggingService.logMessage(
-                      'send modPm:' + JSON.stringify(err),
-                      LoggingLevel.ERROR
-                    );
+                  (postResponse) => {},
+                  (err) => {
+                    this.loggingService.logMessage('send modPm:' + JSON.stringify(err), LoggingLevel.ERROR);
                     console.error(err);
-                  }
+                  },
                 );
             }
 
             if (result && result.winnerPm) {
               this.redditService
-                .sendPm(
-                  this.getSanitizedUserName(result.winner),
-                  'Congrats On Your Win!',
-                  result.winnerPm
-                )
+                .sendPm(this.getSanitizedUserName(result.winner), 'Congrats On Your Win!', result.winnerPm)
                 .subscribe(
-                  postResponse => {},
-                  err => {
-                    this.loggingService.logMessage(
-                      'send winnerPm:' + JSON.stringify(err),
-                      LoggingLevel.ERROR
-                    );
+                  (postResponse) => {},
+                  (err) => {
+                    this.loggingService.logMessage('send winnerPm:' + JSON.stringify(err), LoggingLevel.ERROR);
                     console.error(err);
-                  }
+                  },
                 );
             }
           })
-          .catch(err => {
-            this.loggingService.logMessage(
-              'finishRaffle:' + JSON.stringify(err),
-              LoggingLevel.ERROR
-            );
+          .catch((err) => {
+            this.loggingService.logMessage('finishRaffle:' + JSON.stringify(err), LoggingLevel.ERROR);
             console.error(err);
           });
       });
@@ -2345,12 +2052,12 @@ export class HomeComponent implements OnInit {
       title: 'What is the dollar cost of one raffle slot?',
       input: 'number',
       inputPlaceholder: '3',
-      inputValidator: value => {
+      inputValidator: (value) => {
         if (!value) {
           return 'Enter a value to continue!';
         }
-      }
-    }).then(result => {
+      },
+    }).then((result) => {
       console.log(result);
       if (result && result.value) {
         const slotCost = result.value;
@@ -2368,27 +2075,23 @@ export class HomeComponent implements OnInit {
         swal2({
           title: 'Sub Fund Details',
           html: `Congrats on a successful raffle! Per sub rules please send <strong>$${numSlotsToPay *
-            slotCost}</strong> to <strong>iclickhere@protonmail.com</strong> for the sub fund. Hold payment and send in at the end of the week.`
+            slotCost}</strong> to <strong>iclickhere@protonmail.com</strong> for the sub fund. Hold payment and send in at the end of the week.`,
         });
 
         this.redditService
           .sendPm(
             this.getSanitizedUserName('legorafflemod'),
             'Sub fund contribution details',
-            `${this.userName} has been instructed to pay $${numSlotsToPay *
-              slotCost} for [${this.currentRaffle.title}](${
-              this.currentRaffle.permalink
-            })`
+            `${this.userName} has been instructed to pay $${numSlotsToPay * slotCost} for [${
+              this.currentRaffle.title
+            }](${this.currentRaffle.permalink})`,
           )
           .subscribe(
-            response => {},
-            err => {
-              this.loggingService.logMessage(
-                'openFinishRaffleModal2:' + JSON.stringify(err),
-                LoggingLevel.ERROR
-              );
+            (response) => {},
+            (err) => {
+              this.loggingService.logMessage('openFinishRaffleModal2:' + JSON.stringify(err), LoggingLevel.ERROR);
               console.error(err);
-            }
+            },
           );
 
         this.updateFlair(this.completeFlairId, 'Complete');
@@ -2401,44 +2104,34 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    this.redditService
-      .getSubmission(this.currentRaffle.permalink + '.json')
-      .subscribe(
-        getSubmissionResponse => {
-          let txt: any;
-          txt = document.createElement('textareatmp');
-          txt.innerHTML = this.currentRaffle.selftext;
-          let postText = txt.innerText;
+    this.redditService.getSubmission(this.currentRaffle.permalink + '.json').subscribe(
+      (getSubmissionResponse) => {
+        let txt: any;
+        txt = document.createElement('textareatmp');
+        txt.innerHTML = this.currentRaffle.selftext;
+        let postText = txt.innerText;
 
-          const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me[^*]*)(\*\*\n\n)/i;
-          postText = postText.replace(re, '$1[REDACTED]$3');
+        const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me[^*]*)(\*\*\n\n)/i;
+        postText = postText.replace(re, '$1[REDACTED]$3');
 
-          const re2 = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.com[^*]*)(\*\*\n\n)/i;
-          postText = postText.replace(re2, '$1[REDACTED]$3');
+        const re2 = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.com[^*]*)(\*\*\n\n)/i;
+        postText = postText.replace(re2, '$1[REDACTED]$3');
 
-          this.redditService
-            .updatePostText(postText, this.currentRaffle.name)
-            .subscribe(
-              postResponse => {
-                this.currentRaffle = postResponse.json.data.things[0].data;
-              },
-              err => {
-                this.loggingService.logMessage(
-                  'updatePostText:' + JSON.stringify(err),
-                  LoggingLevel.ERROR
-                );
-                console.error(err);
-              }
-            );
-        },
-        err => {
-          this.loggingService.logMessage(
-            'getSubmission:' + JSON.stringify(err),
-            LoggingLevel.ERROR
-          );
-          console.error(err);
-        }
-      );
+        this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
+          (postResponse) => {
+            this.currentRaffle = postResponse.json.data.things[0].data;
+          },
+          (err) => {
+            this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
+            console.error(err);
+          },
+        );
+      },
+      (err) => {
+        this.loggingService.logMessage('getSubmission:' + JSON.stringify(err), LoggingLevel.ERROR);
+        console.error(err);
+      },
+    );
   }
 
   private configureAdblockerCheck() {
@@ -2464,11 +2157,9 @@ export class HomeComponent implements OnInit {
         // Then a detection is triggered
         this.adBlockDetected();
       };
-      importFAB.integrity =
-        'sha256-xjwKUY/NgkPjZZBOtOxRYtK20GaqTwUCf7WYCJ1z69w=';
+      importFAB.integrity = 'sha256-xjwKUY/NgkPjZZBOtOxRYtK20GaqTwUCf7WYCJ1z69w=';
       importFAB.crossOrigin = 'anonymous';
-      importFAB.src =
-        'https://cdnjs.cloudflare.com/ajax/libs/fuckadblock/3.2.1/fuckadblock.min.js';
+      importFAB.src = 'https://cdnjs.cloudflare.com/ajax/libs/fuckadblock/3.2.1/fuckadblock.min.js';
       document.head.appendChild(importFAB);
     }
   }
@@ -2491,8 +2182,8 @@ export class HomeComponent implements OnInit {
           'I am sure you would rather have history and not need it than need it and not have it! ' +
           '<strong>THERE ARE NOT ANY ADS ON THIS SITE SO YOU GAIN NOTHING WITH THE AD BLOCKERS ENABLED.</strong> ' +
           "You won't get this message again.",
-        'info'
-      ).then(result => {
+        'info',
+      ).then((result) => {
         if (result.value) {
           localStorage.setItem('showAdBlockerMessage', JSON.stringify(false));
         }
@@ -2501,20 +2192,15 @@ export class HomeComponent implements OnInit {
   }
 
   private sendOneTimeNotifications() {
-    this.modToolsId =
-      Md5.hashStr(this.userId + this.currentRaffle.name) +
-      '_' +
-      this.currentRaffle.id;
+    this.modToolsId = Md5.hashStr(this.userId + this.currentRaffle.name) + '_' + this.currentRaffle.id;
 
-    this.databaseService.getModTools(this.modToolsId).subscribe(modTools => {
+    this.databaseService.getModTools(this.modToolsId).subscribe((modTools) => {
       if (!modTools || !modTools.created) {
-        this.databaseService
-          .createModTools(this.modToolsId)
-          .subscribe(createModToolsResponse => {
-            if (createModToolsResponse.created) {
-              this.sendNotifications();
-            }
-          });
+        this.databaseService.createModTools(this.modToolsId).subscribe((createModToolsResponse) => {
+          if (createModToolsResponse.created) {
+            this.sendNotifications();
+          }
+        });
       }
     });
   }
@@ -2536,37 +2222,20 @@ export class HomeComponent implements OnInit {
     if (this.notificationSettings && this.notificationSettings.discord) {
       for (let i = 0; i < this.notificationSettings.discord.length; i++) {
         this.notificationService
-          .sendDiscordNotification(
-            this.notificationSettings.discord[i],
-            notification,
-            'Raffle Tool'
-          )
-          .subscribe(res => {});
+          .sendDiscordNotification(this.notificationSettings.discord[i], notification, 'Raffle Tool')
+          .subscribe((res) => {});
       }
     }
   }
 
   private sendModToolsUri() {
-    const modToolsUri =
-      environment.baseUri + '/mod-tools?modToolsId=' + this.modToolsId;
+    const modToolsUri = environment.baseUri + '/mod-tools?modToolsId=' + this.modToolsId;
     const notification =
-      'The Mod Tools URI for ' +
-      this.currentRaffle.url +
-      ' submitted by ' +
-      this.userName +
-      ' is:\n' +
-      modToolsUri;
-    if (
-      this.notificationSettings &&
-      this.notificationSettings.mod_tools_discord
-    ) {
+      'The Mod Tools URI for ' + this.currentRaffle.url + ' submitted by ' + this.userName + ' is:\n' + modToolsUri;
+    if (this.notificationSettings && this.notificationSettings.mod_tools_discord) {
       this.notificationService
-        .sendDiscordNotification(
-          this.notificationSettings.mod_tools_discord,
-          notification,
-          'Raffle Tool'
-        )
-        .subscribe(res => {});
+        .sendDiscordNotification(this.notificationSettings.mod_tools_discord, notification, 'Raffle Tool')
+        .subscribe((res) => {});
     }
   }
 
@@ -2593,26 +2262,21 @@ export class HomeComponent implements OnInit {
         'Please read the new message in the Mod Chat in the bottom right of the tool before continuing with your raffle. It could be time sensitive.',
       type: 'info',
       confirmButtonColor: '#3085d6',
-      confirmButtonText: 'OK'
+      confirmButtonText: 'OK',
     });
   }
 
   private setRequesters() {
     this.databaseService
       .getRaffleParticipants(this.userId, this.currentRaffle.name)
-      .subscribe(savedRaffleParticipants => {
-        if (
-          savedRaffleParticipants &&
-          savedRaffleParticipants.length === this.raffleParticipants.length
-        ) {
+      .subscribe((savedRaffleParticipants) => {
+        if (savedRaffleParticipants && savedRaffleParticipants.length === this.raffleParticipants.length) {
           for (let i = 0; i < savedRaffleParticipants.length; i++) {
             if (
               savedRaffleParticipants[i].name &&
-              savedRaffleParticipants[i].name ===
-                this.raffleParticipants[i].name
+              savedRaffleParticipants[i].name === this.raffleParticipants[i].name
             ) {
-              this.raffleParticipants[i].requester =
-                savedRaffleParticipants[i].requester;
+              this.raffleParticipants[i].requester = savedRaffleParticipants[i].requester;
             }
           }
         }
@@ -2635,10 +2299,8 @@ export class HomeComponent implements OnInit {
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
       if (
-        (raffler.name &&
-          raffler.name.toUpperCase() === userName.toUpperCase()) ||
-        (raffler.requester &&
-          raffler.requester.toUpperCase() === userName.toUpperCase())
+        (raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
+        (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())
       ) {
         raffler.paid = true;
       }
@@ -2653,8 +2315,8 @@ export class HomeComponent implements OnInit {
     swal2({
       title: 'Are You Sure You Want To Mark All Users As Paid?',
       confirmButtonText: 'Mark all paid',
-      showCancelButton: true
-    }).then(result => {
+      showCancelButton: true,
+    }).then((result) => {
       if (result.value && !result.dismiss) {
         this.markAllPaid();
       }
@@ -2686,10 +2348,10 @@ export class HomeComponent implements OnInit {
       inputPlaceholder: 'Type your Reddit comment here',
       confirmButtonText: 'Make Announcement',
       showCancelButton: true,
-      inputValidator: value => {
+      inputValidator: (value) => {
         return !value && "You can't make an empty announcement!";
-      }
-    }).then(text => {
+      },
+    }).then((text) => {
       if (text && !text.dismiss) {
         swal2({
           title: 'Are You Sure You Want To Make An Announcement?',
@@ -2698,31 +2360,20 @@ export class HomeComponent implements OnInit {
             'Do not use this feature lightly as people do not want to be spammed. ' +
             'If this is something you truly want to communicate to everyone in your raffle then click "Make Announcement" otherwise click "cancel".',
           confirmButtonText: 'Make Announcement',
-          showCancelButton: true
-        }).then(result => {
+          showCancelButton: true,
+        }).then((result) => {
           if (result.value && !result.dismiss) {
-            const tagTrainMessage =
-              'Raffle [Announcement](' + this.permalinkPlaceholder + ') Made';
+            const tagTrainMessage = 'Raffle [Announcement](' + this.permalinkPlaceholder + ') Made';
 
             const uniqueParticipanList = [];
             for (let x = 0; x < this.raffleParticipants.length; x++) {
               const raffler = this.raffleParticipants[x];
-              if (
-                raffler.name &&
-                uniqueParticipanList.indexOf(raffler.name) === -1
-              ) {
-                uniqueParticipanList.push(
-                  this.getSanitizedUserName(raffler.name)
-                );
+              if (raffler.name && uniqueParticipanList.indexOf(raffler.name) === -1) {
+                uniqueParticipanList.push(this.getSanitizedUserName(raffler.name));
               }
             }
 
-            this.sendAnnouncement(
-              text.value,
-              tagTrainMessage,
-              uniqueParticipanList,
-              true
-            );
+            this.sendAnnouncement(text.value, tagTrainMessage, uniqueParticipanList, true);
           }
         });
       } else if (text && text.dismiss) {
@@ -2730,122 +2381,95 @@ export class HomeComponent implements OnInit {
         swal2({
           title: 'Announcement Not Made!',
           text: 'There was an error reading your comment text.',
-          type: 'error'
+          type: 'error',
         });
       }
     });
   }
 
-  private sendAnnouncement(
-    announcementText,
-    tagTrainMessage,
-    listOfUsers,
-    sendDiscordNotification: boolean
-  ) {
+  private sendAnnouncement(announcementText, tagTrainMessage, listOfUsers, sendDiscordNotification: boolean) {
     if (!listOfUsers || !listOfUsers.length) {
       return;
     }
 
-    this.redditService
-      .postComment(announcementText, this.currentRaffle.name)
-      .subscribe(
-        response => {
-          if (
-            response &&
-            response.json &&
-            response.json.data &&
-            response.json.data.things
-          ) {
-            const announcement = response.json.data.things[0].data;
+    this.redditService.postComment(announcementText, this.currentRaffle.name).subscribe(
+      (response) => {
+        if (response && response.json && response.json.data && response.json.data.things) {
+          const announcement = response.json.data.things[0].data;
 
-            if (sendDiscordNotification) {
-              const notification =
-                '@here Raffle announcement made by ' +
-                this.userName +
-                ': ' +
-                this.publicRedditUrl +
-                announcement.permalink;
-              this.sendDiscordNotifications(notification);
-            }
-
-            if (tagTrainMessage.indexOf(this.permalinkPlaceholder) !== -1) {
-              tagTrainMessage = tagTrainMessage.replace(
-                this.permalinkPlaceholder,
-                announcement.permalink
-              );
-            }
-
-            this.redditService
-              .createTagTrain(tagTrainMessage, listOfUsers, announcement.name)
-              .subscribe(
-                tagTrainResponse => {
-                  if (tagTrainResponse === true) {
-                    swal2({
-                      title: 'Announcement Made!',
-                      type: 'success'
-                    });
-                  } else {
-                    this.loggingService.logMessage(
-                      'createTagTrain:' + JSON.stringify(tagTrainResponse),
-                      LoggingLevel.ERROR
-                    );
-                    console.error(tagTrainResponse);
-
-                    swal2({
-                      title: 'Error Making Announcement!',
-                      text:
-                        'There was an error tagging the users of your raffle. ' +
-                        'Check your raffle to see who was not tagged so you can tag them manually.',
-                      type: 'error'
-                    });
-                  }
-                },
-                err => {
-                  const params = {
-                    announcementText: announcementText,
-                    tagTrainMessage: tagTrainMessage,
-                    listOfUsers: listOfUsers
-                  };
-                  this.loggingService.logMessage(
-                    'sendAnnouncement createTagTrain: params:' +
-                      JSON.stringify(params) +
-                      ' ERR:' +
-                      JSON.stringify(err),
-                    LoggingLevel.ERROR
-                  );
-                  console.error(err);
-                }
-              );
-          } else {
-            this.loggingService.logMessage(
-              'postComment:' + JSON.stringify(response),
-              LoggingLevel.ERROR
-            );
-            console.error(response);
-            swal2({
-              title: 'Error Making Announcement!',
-              text:
-                'There was an error posting your comment. Try again or do it manually.',
-              type: 'error'
-            });
+          if (sendDiscordNotification) {
+            const notification =
+              '@here Raffle announcement made by ' +
+              this.userName +
+              ': ' +
+              this.publicRedditUrl +
+              announcement.permalink;
+            this.sendDiscordNotifications(notification);
           }
-        },
-        err => {
-          const params = {
-            announcementText: announcementText,
-            tagTrainMessage: tagTrainMessage,
-            listOfUsers: listOfUsers
-          };
-          this.loggingService.logMessage(
-            'sendAnnouncement postComment: params:' +
-              JSON.stringify(params) +
-              ' ERR:' +
-              JSON.stringify(err),
-            LoggingLevel.ERROR
+
+          if (tagTrainMessage.indexOf(this.permalinkPlaceholder) !== -1) {
+            tagTrainMessage = tagTrainMessage.replace(this.permalinkPlaceholder, announcement.permalink);
+          }
+
+          this.redditService.createTagTrain(tagTrainMessage, listOfUsers, announcement.name).subscribe(
+            (tagTrainResponse) => {
+              if (tagTrainResponse === true) {
+                swal2({
+                  title: 'Announcement Made!',
+                  type: 'success',
+                });
+              } else {
+                this.loggingService.logMessage(
+                  'createTagTrain:' + JSON.stringify(tagTrainResponse),
+                  LoggingLevel.ERROR,
+                );
+                console.error(tagTrainResponse);
+
+                swal2({
+                  title: 'Error Making Announcement!',
+                  text:
+                    'There was an error tagging the users of your raffle. ' +
+                    'Check your raffle to see who was not tagged so you can tag them manually.',
+                  type: 'error',
+                });
+              }
+            },
+            (err) => {
+              const params = {
+                announcementText: announcementText,
+                tagTrainMessage: tagTrainMessage,
+                listOfUsers: listOfUsers,
+              };
+              this.loggingService.logMessage(
+                'sendAnnouncement createTagTrain: params:' + JSON.stringify(params) + ' ERR:' + JSON.stringify(err),
+                LoggingLevel.ERROR,
+              );
+              console.error(err);
+            },
           );
-          console.error(err);
+        } else {
+          this.loggingService.logMessage('postComment:' + JSON.stringify(response), LoggingLevel.ERROR);
+          console.error(response);
+          swal2({
+            title: 'Error Making Announcement!',
+            text: 'There was an error posting your comment. Try again or do it manually.',
+            type: 'error',
+          });
         }
-      );
+      },
+      (err) => {
+        const params = {
+          announcementText: announcementText,
+          tagTrainMessage: tagTrainMessage,
+          listOfUsers: listOfUsers,
+        };
+        this.loggingService.logMessage(
+          'sendAnnouncement postComment: params:' + JSON.stringify(params) + ' ERR:' + JSON.stringify(err),
+          LoggingLevel.ERROR,
+        );
+        console.error(err);
+      },
+    );
   }
 
   private pageUnpaid() {
@@ -2858,15 +2482,12 @@ export class HomeComponent implements OnInit {
         'Attention unpaid participants: You have 10 minutes from now to pay or I will remove your slots and move to the waitlist.',
       confirmButtonText: 'Page Unpaid',
       showCancelButton: true,
-      inputValidator: value => {
+      inputValidator: (value) => {
         return !value && "You can't post an empty comment!";
-      }
-    }).then(text => {
+      },
+    }).then((text) => {
       if (text && !text.dismiss) {
-        const tagTrainMessage =
-          '[Announcement](' +
-          this.permalinkPlaceholder +
-          ') made for unpaid participants';
+        const tagTrainMessage = '[Announcement](' + this.permalinkPlaceholder + ') made for unpaid participants';
 
         const pageList = [];
         for (let x = 0; x < this.unpaidUsersArray.length; x++) {
@@ -2879,7 +2500,7 @@ export class HomeComponent implements OnInit {
         swal2({
           title: 'Page Failed!',
           text: 'There was an error paging unpaid users.',
-          type: 'error'
+          type: 'error',
         });
       }
     });
@@ -2891,23 +2512,21 @@ export class HomeComponent implements OnInit {
       text:
         'Clicking "Remove Unpaid" will remove all users from unpaid slots, post the specified comment, and tag all unpaid users. Click "Cancel" if you don\'t want to do this.',
       input: 'textarea',
-      inputValue:
-        'Attention unpaid participants: your unpaid slots have been removed due to lack of payment.',
+      inputValue: 'Attention unpaid participants: your unpaid slots have been removed due to lack of payment.',
       confirmButtonText: 'Remove Unpaid',
       showCancelButton: true,
-      inputValidator: value => {
+      inputValidator: (value) => {
         return !value && "You can't post an empty comment!";
-      }
-    }).then(text => {
+      },
+    }).then((text) => {
       if (text && !text.dismiss) {
         this.removeUnpaidUsers(text.value);
       } else if (text && text.dismiss) {
       } else {
         swal2({
           title: 'Failed To Remove Unpaid!',
-          text:
-            'There was an error removing unpaid users. Please try again or do it manually.',
-          type: 'error'
+          text: 'There was an error removing unpaid users. Please try again or do it manually.',
+          type: 'error',
         });
       }
     });
@@ -2926,42 +2545,25 @@ export class HomeComponent implements OnInit {
 
     this.updateCommentText();
 
-    if (
-      this.notificationSettings &&
-      this.notificationSettings.notify_mods_unpaid
-    ) {
+    if (this.notificationSettings && this.notificationSettings.notify_mods_unpaid) {
       const message =
         'The following raffle participants were removed from [this raffle](' +
         this.currentRaffle.permalink +
         ')\n\n' +
         unpaidUsersArrayCopy.join('\n\n');
 
-      this.redditService
-        .sendPm(
-          '/r/' + this.currentRaffle.subreddit,
-          'Unpaid Degenerates Removed',
-          message
-        )
-        .subscribe(
-          postResponse => {},
-          err => {
-            this.loggingService.logMessage(
-              'notifyModsUnpaid:' + JSON.stringify(err),
-              LoggingLevel.ERROR
-            );
-            console.error(err);
-          }
-        );
+      this.redditService.sendPm('/r/' + this.currentRaffle.subreddit, 'Unpaid Degenerates Removed', message).subscribe(
+        (postResponse) => {},
+        (err) => {
+          this.loggingService.logMessage('notifyModsUnpaid:' + JSON.stringify(err), LoggingLevel.ERROR);
+          console.error(err);
+        },
+      );
     }
 
     this.redditService.postComment(text, this.currentRaffle.name).subscribe(
-      response => {
-        if (
-          response &&
-          response.json &&
-          response.json.data &&
-          response.json.data.things
-        ) {
+      (response) => {
+        if (response && response.json && response.json.data && response.json.data.things) {
           const comment = response.json.data.things[0].data;
           const pageList = [];
           for (let x = 0; x < unpaidUsersArrayCopy.length; x++) {
@@ -2976,55 +2578,46 @@ export class HomeComponent implements OnInit {
             }
           }
 
-          this.redditService
-            .tagUsersInComment(pageList, comment.name)
-            .subscribe(
-              tagTrainResponse => {
-                if (tagTrainResponse === true) {
-                  swal2({
-                    title: 'Unpaid Users Removed!',
-                    type: 'success'
-                  });
-                } else {
-                  swal2({
-                    title: 'Error Tagging Unpaid!',
-                    text:
-                      'There was an error tagging all the unpaid users of your raffle. ' +
-                      'Check your raffle to see who was not tagged so you can tag them manually.',
-                    type: 'error'
-                  });
-                }
-              },
-              err => {
-                this.loggingService.logMessage(
-                  'tagRemovedUnpaidUsersComment:' + JSON.stringify(err),
-                  LoggingLevel.ERROR
-                );
-                console.error(err);
-
+          this.redditService.tagUsersInComment(pageList, comment.name).subscribe(
+            (tagTrainResponse) => {
+              if (tagTrainResponse === true) {
+                swal2({
+                  title: 'Unpaid Users Removed!',
+                  type: 'success',
+                });
+              } else {
                 swal2({
                   title: 'Error Tagging Unpaid!',
                   text:
                     'There was an error tagging all the unpaid users of your raffle. ' +
                     'Check your raffle to see who was not tagged so you can tag them manually.',
-                  type: 'error'
+                  type: 'error',
                 });
               }
-            );
+            },
+            (err) => {
+              this.loggingService.logMessage('tagRemovedUnpaidUsersComment:' + JSON.stringify(err), LoggingLevel.ERROR);
+              console.error(err);
+
+              swal2({
+                title: 'Error Tagging Unpaid!',
+                text:
+                  'There was an error tagging all the unpaid users of your raffle. ' +
+                  'Check your raffle to see who was not tagged so you can tag them manually.',
+                type: 'error',
+              });
+            },
+          );
         } else {
           swal2({
             title: 'Error Paging Unpaid!',
-            text:
-              'There was an error posting your comment. Try again or do it manually.',
-            type: 'error'
+            text: 'There was an error posting your comment. Try again or do it manually.',
+            type: 'error',
           });
         }
       },
-      err => {
-        this.loggingService.logMessage(
-          'postRemoveUnpaidComment:' + JSON.stringify(err),
-          LoggingLevel.ERROR
-        );
+      (err) => {
+        this.loggingService.logMessage('postRemoveUnpaidComment:' + JSON.stringify(err), LoggingLevel.ERROR);
         console.error(err);
 
         swal2({
@@ -3032,51 +2625,46 @@ export class HomeComponent implements OnInit {
           text:
             'There was an error posting your comment to notify unpaid users they were removed. ' +
             'Check that the unpaid users were removed properly and post the comment manually to inform them.',
-          type: 'error'
+          type: 'error',
         });
-      }
+      },
     );
   }
 
   private tagUsers() {
     swal2({
       title: 'Tag Users?',
-      text:
-        'Enter a permalink and click "Tag Users" to tag everyone who replied to that comment.',
+      text: 'Enter a permalink and click "Tag Users" to tag everyone who replied to that comment.',
       input: 'text',
       inputPlaceholder: '/r/WatchURaffle/comments/the_rest_of_your_permalink/',
       confirmButtonText: 'Tag Users',
       showCancelButton: true,
-      inputValidator: value => {
-        return new Promise(resolve => {
+      inputValidator: (value) => {
+        return new Promise((resolve) => {
           const permalinkRegex = /^(https:\/\/www\.reddit\.com)?\/?r\/.+$/g;
           if (permalinkRegex.test(value)) {
             resolve();
           } else {
-            resolve(
-              'Please enter a premalink, example: /r/WatchURaffle/comments/the_rest_of_your_permalink/'
-            );
+            resolve('Please enter a premalink, example: /r/WatchURaffle/comments/the_rest_of_your_permalink/');
           }
         });
-      }
-    }).then(text => {
+      },
+    }).then((text) => {
       if (text && !text.dismiss) {
         this.tagUsersInRaffle(text.value.replace('https://www.reddit.com', ''));
       } else if (text && text.dismiss) {
       } else {
         swal2({
           title: 'Failed To Tag Users!',
-          text:
-            'There was an error tagging users. Please try again or do it manually.',
-          type: 'error'
+          text: 'There was an error tagging users. Please try again or do it manually.',
+          type: 'error',
         });
       }
     });
   }
 
   private tagUsersInRaffle(permalink: string) {
-    const commentMessage =
-      'Tagging users who requested tags [here.](' + permalink + ')';
+    const commentMessage = 'Tagging users who requested tags [here.](' + permalink + ')';
     const tagTrainMessage =
       '[Raffle live!](' +
       this.currentRaffle.permalink +
@@ -3093,48 +2681,31 @@ export class HomeComponent implements OnInit {
           tagList.push(this.getSanitizedUserName(comments[i].data.author));
         }
         if (post[0].data.author === this.userName) {
-          this.sendAnnouncement(
-            commentMessage,
-            tagTrainMessage,
-            tagList,
-            false
-          );
+          this.sendAnnouncement(commentMessage, tagTrainMessage, tagList, false);
         } else {
           swal2({
             title: 'Tag Users To Raffle?',
-            text:
-              'The comment you linked to is not your own. Are you sure you want to tag everyone who replied to it?',
+            text: 'The comment you linked to is not your own. Are you sure you want to tag everyone who replied to it?',
             type: 'question',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Tag Users'
-          }).then(result => {
+            confirmButtonText: 'Tag Users',
+          }).then((result) => {
             if (result.value) {
-              this.sendAnnouncement(
-                commentMessage,
-                tagTrainMessage,
-                tagList,
-                false
-              );
+              this.sendAnnouncement(commentMessage, tagTrainMessage, tagList, false);
             }
           });
         }
       },
-      err => {
-        this.loggingService.logMessage(
-          'tagUsersInRaffle getPostComments:' + JSON.stringify(err),
-          LoggingLevel.ERROR
-        );
+      (err) => {
+        this.loggingService.logMessage('tagUsersInRaffle getPostComments:' + JSON.stringify(err), LoggingLevel.ERROR);
         console.error(err);
-      }
+      },
     );
   }
 
   private getSanitizedUserName(userName): string {
-    if (
-      this.currentRaffle.subreddit !== 'testingground4bots' &&
-      this.currentRaffle.subreddit !== 'raffleTest'
-    ) {
+    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
       return userName;
     } else {
       return this.userName;
@@ -3146,10 +2717,8 @@ export class HomeComponent implements OnInit {
     for (let x = 0; x < this.raffleParticipants.length; x++) {
       const raffler = this.raffleParticipants[x];
       if (
-        ((raffler.name &&
-          raffler.name.toUpperCase() === userName.toUpperCase()) ||
-          (raffler.requester &&
-            raffler.requester.toUpperCase() === userName.toUpperCase())) &&
+        ((raffler.name && raffler.name.toUpperCase() === userName.toUpperCase()) ||
+          (raffler.requester && raffler.requester.toUpperCase() === userName.toUpperCase())) &&
         !raffler.paid
       ) {
         numRequestedUnpaid += 1;
@@ -3173,22 +2742,13 @@ export class HomeComponent implements OnInit {
     this.raffleProperties.lastUpdated = this.currentRaffle.edited
       ? new Date(this.currentRaffle.edited * 1000)
       : undefined;
-    this.databaseService
-      .storeRaffleProperties(
-        this.userId,
-        this.currentRaffle.name,
-        this.raffleProperties
-      )
-      .subscribe(
-        response => {},
-        err => {
-          this.loggingService.logMessage(
-            'updateRaffleProperties:' + JSON.stringify(err),
-            LoggingLevel.ERROR
-          );
-          console.error(err);
-        }
-      );
+    this.databaseService.storeRaffleProperties(this.userId, this.currentRaffle.name, this.raffleProperties).subscribe(
+      (response) => {},
+      (err) => {
+        this.loggingService.logMessage('updateRaffleProperties:' + JSON.stringify(err), LoggingLevel.ERROR);
+        console.error(err);
+      },
+    );
   }
 
   public openSlotTextModal() {
@@ -3200,12 +2760,12 @@ export class HomeComponent implements OnInit {
             isBlocking: false,
             commentText: this.commentText,
             copyText: this.copyText,
-            numSlots: this.numSlots
+            numSlots: this.numSlots,
           },
-          BSModalContext
-        )
+          BSModalContext,
+        ),
       )
-      .then(dialogRef => {});
+      .then((dialogRef) => {});
   }
 
   private openNewRaffleModal() {
@@ -3215,51 +2775,37 @@ export class HomeComponent implements OnInit {
         overlayConfigFactory(
           {
             isBlocking: true,
-            subs: this.subs
+            subs: this.subs,
           },
-          BSModalContext
-        )
+          BSModalContext,
+        ),
       )
-      .then(dialogRef => {
+      .then((dialogRef) => {
         dialogRef.result
-          .then(newRaffle => {
+          .then((newRaffle) => {
             this.submitNewRaffle(newRaffle);
           })
-          .catch(err => {
-            this.loggingService.logMessage(
-              'openNewRaffleModal:' + JSON.stringify(err),
-              LoggingLevel.ERROR
-            );
+          .catch((err) => {
+            this.loggingService.logMessage('openNewRaffleModal:' + JSON.stringify(err), LoggingLevel.ERROR);
             console.error(err);
           });
       });
   }
 
   private submitNewRaffle(newRaffle) {
-    this.redditService
-      .submitRaffle(
-        newRaffle.subreddit,
-        newRaffle.raffleTitle,
-        newRaffle.raffleBody
-      )
-      .subscribe(
-        submissionResponse => {
-          this.loadRaffle(submissionResponse.json.data.id, newRaffle);
-        },
-        err => {
-          this.loggingService.logMessage(
-            'submitNewRaffle:' + JSON.stringify(err),
-            LoggingLevel.ERROR
-          );
-          console.error(err);
-        }
-      );
+    this.redditService.submitRaffle(newRaffle.subreddit, newRaffle.raffleTitle, newRaffle.raffleBody).subscribe(
+      (submissionResponse) => {
+        this.loadRaffle(submissionResponse.json.data.id, newRaffle);
+      },
+      (err) => {
+        this.loggingService.logMessage('submitNewRaffle:' + JSON.stringify(err), LoggingLevel.ERROR);
+        console.error(err);
+      },
+    );
   }
 
   private auditRaffle() {
-    const auditPercentage = this.auditPercentageMap[
-      this.currentRaffle.subreddit
-    ];
+    const auditPercentage = this.auditPercentageMap[this.currentRaffle.subreddit];
     const randomNum = Math.random();
     const title = this.currentRaffle.title.toUpperCase();
     this.raffleProperties.audited = false;
@@ -3271,11 +2817,8 @@ export class HomeComponent implements OnInit {
       (title.includes('NM') || title.includes('BLUE'))
     ) {
       this.loggingService.logMessage(
-        `${auditPercentage *
-          100}% of raffles are randomly selected for audit: ${
-          this.currentRaffle.permalink
-        }`,
-        LoggingLevel.INFO
+        `${auditPercentage * 100}% of raffles are randomly selected for audit: ${this.currentRaffle.permalink}`,
+        LoggingLevel.INFO,
       );
 
       this.raffleProperties.audited = true;
@@ -3284,27 +2827,23 @@ export class HomeComponent implements OnInit {
         .sendPm(
           '/r/' + this.currentRaffle.subreddit,
           'Raffle Audit',
-          `${auditPercentage *
-            100}% of raffles are randomly selected for audit. [${title}](${
+          `${auditPercentage * 100}% of raffles are randomly selected for audit. [${title}](${
             this.currentRaffle.permalink
-          }) has been selected.`
+          }) has been selected.`,
         )
         .subscribe(
-          postResponse => {},
-          err => {
-            this.loggingService.logMessage(
-              'send pm auditRaffle:' + JSON.stringify(err),
-              LoggingLevel.ERROR
-            );
+          (postResponse) => {},
+          (err) => {
+            this.loggingService.logMessage('send pm auditRaffle:' + JSON.stringify(err), LoggingLevel.ERROR);
             console.error(err);
-          }
+          },
         );
 
       swal2({
         title: 'Raffle Selected For Audit',
         text: `As a part of keeping pricing fair, ${auditPercentage *
           100}% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have questions.`,
-        type: 'info'
+        type: 'info',
       });
     }
 
@@ -3319,13 +2858,9 @@ export class HomeComponent implements OnInit {
     commentTimer.subscribe(() => {
       if (!this.hasCommentsToProcess && this.numOpenSlots > 0) {
         this.redditService
-          .getTopLevelComments(
-            this.currentRaffle.permalink,
-            this.currentRaffle.name
-          )
-          .subscribe(comments => {
-            this.hasCommentsToProcess =
-              this.getNextCommentIndex(comments) !== -1;
+          .getTopLevelComments(this.currentRaffle.permalink, this.currentRaffle.name)
+          .subscribe((comments) => {
+            this.hasCommentsToProcess = this.getNextCommentIndex(comments) !== -1;
           });
       } else {
         if (this.numOpenSlots === 0) {
@@ -3336,37 +2871,34 @@ export class HomeComponent implements OnInit {
 
     pmTimer.subscribe(() => {
       if (!this.hasPmsToProcess && this.unpaidUsersArray.length) {
-        this.redditService
-          .getPmsAfter(this.currentRaffle.created_utc)
-          .subscribe(messages => {
-            if (!messages || !messages.length) {
-              this.hasPmsToProcess = false;
-              return;
-            }
-
-            for (let message of messages) {
-              if (!message.data.author) {
-                continue;
-              }
-              const slotNumberMap = this.getSlotNumberMap(message.data.author);
-              const authorPaid = this.isUserPaid(message.data.author);
-
-              if (
-                slotNumberMap.size &&
-                !authorPaid &&
-                this.raffleProperties.skippedPms.indexOf(message.data.name) ===
-                  -1
-              ) {
-                this.hasPmsToProcess = true;
-                return;
-              } else {
-                continue;
-              }
-            }
-
+        this.redditService.getPmsAfter(this.currentRaffle.created_utc).subscribe((messages) => {
+          if (!messages || !messages.length) {
             this.hasPmsToProcess = false;
             return;
-          });
+          }
+
+          for (let message of messages) {
+            if (!message.data.author) {
+              continue;
+            }
+            const slotNumberMap = this.getSlotNumberMap(message.data.author);
+            const authorPaid = this.isUserPaid(message.data.author);
+
+            if (
+              slotNumberMap.size &&
+              !authorPaid &&
+              this.raffleProperties.skippedPms.indexOf(message.data.name) === -1
+            ) {
+              this.hasPmsToProcess = true;
+              return;
+            } else {
+              continue;
+            }
+          }
+
+          this.hasPmsToProcess = false;
+          return;
+        });
       } else {
         if (!this.unpaidUsersArray.length) {
           this.hasPmsToProcess = false;
@@ -3387,13 +2919,11 @@ export class HomeComponent implements OnInit {
       if (
         comments[x].data.author === 'AutoModerator' ||
         (commentAge >= 0 && commentAge < 10) ||
-        (youngestSkippedCommentTime &&
-          comments[x].data.created_utc >= youngestSkippedCommentTime)
+        (youngestSkippedCommentTime && comments[x].data.created_utc >= youngestSkippedCommentTime)
       ) {
         if (
           comments[x].data.author !== 'AutoModerator' &&
-          (!youngestSkippedCommentTime ||
-            youngestSkippedCommentTime > comments[x].data.created_utc)
+          (!youngestSkippedCommentTime || youngestSkippedCommentTime > comments[x].data.created_utc)
         ) {
           youngestSkippedCommentTime = comments[x].data.created_utc;
         }

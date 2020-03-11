@@ -24,27 +24,24 @@ export class OauthService {
   private expireTime: number;
 
   constructor(private http: HttpClient) {
-    this.accessTokenObservable = new Observable(
-      observer => (this.accessTokenObserver = observer)
-    ).pipe(share());
+    this.accessTokenObservable = new Observable((observer) => (this.accessTokenObserver = observer)).pipe(share());
   }
 
   public requestAccessToken(authCode: string, state: string): Observable<any> {
     this.retrieveAccessToken(authCode, state).subscribe(
-      response => {
+      (response) => {
         const currentDate = new Date();
 
         this.accessToken = response.access_token;
         this.refreshToken = response.refresh_token;
-        this.expireTime =
-          Math.round(currentDate.getTime() / 1000) + response.expires_in - 30;
+        this.expireTime = Math.round(currentDate.getTime() / 1000) + response.expires_in - 30;
 
         this.accessTokenObserver.next({ success: true });
       },
-      err => {
+      (err) => {
         console.error(err);
         this.accessTokenObserver.next({ success: false, error: err });
-      }
+      },
     );
 
     return this.accessTokenObservable;
@@ -55,7 +52,7 @@ export class OauthService {
     if (Math.round(currentDate.getTime() / 1000) >= this.expireTime) {
       return this.refreshAccessToken();
     } else {
-      return observableOf({ access_token: this.accessToken }).pipe(map(o => o));
+      return observableOf({ access_token: this.accessToken }).pipe(map((o) => o));
     }
   }
 
@@ -72,10 +69,7 @@ export class OauthService {
       '&duration=permanent&scope=identity,edit,submit,privatemessages,read,history,flair';
   }
 
-  private retrieveAccessToken(
-    authCode: string,
-    state: string
-  ): Observable<any> {
+  private retrieveAccessToken(authCode: string, state: string): Observable<any> {
     if (this.state !== state) {
       console.error('States dont match!', this.state, state);
       return observableThrowError('States do not match!');
@@ -87,12 +81,10 @@ export class OauthService {
     form.append('redirect_uri', this.redirectUri);
 
     let headers = new HttpHeaders({
-      Authorization: 'Basic ' + btoa(this.client_id + ':' + this.client_secret)
+      Authorization: 'Basic ' + btoa(this.client_id + ':' + this.client_secret),
     });
     headers.append('Accept', 'application/json');
-    return this.http
-      .post(this.accessTokenUrl, form, { headers: headers })
-      .pipe(catchError(this.handleErrorObservable));
+    return this.http.post(this.accessTokenUrl, form, { headers: headers }).pipe(catchError(this.handleErrorObservable));
   }
 
   private handleErrorObservable(error: HttpResponse<any> | any) {
@@ -101,14 +93,13 @@ export class OauthService {
   }
 
   private refreshAccessToken(): Observable<any> {
-    return Observable.create(observer => {
+    return Observable.create((observer) => {
       let form = new FormData();
       form.append('grant_type', 'refresh_token');
       form.append('refresh_token', this.refreshToken);
 
       let headers = new HttpHeaders({
-        Authorization:
-          'Basic ' + btoa(this.client_id + ':' + this.client_secret)
+        Authorization: 'Basic ' + btoa(this.client_id + ':' + this.client_secret),
       });
       headers.append('Accept', 'application/json');
       this.http.post(this.accessTokenUrl, form, { headers: headers }).subscribe(
@@ -120,7 +111,7 @@ export class OauthService {
           console.error(err);
           observer.error(err);
           observer.complete();
-        }
+        },
       );
     });
   }
@@ -130,8 +121,7 @@ export class OauthService {
     const body: any = response;
 
     this.accessToken = body.access_token;
-    this.expireTime =
-      Math.round(currentDate.getTime() / 1000) + body.expires_in - 30;
+    this.expireTime = Math.round(currentDate.getTime() / 1000) + body.expires_in - 30;
 
     return body || {};
   }

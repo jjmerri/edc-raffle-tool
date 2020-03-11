@@ -18,7 +18,7 @@ export class SlotConfirmationModalContext extends BSModalContext {
 @Component({
   selector: 'app-slot-confirmation',
   templateUrl: './slot-confirmation.modal.component.html',
-  styleUrls: ['./slot-confirmation.modal.component.css']
+  styleUrls: ['./slot-confirmation.modal.component.css'],
 })
 export class SlotConfirmationModalComponent
   implements OnInit, CloseGuard, ModalComponent<SlotConfirmationModalContext> {
@@ -43,7 +43,7 @@ export class SlotConfirmationModalComponent
   constructor(
     public dialog: DialogRef<SlotConfirmationModalContext>,
     private redditService: RedditService,
-    private modal: Modal
+    private modal: Modal,
   ) {
     this.context = dialog.context;
     dialog.setCloseGuard(this);
@@ -60,18 +60,13 @@ export class SlotConfirmationModalComponent
 
     //only allow one open modal at a time
     if (SlotConfirmationModalComponent.numOpenModals === 1) {
-      this.isDonationComment =
-        this.context.comment.data.body.indexOf(this.donatedCommentSnippet) !==
-        -1;
-      this.isCommentFromBoyAndHisBlob =
-        this.context.comment.data.author === 'BoyAndHisBlob';
+      this.isDonationComment = this.context.comment.data.body.indexOf(this.donatedCommentSnippet) !== -1;
+      this.isCommentFromBoyAndHisBlob = this.context.comment.data.author === 'BoyAndHisBlob';
       if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
         if (!this.isDonationComment) {
-          this.confirmationMessageText =
-            'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
+          this.confirmationMessageText = 'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
         } else {
-          this.confirmationMessageText =
-            'BoyAndHisBlob got {BoyAndHisBlob_ALL_SLOTS}';
+          this.confirmationMessageText = 'BoyAndHisBlob got {BoyAndHisBlob_ALL_SLOTS}';
         }
       } else {
         this.confirmationMessageText = 'Waitlist starts here.';
@@ -110,31 +105,21 @@ export class SlotConfirmationModalComponent
   }
 
   private postWaitlistCommentAndClose() {
-    this.redditService
-      .postComment(this.confirmationMessageText, this.context.comment.data.name)
-      .subscribe();
+    this.redditService.postComment(this.confirmationMessageText, this.context.comment.data.name).subscribe();
     this.closeModal(null);
   }
 
   public skipComment(sendReplyMessage: boolean) {
-    if (
-      this.confirmationMessageText.indexOf('_ALL_SLOTS') === -1 ||
-      !sendReplyMessage
-    ) {
+    if (this.confirmationMessageText.indexOf('_ALL_SLOTS') === -1 || !sendReplyMessage) {
       if (sendReplyMessage) {
-        this.redditService
-          .postComment(
-            this.confirmationMessageText,
-            this.context.comment.data.name
-          )
-          .subscribe();
+        this.redditService.postComment(this.confirmationMessageText, this.context.comment.data.name).subscribe();
       }
       this.closeModal({ slotAssignments: [] });
     } else {
       swal2(
         'Reply Not Written!',
         'It looks like you haven\'t changed the reply text. Please write your reply then click "Replay & Skip"',
-        'error'
+        'error',
       );
     }
   }
@@ -144,9 +129,7 @@ export class SlotConfirmationModalComponent
       for (let i = 0; i < this.slotAssignments.length; i++) {
         const slotAssignment = this.slotAssignments[i];
         let slotArray = slotAssignment.calledSlots.split(',');
-        const slotIndex = slotArray.indexOf(
-          this.unavailableSlots[x].toString()
-        );
+        const slotIndex = slotArray.indexOf(this.unavailableSlots[x].toString());
 
         if (slotIndex !== -1) {
           slotArray.splice(slotIndex, 1);
@@ -158,16 +141,12 @@ export class SlotConfirmationModalComponent
     }
     this.closeModal({
       slotAssignments: this.slotAssignments,
-      confirmationMessageText: this.confirmationMessageText
+      confirmationMessageText: this.confirmationMessageText,
     });
   }
 
   private addSlotAssignment(username?: string) {
-    if (
-      username &&
-      username !== this.context.comment.data.author &&
-      !this.isDonationComment
-    ) {
+    if (username && username !== this.context.comment.data.author && !this.isDonationComment) {
       let tagPrefix = '';
       if (
         this.context.comment.data.subreddit !== 'raffleTest' &&
@@ -176,8 +155,7 @@ export class SlotConfirmationModalComponent
         tagPrefix = '/u/';
       }
 
-      this.confirmationMessageText +=
-        '\n\n' + tagPrefix + username + ' got {' + username + '_ALL_SLOTS}';
+      this.confirmationMessageText += '\n\n' + tagPrefix + username + ' got {' + username + '_ALL_SLOTS}';
     }
 
     this.slotAssignments.push({
@@ -187,7 +165,7 @@ export class SlotConfirmationModalComponent
       inOrderSlots: 0,
       swappedSlots: 0,
       requester: this.context.comment.data.author,
-      donateSlot: false
+      donateSlot: false,
     });
   }
 
@@ -195,19 +173,9 @@ export class SlotConfirmationModalComponent
     if (index >= 0 && index < this.slotAssignments.length) {
       const removedUser = this.slotAssignments[index].username;
       const isAuthor = removedUser === this.context.comment.data.author;
-      const regexText =
-        (isAuthor ? 'You' : '/u/' + removedUser) +
-        ' got {' +
-        removedUser +
-        '_ALL_SLOTS}';
-      const replyRegex = new RegExp(
-        index === 0 ? regexText + '\n\n' : '\n\n' + regexText,
-        'i'
-      );
-      this.confirmationMessageText = this.confirmationMessageText.replace(
-        replyRegex,
-        ''
-      );
+      const regexText = (isAuthor ? 'You' : '/u/' + removedUser) + ' got {' + removedUser + '_ALL_SLOTS}';
+      const replyRegex = new RegExp(index === 0 ? regexText + '\n\n' : '\n\n' + regexText, 'i');
+      this.confirmationMessageText = this.confirmationMessageText.replace(replyRegex, '');
 
       this.slotAssignments.splice(index, 1);
     }
@@ -234,9 +202,7 @@ export class SlotConfirmationModalComponent
       }
 
       if (this.slotAssignments[i].calledSlots) {
-        this.slotAssignments[i].calledSlots = this.slotAssignments[
-          i
-        ].calledSlots.replace(/[^0-9,]+/g, '');
+        this.slotAssignments[i].calledSlots = this.slotAssignments[i].calledSlots.replace(/[^0-9,]+/g, '');
       }
       const slotsToCheck = this.slotAssignments[i].calledSlots;
       if (slotsToCheck) {
@@ -265,14 +231,10 @@ export class SlotConfirmationModalComponent
         this.slotAssignmentMissingSlots = true;
       }
 
-      this.numRequestedSlots +=
-        this.slotAssignments[i].randomSlots +
-        this.slotAssignments[i].inOrderSlots;
+      this.numRequestedSlots += this.slotAssignments[i].randomSlots + this.slotAssignments[i].inOrderSlots;
     }
 
-    this.requestedTooManySlots =
-      this.numRequestedSlots > this.context.numOpenSlots &&
-      !this.context.inOrderMode;
+    this.requestedTooManySlots = this.numRequestedSlots > this.context.numOpenSlots && !this.context.inOrderMode;
   }
 
   _keyPress(event: any) {
@@ -288,29 +250,20 @@ export class SlotConfirmationModalComponent
   private updateReplyText(event: any, index: number) {
     const updatedName = event.replace(new RegExp(' ', 'g'), '');
     this.confirmationMessageText = this.confirmationMessageText.replace(
-      new RegExp(
-        '{' + this.slotAssignments[index].username + '_ALL_SLOTS' + '}',
-        'ig'
-      ),
-      '{' + updatedName + '_ALL_SLOTS' + '}'
+      new RegExp('{' + this.slotAssignments[index].username + '_ALL_SLOTS' + '}', 'ig'),
+      '{' + updatedName + '_ALL_SLOTS' + '}',
     );
     this.confirmationMessageText = this.confirmationMessageText.replace(
-      new RegExp(
-        '{' + this.slotAssignments[index].username + '_CALLED_SLOTS' + '}',
-        'ig'
-      ),
-      '{' + updatedName + '_ALL_SLOTS' + '}'
+      new RegExp('{' + this.slotAssignments[index].username + '_CALLED_SLOTS' + '}', 'ig'),
+      '{' + updatedName + '_ALL_SLOTS' + '}',
     );
     this.confirmationMessageText = this.confirmationMessageText.replace(
-      new RegExp(
-        '{' + this.slotAssignments[index].username + '_RANDOM_SLOTS' + '}',
-        'ig'
-      ),
-      '{' + updatedName + '_ALL_SLOTS' + '}'
+      new RegExp('{' + this.slotAssignments[index].username + '_RANDOM_SLOTS' + '}', 'ig'),
+      '{' + updatedName + '_ALL_SLOTS' + '}',
     );
     this.confirmationMessageText = this.confirmationMessageText.replace(
       new RegExp('^/u/' + this.slotAssignments[index].username + ' got', 'igm'),
-      '/u/' + updatedName + ' got'
+      '/u/' + updatedName + ' got',
     );
     this.slotAssignments[index].username = updatedName;
   }
@@ -324,12 +277,12 @@ export class SlotConfirmationModalComponent
       .body(
         'This will assign the slot(s), mark one as paid, and add the below text to your confirmation reply. Thank you for donating!<br/><br/><i>' +
           commentText +
-          '</i>'
+          '</i>',
       )
       .open()
-      .then(dialogRef => {
+      .then((dialogRef) => {
         dialogRef.result
-          .then(result => {
+          .then((result) => {
             if (result) {
               this.confirmationMessageText += commentText;
               for (let i = 0; i < this.slotAssignments.length; i++) {
@@ -343,7 +296,7 @@ export class SlotConfirmationModalComponent
               this.assignSlots();
             }
           })
-          .catch(error => {});
+          .catch((error) => {});
       });
   }
 }

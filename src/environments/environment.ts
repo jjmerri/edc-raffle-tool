@@ -17,5 +17,5 @@ export const environment = {
   firebaseAuthDomain: '',
   firebaseDatabaseUrl: '',
   firebaseStorageBucket: '',
-  firebaseSenderId: ''
+  firebaseSenderId: '',
 };

@@ -3,7 +3,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({
   selector: 'app-mod-tools',
-  templateUrl: './mod-tools.component.html'
+  templateUrl: './mod-tools.component.html',
 })
 export class ModToolsComponent implements OnInit {
   public modToolsId = '';

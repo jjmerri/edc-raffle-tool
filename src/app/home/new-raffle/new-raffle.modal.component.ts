@@ -12,34 +12,20 @@ export class NewRaffleModalContext extends BSModalContext {
 @Component({
   selector: 'app-new-raffle',
   templateUrl: './new-raffle.modal.component.html',
-  styleUrls: ['./new-raffle.modal.component.css']
+  styleUrls: ['./new-raffle.modal.component.css'],
 })
-export class NewRaffleModalComponent
-  implements OnInit, ModalComponent<NewRaffleModalContext> {
+export class NewRaffleModalComponent implements OnInit, ModalComponent<NewRaffleModalContext> {
   private context: NewRaffleModalContext;
 
   public subs: string[];
   public locations = ['USA', 'CAN', 'Other'];
-  public raffleTypes = [
-    'Giveaway',
-    'Charity',
-    'Step',
-    'NM',
-    'Blue',
-    'Main',
-    'Gold',
-    'Custom'
-  ];
+  public raffleTypes = ['Giveaway', 'Charity', 'Step', 'NM', 'Blue', 'Main', 'Gold', 'Custom'];
 
   newRaffleForm = new FormGroup({
-    subreddit: new FormControl('placeholder', [
-      Validators.pattern(/\b(?!placeholder)\b\S+/)
-    ]),
+    subreddit: new FormControl('placeholder', [Validators.pattern(/\b(?!placeholder)\b\S+/)]),
     sellerUsername: new FormControl('', [Validators.required]),
     itemName: new FormControl('', [Validators.required]),
-    raffleType: new FormControl('placeholder', [
-      Validators.pattern(/\b(?!placeholder)\b\S+/)
-    ]),
+    raffleType: new FormControl('placeholder', [Validators.pattern(/\b(?!placeholder)\b\S+/)]),
     customType: new FormControl({ value: '', disabled: true }),
     numSlots: new FormControl(null, [Validators.required]),
     slotCost: new FormControl(null, [Validators.required]),
@@ -49,19 +35,14 @@ export class NewRaffleModalComponent
     priceJustification2: new FormControl(''),
     priceJustification3: new FormControl(''),
     priceJustification4: new FormControl(''),
-    location: new FormControl('placeholder', [
-      Validators.pattern(/\b(?!placeholder)\b\S+/)
-    ]),
+    location: new FormControl('placeholder', [Validators.pattern(/\b(?!placeholder)\b\S+/)]),
     otherLocation: new FormControl({ value: '', disabled: true }),
     shipping: new FormControl('', [Validators.required]),
     images: new FormControl('', [Validators.required]),
-    description: new FormControl('', [Validators.required])
+    description: new FormControl('', [Validators.required]),
   });
 
-  constructor(
-    public dialog: DialogRef<NewRaffleModalContext>,
-    private modal: Modal
-  ) {
+  constructor(public dialog: DialogRef<NewRaffleModalContext>, private modal: Modal) {
     this.context = dialog.context;
   }
 
@@ -83,12 +64,8 @@ export class NewRaffleModalComponent
   }
 
   private subscribeToFieldChanges() {
-    this.newRaffleForm.controls.raffleType.valueChanges.subscribe(
-      this.raffleTypeChange
-    );
-    this.newRaffleForm.controls.location.valueChanges.subscribe(
-      this.locationChange
-    );
+    this.newRaffleForm.controls.raffleType.valueChanges.subscribe(this.raffleTypeChange);
+    this.newRaffleForm.controls.location.valueChanges.subscribe(this.locationChange);
   }
 
   private raffleTypeChange = () => {
@@ -110,7 +87,7 @@ export class NewRaffleModalComponent
   };
 
   validateAllFormFields(formGroup: FormGroup) {
-    Object.keys(formGroup.controls).forEach(field => {
+    Object.keys(formGroup.controls).forEach((field) => {
       const control = formGroup.get(field);
       if (control instanceof FormControl) {
         control.markAsTouched({ onlySelf: true });
@@ -127,19 +104,19 @@ export class NewRaffleModalComponent
         overlayConfigFactory(
           {
             isBlocking: true,
-            raffleForm: this.newRaffleForm.value
+            raffleForm: this.newRaffleForm.value,
           },
-          BSModalContext
-        )
+          BSModalContext,
+        ),
       )
-      .then(dialogRef => {
+      .then((dialogRef) => {
         dialogRef.result
-          .then(newRaffle => {
+          .then((newRaffle) => {
             if (newRaffle) {
               this.dialog.close(newRaffle);
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.error(err);
           });
       });

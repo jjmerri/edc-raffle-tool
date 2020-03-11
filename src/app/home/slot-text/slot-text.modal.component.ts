@@ -10,10 +10,9 @@ export class SlotTextModalContext extends BSModalContext {
 
 @Component({
   selector: 'app-slot-text',
-  templateUrl: './slot-text.modal.component.html'
+  templateUrl: './slot-text.modal.component.html',
 })
-export class SlotTextModalComponent
-  implements OnInit, ModalComponent<SlotTextModalContext> {
+export class SlotTextModalComponent implements OnInit, ModalComponent<SlotTextModalContext> {
   private context: SlotTextModalContext;
   public commentText: string;
   public copyText: (id: string) => {};

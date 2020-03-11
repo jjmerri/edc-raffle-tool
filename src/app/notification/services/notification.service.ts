@@ -8,19 +8,11 @@ import { catchError } from 'rxjs/operators';
 export class NotificationService {
   constructor(private http: HttpClient) {}
 
-  public sendDiscordNotification(
-    discordUrl: string,
-    content: string,
-    username: string
-  ): Observable<any> {
+  public sendDiscordNotification(discordUrl: string, content: string, username: string): Observable<any> {
     let headers = new HttpHeaders({});
     headers.append('Accept', 'application/json');
     return this.http
-      .post(
-        discordUrl,
-        { content: content, username: username },
-        { headers: headers }
-      )
+      .post(discordUrl, { content: content, username: username }, { headers: headers })
       .pipe(catchError(this.handleErrorObservable));
   }
 

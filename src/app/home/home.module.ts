@@ -14,13 +14,7 @@ import { SlotTextModalComponent } from './slot-text/slot-text.modal.component';
 import { TermsOfServiceModalComponent } from './terms-of-service/terms-of-service.modal.component';
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
-    PopoverModule,
-    SharedModule
-  ],
+  imports: [BrowserModule, FormsModule, ReactiveFormsModule, PopoverModule, SharedModule],
   declarations: [
     HomeComponent,
     SlotConfirmationModalComponent,
@@ -29,7 +23,7 @@ import { TermsOfServiceModalComponent } from './terms-of-service/terms-of-servic
     FinishRaffleModalComponent,
     SlotTextModalComponent,
     NewRaffleModalComponent,
-    ConfirmNewRaffleModalComponent
+    ConfirmNewRaffleModalComponent,
   ],
   exports: [HomeComponent],
   entryComponents: [
@@ -39,8 +33,8 @@ import { TermsOfServiceModalComponent } from './terms-of-service/terms-of-servic
     FinishRaffleModalComponent,
     SlotTextModalComponent,
     NewRaffleModalComponent,
-    ConfirmNewRaffleModalComponent
+    ConfirmNewRaffleModalComponent,
   ],
-  providers: []
+  providers: [],
 })
 export class HomeModule {}

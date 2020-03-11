@@ -6,6 +6,6 @@ import { NgModule } from '@angular/core';
   declarations: [],
   exports: [],
   entryComponents: [],
-  providers: []
+  providers: [],
 })
 export class ModChatModule {}

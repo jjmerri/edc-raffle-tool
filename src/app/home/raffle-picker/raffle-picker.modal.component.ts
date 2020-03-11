@@ -8,10 +8,9 @@ export class RafflePickerModalContext extends BSModalContext {
 
 @Component({
   selector: 'app-raffle-picker',
-  templateUrl: './raffle-picker.modal.component.html'
+  templateUrl: './raffle-picker.modal.component.html',
 })
-export class RafflePickerModalComponent
-  implements OnInit, ModalComponent<RafflePickerModalContext> {
+export class RafflePickerModalComponent implements OnInit, ModalComponent<RafflePickerModalContext> {
   private context: RafflePickerModalContext;
   public raffles = [];
 
