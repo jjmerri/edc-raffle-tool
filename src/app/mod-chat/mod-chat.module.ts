@@ -10,4 +10,3 @@ import { TimeAgoPipe } from 'app/shared/time-ago.pipe';
   providers: [],
 })
 export class ModChatModule {}
-ß;
