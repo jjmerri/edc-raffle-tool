@@ -2945,16 +2945,26 @@ export class HomeComponent implements OnInit {
   }
 
   private getPaymentPmLink(): string {
-    const encodedBody = encodeURIComponent(`Raffle: ${this.currentRaffle.title}
+    const encodedBody = this.enodeUrl(`Raffle: ${this.currentRaffle.title}
 
 Spot Numbers: 
 
 PayPal Name: 
 
 PayPal Email: `);
-    const encodedSubject = encodeURIComponent(`PayPal Info For: ${this.currentRaffle.title}`);
-    const encodedUsername = encodeURIComponent(this.userName);
+    const encodedSubject = this.enodeUrl(`PayPal Info For: ${this.currentRaffle.title}`);
+    const encodedUsername = this.enodeUrl(this.userName);
 
     return `https://www.reddit.com/message/compose?to=${encodedUsername}&subject=${encodedSubject}&message=${encodedBody}`;
+  }
+
+  private enodeUrl(s: string): string {
+    let encoded = encodeURIComponent(s);
+    encoded = encoded.replace(new RegExp('!', 'g'), '%21');
+    encoded = encoded.replace(new RegExp('\\*', 'g'), '%2A');
+    encoded = encoded.replace(new RegExp('\\(', 'g'), '%28');
+    encoded = encoded.replace(new RegExp('\\)', 'g'), '%29');
+    encoded = encoded.replace(new RegExp('\'', 'g'), '%27');
+    return encoded;
   }
 }
