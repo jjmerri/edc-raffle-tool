@@ -80,6 +80,7 @@ export class SlotConfirmationModalComponent
           this.addSlotAssignment(match[1]);
           match = userMentionRegex.exec(this.context.comment.data.body);
         }
+        this.confirmationMessageText += '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
       } else {
         this.addSlotAssignment('BoyAndHisBlob');
       }

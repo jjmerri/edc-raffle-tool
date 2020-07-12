@@ -1440,6 +1440,7 @@ export class HomeComponent implements OnInit {
         new RegExp('{' + slotAssignment.assignee + '_RANDOM_SLOTS' + '}', 'ig'),
         slotAssignment.randomSlots.join(', '),
       );
+      updatedText = updatedText.replace(new RegExp('{PAYMENT_MESSAGE_LINK}', 'ig'), this.getPaymentPmLink());
     }
 
     return updatedText;
@@ -2941,5 +2942,19 @@ export class HomeComponent implements OnInit {
       }
     }
     return nextCommentIndex;
+  }
+
+  private getPaymentPmLink(): string {
+    const encodedBody = encodeURIComponent(`Raffle: ${this.currentRaffle.title}
+
+Spot Numbers: 
+
+PayPal Name: 
+
+PayPal Email: `);
+    const encodedSubject = encodeURIComponent(`PayPal Info For: ${this.currentRaffle.title}`);
+    const encodedUsername = encodeURIComponent(this.userName);
+
+    return `https://www.reddit.com/message/compose?to=${encodedUsername}&subject=${encodedSubject}&message=${encodedBody}`;
   }
 }
