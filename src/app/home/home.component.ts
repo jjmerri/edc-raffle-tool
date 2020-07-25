@@ -2952,7 +2952,7 @@ Spot Numbers:
 PayPal Name: 
 
 PayPal Email: `);
-    const encodedSubject = this.enodeUrl(`PayPal Info For: ${this.currentRaffle.title}`);
+    const encodedSubject = this.enodeUrl(`PayPal Info For: ${this.currentRaffle.title}`.substr(0, 100));
     const encodedUsername = this.enodeUrl(this.userName);
 
     return `https://www.reddit.com/message/compose?to=${encodedUsername}&subject=${encodedSubject}&message=${encodedBody}`;
