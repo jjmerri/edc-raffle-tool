@@ -32,7 +32,7 @@ export class SlotConfirmationModalComponent
   private invalidRandom = false;
   private invalidinOrder = false;
   private slotAssignmentMissingSlots = false;
-  private numRequestedSlots = 0;
+  public numRequestedSlots = 0;
   public confirmationMessageText = '';
   public formattedMessage = '';
   public isCommentFromBoyAndHisBlob = false;
@@ -80,8 +80,9 @@ export class SlotConfirmationModalComponent
           this.addSlotAssignment(match[1]);
           match = userMentionRegex.exec(this.context.comment.data.body);
         }
-        if (this.context.numOpenSlots > 0 || this.context.inOrderMode){
-          this.confirmationMessageText += '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
+        if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
+          this.confirmationMessageText +=
+            '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
         }
       } else {
         this.addSlotAssignment('BoyAndHisBlob');
