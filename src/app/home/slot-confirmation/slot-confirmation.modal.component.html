@@ -101,8 +101,8 @@
         <button type="button" class="btn btn-sm btn-success" *ngIf="slotAssignments[0].username === 'BoyAndHisBlob' && context.numOpenSlots > 0 && !context.inOrderMode && !isDonationComment" [disabled] = "!confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom" (click)="donateSlot()">Donate Slot to /u/BoyAndHisBlob...</button>
         <button *ngIf="context.numOpenSlots > 0 || context.inOrderMode" type="button" class="btn btn-default" [disabled] = "!confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom || invalidinOrder || slotAssignmentMissingSlots" (click)="assignSlots()">Assign Slots</button>
         <button *ngIf="context.numOpenSlots === 0 && !context.inOrderMode" type="button" class="btn btn-default" [disabled] = "!confirmationMessageText" (click)="postWaitlistCommentAndClose()">Post Waitlist Comment</button>
-        <button type="button" class="btn btn-default" (click)="skipComment(false)">Skip Comment</button>
-        <button type="button" class="btn btn-default" (click)="skipComment(true)">Reply & Skip</button>
+        <button type="button" class="btn btn-default" [disabled] = "numRequestedSlots > 0" (click)="skipComment(false)">Skip Comment</button>
+        <button type="button" class="btn btn-default" [disabled] = "numRequestedSlots > 0" (click)="skipComment(true)">Reply & Skip</button>
         <button type="button" class="btn btn-default" (click)="closeModal(null)">Close</button>
     </div>
 </div>
