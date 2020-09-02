@@ -441,7 +441,7 @@ export class RedditService {
               }
 
               if (z + 1 === comments.length) {
-                if (comment.kind === 'more') {
+                if (comment.kind === 'more' && comment.data.name !== 't1__') {
                   return this.getComments('', true, comment.data.children, link_id, comment.data.name);
                 } else {
                   observer.next(topLevelComments.reverse());
