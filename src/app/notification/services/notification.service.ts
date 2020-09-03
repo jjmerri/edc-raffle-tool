@@ -16,6 +16,22 @@ export class NotificationService {
       .pipe(catchError(this.handleErrorObservable));
   }
 
+  public sendSlackNotification(
+    webhookUrl: string,
+    channel: string,
+    text: string,
+    username = 'Raffle Tool',
+    icon = ':eggplant:',
+  ): Observable<any> {
+    return this.http
+      .post(
+        webhookUrl,
+        { channel, username, icon_emoji: icon, text },
+        { headers: { 'content-type': 'application/x-www-form-urlencoded' } },
+      )
+      .pipe(catchError(this.handleErrorObservable));
+  }
+
   private handleErrorObservable(error: any) {
     console.error(error.message || error);
     return observableThrowError(error.message || error);

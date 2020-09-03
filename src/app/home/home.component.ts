@@ -2075,8 +2075,9 @@ export class HomeComponent implements OnInit {
 
         swal2({
           title: 'Sub Fund Details',
-          html: `Congrats on a successful raffle! Per sub rules please send <strong>$${numSlotsToPay *
-            slotCost}</strong> to <strong>iclickhere@protonmail.com</strong> for the sub fund. Hold payment and send in at the end of the week.`,
+          html: `Congrats on a successful raffle! Per sub rules please send <strong>$${
+            numSlotsToPay * slotCost
+          }</strong> to <strong>iclickhere@protonmail.com</strong> for the sub fund. Hold payment and send in at the end of the week.`,
         });
 
         this.redditService
@@ -2236,6 +2237,16 @@ export class HomeComponent implements OnInit {
     if (this.notificationSettings && this.notificationSettings.mod_tools_discord) {
       this.notificationService
         .sendDiscordNotification(this.notificationSettings.mod_tools_discord, notification, 'Raffle Tool')
+        .subscribe((res) => {});
+    }
+
+    if (this.notificationSettings && this.notificationSettings.mod_tools_slack) {
+      this.notificationService
+        .sendSlackNotification(
+          this.notificationSettings.mod_tools_slack,
+          environment.production ? '#mod-tools' : '#mod-tools-test',
+          notification,
+        )
         .subscribe((res) => {});
     }
   }
@@ -2842,8 +2853,9 @@ export class HomeComponent implements OnInit {
 
       swal2({
         title: 'Raffle Selected For Audit',
-        text: `As a part of keeping pricing fair, ${auditPercentage *
-          100}% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have questions.`,
+        text: `As a part of keeping pricing fair, ${
+          auditPercentage * 100
+        }% of raffles are randomly selected for audit. This is one of the lucky raffles that has been randomly selected. A PM has been sent to the mods, you will NOT hear from them unless they have questions.`,
         type: 'info',
       });
     }
@@ -2964,7 +2976,7 @@ PayPal Email: `);
     encoded = encoded.replace(new RegExp('\\*', 'g'), '%2A');
     encoded = encoded.replace(new RegExp('\\(', 'g'), '%28');
     encoded = encoded.replace(new RegExp('\\)', 'g'), '%29');
-    encoded = encoded.replace(new RegExp('\'', 'g'), '%27');
+    encoded = encoded.replace(new RegExp("'", 'g'), '%27');
     return encoded;
   }
 }
