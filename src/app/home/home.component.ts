@@ -1440,7 +1440,8 @@ export class HomeComponent implements OnInit {
         new RegExp('{' + slotAssignment.assignee + '_RANDOM_SLOTS' + '}', 'ig'),
         slotAssignment.randomSlots.join(', '),
       );
-      updatedText = updatedText.replace(new RegExp('{PAYMENT_MESSAGE_LINK}', 'ig'), this.getPaymentPmLink());
+      updatedText = updatedText.replace(new RegExp('{PAYMENT_MESSAGE_LINK}', 'ig'), this.getPaymentPmLink(false));
+      updatedText = updatedText.replace(new RegExp('{IOS_PAYMENT_MESSAGE_LINK}', 'ig'), this.getPaymentPmLink(true));
     }
 
     return updatedText;
@@ -2956,14 +2957,20 @@ export class HomeComponent implements OnInit {
     return nextCommentIndex;
   }
 
-  private getPaymentPmLink(): string {
-    const encodedBody = this.enodeUrl(`Raffle: ${this.currentRaffle.title}
+  private getPaymentPmLink(iosLink: boolean): string {
+    let encodedBody = this.enodeUrl(`Raffle: ${this.currentRaffle.title}
 
 Spot Numbers: 
 
 PayPal Name: 
 
 PayPal Email: `);
+
+    // the official reddit app cant handle encoded newlines in links
+    if (iosLink) {
+      encodedBody = 'Include your PayPal name and email as well as the number of slots you bought in this message.';
+    }
+
     const encodedSubject = this.enodeUrl(`PayPal Info For: ${this.currentRaffle.title}`.substr(0, 100));
     const encodedUsername = this.enodeUrl(this.userName);
 
