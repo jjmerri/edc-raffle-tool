@@ -83,6 +83,8 @@ export class SlotConfirmationModalComponent
         if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
           this.confirmationMessageText +=
             '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
+          this.confirmationMessageText +=
+            "\n\nIf the above link doesn't work then try [this one]({IOS_PAYMENT_MESSAGE_LINK}).";
         }
       } else {
         this.addSlotAssignment('BoyAndHisBlob');
