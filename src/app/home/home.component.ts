@@ -1904,9 +1904,11 @@ export class HomeComponent implements OnInit {
                 this.redactPayPalInfo();
                 if (['WatchURaffle'].includes(this.currentRaffle.subreddit)) {
                   this.openFinishRaffleModal();
-                } else if (['lego_raffles'].includes(this.currentRaffle.subreddit)) {
-                  this.openFinishRaffleModal2();
-                } else {
+                }
+                // else if (['lego_raffles'].includes(this.currentRaffle.subreddit)) {
+                //   this.openFinishRaffleModal2();
+                // }
+                else {
                   swal2(
                     'The Bot Has Been Called!',
                     'Congrats on a successful raffle! The bot should respond to your comment shortly.',
