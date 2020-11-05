@@ -643,6 +643,9 @@ export class HomeComponent implements OnInit {
           recipient,
           subject.substr(0, 100),
           this.pmMessage +
+            (['lego_raffles'].includes(this.currentRaffle.subreddit)
+              ? '#IF YOU INCLUDE COMMENTS IN YOUR PAYPAL PAYMENT, YOU WILL BE PERMANENTLY BANNED\n\n'
+              : '') +
             (this.payPalInfo
               ? '**Please find my PayPal info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
                 'Because Reddit flags PayPal links as spam the link actually performs a redirect through The Raffle Tool and will not link directly to PayPal\n\n'
