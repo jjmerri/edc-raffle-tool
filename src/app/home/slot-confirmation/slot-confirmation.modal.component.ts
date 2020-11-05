@@ -85,9 +85,6 @@ export class SlotConfirmationModalComponent
             '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
           this.confirmationMessageText +=
             "\n\nIf the above link doesn't work then try [this one]({IOS_PAYMENT_MESSAGE_LINK}).";
-          this.confirmationMessageText += ['lego_raffles', 'raffleTest'].includes(this.context.comment.data.subreddit)
-            ? '\n\n#IF YOU INCLUDE COMMENTS IN YOUR PAYPAL PAYMENT, YOU WILL BE PERMANENTLY BANNED'
-            : '';
         }
       } else {
         this.addSlotAssignment('BoyAndHisBlob');
