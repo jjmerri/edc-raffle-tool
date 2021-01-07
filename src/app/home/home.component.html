@@ -192,7 +192,7 @@
                 id="payPalInfo"
                 [(ngModel)]="payPalInfo"
                 (focus)="showPayPalWarning($event)"
-                (change)="modifyPayPalMe()"
+                (change)='modifyPayPalMe("MANUAL")'
               />
             </div>
           </div>
