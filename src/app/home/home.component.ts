@@ -1521,8 +1521,9 @@ export class HomeComponent implements OnInit {
 
     const payPalInfo = JSON.parse(localStorage.getItem('payPalInfo'));
     if (payPalInfo !== null) {
+      this.loggingService.logMessage(`loading paypal info: ${payPalInfo}`, LoggingLevel.INFO);
       this.payPalInfo = payPalInfo;
-      this.modifyPayPalMe();
+      this.modifyPayPalMe('loadStorage');
     }
   }
 
@@ -1798,7 +1799,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private modifyPayPalMe() {
+  private modifyPayPalMe(source: string) {
     const ppRegEx = new RegExp('(paypal.me)', 'i');
     const httpsRegEx = new RegExp('(https://|www.)paypal.me', 'i');
 
@@ -1808,6 +1809,7 @@ export class HomeComponent implements OnInit {
       }
     }
     localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
+    this.loggingService.logMessage(`modified paypal info from ${source}: ${this.payPalInfo}`, LoggingLevel.INFO);
   }
 
   public shuffleSlots() {
