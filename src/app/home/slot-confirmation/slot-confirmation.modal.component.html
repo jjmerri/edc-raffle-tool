@@ -6,6 +6,17 @@
     <div class="modal-body well" innerHtml="{{formattedMessage}}">
     </div>
 
+
+    <div *ngIf="linksInfo?.length > 0" class="modal-body well">
+        <div class="panel panel-default" *ngFor="let linkInfo of linksInfo; let i = index">
+            <p>Link {{i + 1}}: date of comment: <strong>{{linkInfo.dateCommentCreated}}</strong></p>
+            <p>User requesting spot is same user from link: <strong>{{linkInfo.linkAuthorMatches}}</strong></p>
+            <p>User is in raffle and paid: <strong>{{linkInfo.userIsInRaffle}}</strong></p>
+            <p>Raffle is complete: <strong>{{linkInfo.postIsComplete}}</strong></p>
+            <p>Parent is Post: <strong>{{linkInfo.parentIsPost}}</strong></p>
+        </div>
+    </div>
+
     <div class="modal-body" >
         <label *ngIf="context.numOpenSlots > 0 || context.inOrderMode" for="confirmationMessage">Confirmation Reply:</label>
         <label *ngIf="context.numOpenSlots === 0 && !context.inOrderMode" for="confirmationMessage">Waitlist Reply: </label>

@@ -7,6 +7,7 @@ import { RedditService } from '../../reddit/services/reddit.service';
 
 export class SlotConfirmationModalContext extends BSModalContext {
   public comment: any;
+  public raffle: any;
   public callingComponent: any;
   public numOpenSlots: number;
   public inOrderMode: boolean;
@@ -39,6 +40,8 @@ export class SlotConfirmationModalComponent
   public isDonationComment = false;
   private donatedCommentSnippet =
     'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool';
+  private urlRegex = /\[?\bhttps?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/gi;
+  public linksInfo = [];
 
   constructor(
     public dialog: DialogRef<SlotConfirmationModalContext>,
@@ -55,6 +58,45 @@ export class SlotConfirmationModalComponent
 
     txt = document.createElement('temptxt');
     txt.innerHTML = this.context.comment.data.body_html;
+
+    const urlMatches = this.context.comment.data.body.matchAll(this.urlRegex);
+
+    try {
+      if (this.context.raffle.title.toUpperCase().includes('GIVEAWAY')) {
+        for (const match of urlMatches) {
+          if (match[0].startsWith('[')) {
+            continue;
+          }
+          const url = new URL(match[0]);
+
+          if (url.host.includes('reddit.com')) {
+            this.redditService.getSubmission(url.pathname + '.json').subscribe((getSubmissionResponse) => {
+              const post = getSubmissionResponse[0].data.children[0].data;
+              const comment = getSubmissionResponse[1].data.children[0].data;
+              const userRegex = new RegExp(`[0-9]+ \/u\/${comment.author} \\*\\*PAID\\*\\*`);
+
+              const parentIsPost = post.name === comment.parent_id;
+              const postIsComplete = post.link_flair_text.toUpperCase() === 'COMPLETE';
+              const userIsInRaffle = userRegex.test(post.selftext);
+              const dateCommentCreated = new Date(comment.created_utc * 1000);
+              const linkAuthorMatches = comment.author === this.context.comment.data.author;
+
+              this.linksInfo.push({
+                url: match[0],
+                parentIsPost,
+                postIsComplete,
+                userIsInRaffle,
+                dateCommentCreated,
+                linkAuthorMatches,
+              });
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
     this.formattedMessage = txt.innerText;
     SlotConfirmationModalComponent.numOpenModals++;
 
