@@ -1117,6 +1117,7 @@ export class HomeComponent implements OnInit {
         overlayConfigFactory(
           {
             isBlocking: true,
+            raffle: this.currentRaffle,
             comment: comments[commentIndex],
             callingComponent: this,
             numOpenSlots: this.numOpenSlots,
