@@ -59,9 +59,8 @@ export class SlotConfirmationModalComponent
     txt = document.createElement('temptxt');
     txt.innerHTML = this.context.comment.data.body_html;
 
-    const urlMatches = this.context.comment.data.body.matchAll(this.urlRegex);
-
     try {
+      const urlMatches = this.context.comment.data.body.matchAll(this.urlRegex);
       if (this.context.raffle.title.toUpperCase().includes('GIVEAWAY')) {
         for (const match of urlMatches) {
           if (match[0].startsWith('[')) {
