@@ -82,6 +82,7 @@ export class HomeComponent implements OnInit {
   private collectingPaymentsFlairId: string;
   private customRainbowFlairId: string;
   private completeFlairId: string;
+  private cancelledFlairId: string;
   private canEditFlair = false;
 
   private readonly permalinkPlaceholder = '{announcementPermalink}';
@@ -1858,6 +1859,7 @@ export class HomeComponent implements OnInit {
             this.collectingPaymentsFlairId = flairSettings.collecting;
             this.customRainbowFlairId = flairSettings.editable;
             this.completeFlairId = flairSettings.complete;
+            this.cancelledFlairId = flairSettings.cancelled;
           }
 
           if (flairSettings && flairSettings.editable) {
@@ -2993,5 +2995,22 @@ PayPal Email: `);
     encoded = encoded.replace(new RegExp('\\)', 'g'), '%29');
     encoded = encoded.replace(new RegExp("'", 'g'), '%27');
     return encoded;
+  }
+
+  private cancelRaffle() {
+    swal2({
+      title: 'Are You Sure You Want To Cancel your Raffle?',
+      text: 'This will change the flair to cancelled and redact your PayPal Info.',
+      type: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonText: 'Abort',
+      confirmButtonText: 'Cancel Raffle',
+    }).then((result) => {
+      if (result.value) {
+        this.updateFlair(this.cancelledFlairId, 'Cancelled');
+        this.redactPayPalInfo();
+      }
+    });
   }
 }

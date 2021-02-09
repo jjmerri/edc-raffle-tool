@@ -140,6 +140,10 @@
   <div *ngIf="currentRaffle" class="col-xs-6">
     <div class="well-sm">
       <div class="text-right">
+
+        <a style="margin-right: 1rem;" class="btn btn-sm btn-primary" (click)="cancelRaffle()"
+          >Cancel Raffle...</a
+        >
         <a class="btn btn-sm btn-primary" (click)="tagUsers()"
           >Tag Users To Raffle...</a
         >
