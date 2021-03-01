@@ -122,7 +122,9 @@ export class SlotConfirmationModalComponent
           match = userMentionRegex.exec(this.context.comment.data.body);
         }
         if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
-          this.confirmationMessageText += ['lego_raffles'].includes(this.context.comment.data.subreddit)
+          this.confirmationMessageText += ['lego_raffles', 'WatchURaffle', 'raffleTest'].includes(
+            this.context.comment.data.subreddit,
+          )
             ? '\n\n**Do not put any comments in your Paypal message or you will be permanently banned.**'
             : '';
           this.confirmationMessageText +=
