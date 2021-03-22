@@ -1963,7 +1963,7 @@ export class HomeComponent implements OnInit {
                 this.loggingService.logMessage('callTheBot:' + JSON.stringify(res), LoggingLevel.INFO);
                 this.botCalled = true;
 
-                this.redactPayPalInfo();
+                this.redactPaymentInfo();
                 if (['WatchURaffle'].includes(this.currentRaffle.subreddit)) {
                   this.openFinishRaffleModal();
                 }
@@ -2166,11 +2166,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private redactPayPalInfo() {
-    if (!this.payPalInfo) {
-      return;
-    }
-
+  private redactPaymentInfo() {
     this.redditService.getSubmission(this.currentRaffle.permalink + '.json').subscribe(
       (getSubmissionResponse) => {
         let txt: any;
@@ -2183,6 +2179,9 @@ export class HomeComponent implements OnInit {
 
         const re2 = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.com[^*]*)(\*\*\n\n)/i;
         postText = postText.replace(re2, '$1[REDACTED]$3');
+
+        const cashAppRe = /(\n\n\*\*Cash App Info: )(\[https:\/\/cash.app[^*]*)(\*\*\n\n)/i;
+        postText = postText.replace(cashAppRe, '$1[REDACTED]$3');
 
         this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
           (postResponse) => {
@@ -3063,7 +3062,7 @@ PayPal Email: `);
     }).then((result) => {
       if (result.value) {
         this.updateFlair(this.cancelledFlairId, 'Cancelled');
-        this.redactPayPalInfo();
+        this.redactPaymentInfo();
       }
     });
   }
