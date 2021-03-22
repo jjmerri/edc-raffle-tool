@@ -55,10 +55,12 @@ export class HomeComponent implements OnInit {
   public currentRaffle;
   private raffleImported = false;
   private payPalMessageShown = false;
+  private cashAppMessageShown = false;
   private paidPopoverProperties = {};
   public closePopOver = false;
   public numOpenSlots = this.numSlots;
   private payPalInfo: string;
+  private cashAppInfo: string;
   private pmMessage =
     'Thank you for participating in the raffle.\n\n' +
     '**Please reply to this message in this format:**\n\n' +
@@ -541,6 +543,7 @@ export class HomeComponent implements OnInit {
 
   private getSlotListText(numOpenSlots, numUnpaidUsers, numUnpaidSlots, slotList): string {
     let payPalInfo = this.getPaypalInfo();
+    let cashAppInfo = this.getCashAppInfo();
     let auditText = '';
 
     if (this.raffleProperties.audited) {
@@ -551,7 +554,8 @@ export class HomeComponent implements OnInit {
       '<raffle-tool>\n\n' +
       auditText +
       payPalInfo +
-      '**[Tip BoyAndHisBlob](https://blobware-tips.firebaseapp.com)**\n\n' +
+      cashAppInfo +
+      '&#x200b;\n\n**[Tip BoyAndHisBlob](https://blobware-tips.firebaseapp.com)**\n\n' +
       'Number of vacant slots: ' +
       numOpenSlots +
       '\n\n' +
@@ -582,7 +586,26 @@ export class HomeComponent implements OnInit {
       if (ppRegEx.test(this.payPalInfo) || pp2RegEx.test(this.payPalInfo)) {
         payPalFormatted = '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
       }
-      return '**PayPal Info: ' + payPalFormatted + '**\n\n&#x200b;\n\n';
+      return '**PayPal Info: ' + payPalFormatted + '**\n\n';
+    } else {
+      return '';
+    }
+  }
+
+  private getCashAppInfo(): string {
+    if (this.cashAppInfo) {
+      let cashAppFormatted = this.cashAppInfo;
+      const cashAppRegEx = new RegExp('(cash.app)', 'i');
+
+      //move this to a config item instead of being lazy
+      let cashAppText = this.cashAppInfo;
+      if (this.currentRaffle.subreddit === 'lego_raffles') {
+        cashAppText = 'https://cash.app';
+      }
+      if (cashAppRegEx.test(this.cashAppInfo)) {
+        cashAppFormatted = '[' + cashAppText + '](' + this.redirectUrl + this.cashAppInfo + ')';
+      }
+      return '**Cash App Info: ' + cashAppFormatted + '**\n\n';
     } else {
       return '';
     }
@@ -627,6 +650,17 @@ export class HomeComponent implements OnInit {
         'info',
       );
       this.payPalMessageShown = true;
+    }
+  }
+
+  private showCashAppWarning(event: any) {
+    if (!this.cashAppMessageShown) {
+      swal2(
+        '',
+        "Entering your Cash App info will cause your Cash App link to be displayed in your raffle. You won't get this message again.",
+        'info',
+      );
+      this.cashAppMessageShown = true;
     }
   }
 
@@ -1527,6 +1561,13 @@ export class HomeComponent implements OnInit {
       this.payPalInfo = payPalInfo;
       this.modifyPayPalMe('loadStorage');
     }
+
+    const cashAppInfo = JSON.parse(localStorage.getItem('cashAppInfo'));
+    if (cashAppInfo !== null) {
+      this.loggingService.logMessage(`loading Cash App info: ${cashAppInfo}`, LoggingLevel.INFO);
+      this.cashAppInfo = cashAppInfo;
+      this.modifyCashApp('loadStorage');
+    }
   }
 
   private showNewFeatureMessage() {
@@ -1812,6 +1853,19 @@ export class HomeComponent implements OnInit {
     }
     localStorage.setItem('payPalInfo', JSON.stringify(this.payPalInfo));
     this.loggingService.logMessage(`modified paypal info from ${source}: ${this.payPalInfo}`, LoggingLevel.INFO);
+  }
+
+  private modifyCashApp(source: string) {
+    const cashAppRegEx = new RegExp('(www.)?(cash.app)', 'i');
+    const httpsRegEx = new RegExp('(https://)cash.app', 'i');
+
+    if (cashAppRegEx.test(this.cashAppInfo)) {
+      if (!httpsRegEx.test(this.cashAppInfo)) {
+        this.cashAppInfo = this.cashAppInfo.replace(cashAppRegEx, 'https://$2');
+      }
+    }
+    localStorage.setItem('cashAppInfo', JSON.stringify(this.cashAppInfo));
+    this.loggingService.logMessage(`modified Cash App info from ${source}: ${this.cashAppInfo}`, LoggingLevel.INFO);
   }
 
   public shuffleSlots() {

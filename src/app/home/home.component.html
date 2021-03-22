@@ -185,6 +185,11 @@
           </div>
 
           <div class="col-xs-5">
+            
+          </div>
+        </div>
+        <div class="row" *ngIf="currentRaffle">
+          <div class="col-xs-8">
             <div class="text-right">
               <label for="payPalInfo"
                 ><a href="https://www.paypal.me" target="_blank"
@@ -197,6 +202,19 @@
                 [(ngModel)]="payPalInfo"
                 (focus)="showPayPalWarning($event)"
                 (change)='modifyPayPalMe("MANUAL")'
+              />
+            </div>
+          </div>
+          <div class="col-xs-4">
+            <div class="text-right">
+              <label for="cashAppInfo"><br />Cash App Info:
+              </label>
+              <input
+                type="text"
+                id="cashApplInfo"
+                [(ngModel)]="cashAppInfo"
+                (focus)="showCashAppWarning($event)"
+                (change)='modifyCashApp("MANUAL")'
               />
             </div>
           </div>
