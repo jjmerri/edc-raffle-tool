@@ -201,6 +201,23 @@
             </div>
           </div>
         </div>
+        <div class="row" *ngIf="currentRaffle">
+          <div class="col-xs-7">
+          </div>
+          <div class="col-xs-5">
+            <div class="text-right">
+              <label for="cashAppInfo"><br />Cash App Info:
+              </label>
+              <input
+                type="text"
+                id="cashApplInfo"
+                [(ngModel)]="cashAppInfo"
+                (focus)="showCashAppWarning($event)"
+                (change)='modifyCashApp("MANUAL")'
+              />
+            </div>
+          </div>
+        </div>
 
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-3">
