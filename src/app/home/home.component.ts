@@ -138,6 +138,8 @@ export class HomeComponent implements OnInit {
 
   private hasCommentsToProcess: boolean = false;
   private hasPmsToProcess: boolean = false;
+  private shouldRetryUpdateCommentText: boolean = false;
+  private shouldRetryRedactPaymentInfo: boolean = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -378,7 +380,12 @@ export class HomeComponent implements OnInit {
           } else {
             this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
               (postResponse) => {
-                this.currentRaffle = postResponse.json.data.things[0].data;
+                if (postResponse.json.ratelimit) {
+                  this.shouldRetryUpdateCommentText = true;
+                  setTimeout(() => this.retryUpdateCommentText(), postResponse.json.ratelimit * 1000);
+                } else {
+                  this.currentRaffle = postResponse.json.data.things[0].data;
+                }
               },
               (err) => {
                 this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
@@ -417,7 +424,7 @@ export class HomeComponent implements OnInit {
         },
         (err) => {
           this.loggingService.logMessage('getSubmission:' + JSON.stringify(err), LoggingLevel.ERROR);
-          console.error(err);
+          console.error('error updating post', err);
         },
       );
     }
@@ -2185,7 +2192,12 @@ export class HomeComponent implements OnInit {
 
         this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
           (postResponse) => {
-            this.currentRaffle = postResponse.json.data.things[0].data;
+            if (postResponse.json.ratelimit) {
+              this.shouldRetryRedactPaymentInfo = true;
+              setTimeout(() => this.retryRedactPaymentInfo(), postResponse.json.ratelimit * 1000);
+            } else {
+              this.currentRaffle = postResponse.json.data.things[0].data;
+            }
           },
           (err) => {
             this.loggingService.logMessage('updatePostText:' + JSON.stringify(err), LoggingLevel.ERROR);
@@ -3065,5 +3077,19 @@ PayPal Email: `);
         this.redactPaymentInfo();
       }
     });
+  }
+
+  private retryUpdateCommentText() {
+    if (this.shouldRetryUpdateCommentText) {
+      this.shouldRetryUpdateCommentText = false;
+      this.updateCommentText();
+    }
+  }
+
+  private retryRedactPaymentInfo() {
+    if (this.shouldRetryRedactPaymentInfo) {
+      this.shouldRetryRedactPaymentInfo = false;
+      this.redactPaymentInfo();
+    }
   }
 }
