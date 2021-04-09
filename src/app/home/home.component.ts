@@ -97,7 +97,7 @@ export class HomeComponent implements OnInit {
   private isSlotAssignmentHelperRunning = false;
   private interuptSlotAssignmentHelper = false;
   private haveShownModChatMessage = false;
-  private redirectUrl = 'https://redirect-ddff2.firebaseapp.com/index.html?redirectUrl=';
+  private redirectUrl = 'https://redirect-14762.firebaseapp.com/index.html?redirectUrl=';
   private modToolsDiscordUrl = null;
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
