@@ -2181,13 +2181,13 @@ export class HomeComponent implements OnInit {
         txt.innerHTML = this.currentRaffle.selftext;
         let postText = txt.innerText;
 
-        const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.me[^*]*)(\*\*\n\n)/i;
+        const re = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/(?:www.)?paypal.me[^*]*)(\*\*\n\n)/i;
         postText = postText.replace(re, '$1[REDACTED]$3');
 
-        const re2 = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/www.paypal.com[^*]*)(\*\*\n\n)/i;
+        const re2 = /(<raffle-tool>\n\n\*\*PayPal Info: )(\[https:\/\/(?:www.)?paypal.com[^*]*)(\*\*\n\n)/i;
         postText = postText.replace(re2, '$1[REDACTED]$3');
 
-        const cashAppRe = /(\n\n\*\*Cash App Info: )(\[https:\/\/cash.app[^*]*)(\*\*\n\n)/i;
+        const cashAppRe = /(\n\n\*\*Cash App Info: )(\[https:\/\/(?:www.)?cash.app[^*]*)(\*\*\n\n)/i;
         postText = postText.replace(cashAppRe, '$1[REDACTED]$3');
 
         this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
