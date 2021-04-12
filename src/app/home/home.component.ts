@@ -66,9 +66,9 @@ export class HomeComponent implements OnInit {
     '**Please reply to this message in this format:**\n\n' +
     '*Raffle:*\n\n' +
     '*Spot Numbers:*\n\n' +
-    '*PayPal Name:*\n\n' +
-    '*PayPal Email:*\n\n' +
-    '**Please submit your payment using Friends and Family and leave nothing in the notes or comments.**\n\n';
+    '*Payment Name:*\n\n' +
+    '*Payment Email:*\n\n' +
+    '**Please submit your payment without adding any notes.**\n\n';
   private popUpTimer: any;
   private confirmedComments = [];
   private shownNewFeatureMessage = true;
@@ -679,18 +679,18 @@ export class HomeComponent implements OnInit {
       ((this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') ||
         this.userName.toUpperCase() === recipient.toUpperCase())
     ) {
-      const subject = 'PayPal Info For: ' + this.currentRaffle.title;
+      const subject = 'Payment Info For: ' + this.currentRaffle.title;
       this.redditService
         .sendPm(
           recipient,
           subject.substr(0, 100),
           this.pmMessage +
             (['lego_raffles'].includes(this.currentRaffle.subreddit)
-              ? '#IF YOU INCLUDE COMMENTS IN YOUR PAYPAL PAYMENT, YOU WILL BE PERMANENTLY BANNED\n\n'
+              ? '#IF YOU INCLUDE COMMENTS IN YOUR PAYMENT, YOU WILL BE PERMANENTLY BANNED\n\n'
               : '') +
             (this.payPalInfo
-              ? '**Please find my PayPal info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
-                'Because Reddit flags PayPal links as spam the link actually performs a redirect through The Raffle Tool and will not link directly to PayPal\n\n'
+              ? '**Please find my payment info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
+                'Because Reddit flags payment links as spam the link actually performs a redirect through The Raffle Tool and will not link directly to the payment provider\n\n'
               : '') +
             '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n',
         )
@@ -3037,16 +3037,16 @@ export class HomeComponent implements OnInit {
 
 Spot Numbers: 
 
-PayPal Name: 
+Payment Name: 
 
-PayPal Email: `);
+Payment Email: `);
 
     // the official reddit app cant handle encoded newlines in links
     if (iosLink) {
-      encodedBody = 'Include your PayPal name and email as well as the number of slots you bought in this message.';
+      encodedBody = 'Include your payment name and email as well as the number of slots you bought in this message.';
     }
 
-    const encodedSubject = this.enodeUrl(`PayPal Info For: ${this.currentRaffle.title}`.substr(0, 100));
+    const encodedSubject = this.enodeUrl(`Payment Info For: ${this.currentRaffle.title}`.substr(0, 100));
     const encodedUsername = this.enodeUrl(this.userName);
 
     return `https://www.reddit.com/message/compose?to=${encodedUsername}&subject=${encodedSubject}&message=${encodedBody}`;
@@ -3065,7 +3065,7 @@ PayPal Email: `);
   private cancelRaffle() {
     swal2({
       title: 'Are You Sure You Want To Cancel your Raffle?',
-      text: 'This will change the flair to cancelled and redact your PayPal Info.',
+      text: 'This will change the flair to cancelled and redact your payment Info.',
       type: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
