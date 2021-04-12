@@ -123,10 +123,10 @@ export class SlotConfirmationModalComponent
         }
         if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
           this.confirmationMessageText += ['lego_raffles'].includes(this.context.comment.data.subreddit)
-            ? '\n\n**Do not put any comments in your Paypal message or you will be permanently banned.**'
+            ? '\n\n**Do not put any comments in your payment message or you will be permanently banned.**'
             : '';
           this.confirmationMessageText += ['WatchURaffle', 'raffleTest'].includes(this.context.comment.data.subreddit)
-            ? '\n\n**Do not put any comments in your PP message or you will be permanently banned. All payments must be made as PP Friends & Family.**'
+            ? '\n\n**Do not include any comments with your payment or you will be permanently banned.**'
             : '';
           this.confirmationMessageText +=
             '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';

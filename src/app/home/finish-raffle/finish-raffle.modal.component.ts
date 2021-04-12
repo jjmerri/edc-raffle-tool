@@ -84,7 +84,7 @@ export class FinishRaffleModalComponent implements OnInit, ModalComponent<Finish
     '! Per sub rules, I am required to collect the sub fund contribution from you before anything is shipped. ' +
     'Please send **$' +
     this.winnersContributionPlaceholder +
-    '** to the same PayPal that you sent raffle payment to: ' +
+    '** to the same payment address that you sent raffle payment to: ' +
     this.paypalPlaceHolder +
     '\n\n' +
     this.calculationMessage;
@@ -205,10 +205,7 @@ export class FinishRaffleModalComponent implements OnInit, ModalComponent<Finish
   }
 
   private getCurrentDate(): string {
-    const dateParts = new Date()
-      .toISOString()
-      .slice(0, 10)
-      .split('-');
+    const dateParts = new Date().toISOString().slice(0, 10).split('-');
 
     return dateParts[1] + '/' + dateParts[2] + '/' + dateParts[0];
   }
