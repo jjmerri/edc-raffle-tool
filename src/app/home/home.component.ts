@@ -3074,6 +3074,7 @@ Payment Email: `);
     }).then((result) => {
       if (result.value) {
         this.updateFlair(this.cancelledFlairId, 'Cancelled');
+        this.redditService.postComment('This raffle has been cancelled.', this.currentRaffle.name).subscribe();
         this.redactPaymentInfo();
       }
     });
