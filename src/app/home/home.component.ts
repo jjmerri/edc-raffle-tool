@@ -102,7 +102,7 @@ export class HomeComponent implements OnInit {
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
 
-  private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest'];
+  private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest', 'FiftyFiftyToken'];
   private mods = {
     lego_raffles: ['viljedi', 'legorafflemod', 'Zunger', 'Nathan_Lego_Raffles'],
     WatchURaffle: [
@@ -132,6 +132,7 @@ export class HomeComponent implements OnInit {
     Knife_Swap: ['UNKNOWN'],
     raffleTest: ['BoyAndHisBlob'],
     PenRaffle: ['Turokman123'],
+    FiftyFiftyToken: ['BoyAndHisBlob'],
   };
 
   private auditPercentageMap = { WatchURaffle: 0.03 };
@@ -1407,10 +1408,14 @@ export class HomeComponent implements OnInit {
       if (updateText) {
         this.updateCommentText();
       }
-      this.sendParticipantPm(username);
 
-      if (username !== requester) {
-        this.sendParticipantPm(requester);
+      // dont send pms for these subreddits
+      if (!['FiftyFiftyToken'].includes(this.currentRaffle.subreddit)) {
+        this.sendParticipantPm(username);
+
+        if (username !== requester) {
+          this.sendParticipantPm(requester);
+        }
       }
     }
   }
@@ -2346,8 +2351,7 @@ export class HomeComponent implements OnInit {
 
     swal2({
       title: 'You Have A New Mod Chat Message!',
-      text:
-        'Please read the new message in the Mod Chat in the bottom right of the tool before continuing with your raffle. It could be time sensitive.',
+      text: 'Please read the new message in the Mod Chat in the bottom right of the tool before continuing with your raffle. It could be time sensitive.',
       type: 'info',
       confirmButtonColor: '#3085d6',
       confirmButtonText: 'OK',
@@ -2563,8 +2567,7 @@ export class HomeComponent implements OnInit {
   private pageUnpaid() {
     swal2({
       title: 'Page Unpaid Users?',
-      text:
-        'Clicking "Page Unpaid" will post the specified comment and tag all unpaid users. Click "Cancel" if you don\'t want to do this.',
+      text: 'Clicking "Page Unpaid" will post the specified comment and tag all unpaid users. Click "Cancel" if you don\'t want to do this.',
       input: 'textarea',
       inputValue:
         'Attention unpaid participants: You have 10 minutes from now to pay or I will remove your slots and move to the waitlist.',
@@ -2597,8 +2600,7 @@ export class HomeComponent implements OnInit {
   private removeUnpaid() {
     swal2({
       title: 'Remove Unpaid Users?',
-      text:
-        'Clicking "Remove Unpaid" will remove all users from unpaid slots, post the specified comment, and tag all unpaid users. Click "Cancel" if you don\'t want to do this.',
+      text: 'Clicking "Remove Unpaid" will remove all users from unpaid slots, post the specified comment, and tag all unpaid users. Click "Cancel" if you don\'t want to do this.',
       input: 'textarea',
       inputValue: 'Attention unpaid participants: your unpaid slots have been removed due to lack of payment.',
       confirmButtonText: 'Remove Unpaid',

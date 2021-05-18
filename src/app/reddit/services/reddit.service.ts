@@ -34,6 +34,7 @@ export class RedditService {
     'raffleTest',
     'lego_raffles',
     'Knife_Swap',
+    'FiftyFiftyToken',
   ];
   private subSubmissionAgeDays = {
     RocketLeagueExchange: 7,
@@ -47,6 +48,7 @@ export class RedditService {
     raffleTest: 2,
     lego_raffles: 2,
     Knife_Swap: 2,
+    FiftyFiftyToken: 7,
   };
   private maxSubmissionAgeDays = 14;
 
