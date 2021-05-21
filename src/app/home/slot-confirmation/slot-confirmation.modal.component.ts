@@ -22,7 +22,8 @@ export class SlotConfirmationModalContext extends BSModalContext {
   styleUrls: ['./slot-confirmation.modal.component.css'],
 })
 export class SlotConfirmationModalComponent
-  implements OnInit, CloseGuard, ModalComponent<SlotConfirmationModalContext> {
+  implements OnInit, CloseGuard, ModalComponent<SlotConfirmationModalContext>
+{
   private static numOpenModals = 0;
 
   public context: SlotConfirmationModalContext;
@@ -128,10 +129,12 @@ export class SlotConfirmationModalComponent
           this.confirmationMessageText += ['WatchURaffle', 'raffleTest'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not include any comments with your payment or you will be permanently banned.**'
             : '';
-          this.confirmationMessageText +=
-            '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
-          this.confirmationMessageText +=
-            "\n\nIf the above link doesn't work then try [this one]({IOS_PAYMENT_MESSAGE_LINK}).";
+          if (!['FiftyFiftyToken'].includes(this.context.comment.data.subreddit)) {
+            this.confirmationMessageText +=
+              '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
+            this.confirmationMessageText +=
+              "\n\nIf the above link doesn't work then try [this one]({IOS_PAYMENT_MESSAGE_LINK}).";
+          }
         }
       } else {
         this.addSlotAssignment('BoyAndHisBlob');

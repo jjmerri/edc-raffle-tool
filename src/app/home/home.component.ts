@@ -558,20 +558,24 @@ export class HomeComponent implements OnInit {
       auditText = `The Raffle Tool has randomly selected this raffle for a price audit to be conducted by the mods.\n\n`;
     }
 
+    const metrics = !['FiftyFiftyToken'].includes(this.currentRaffle.subreddit)
+      ? 'Number of vacant slots: ' +
+        numOpenSlots +
+        '\n\n' +
+        'Number of unpaid users: ' +
+        numUnpaidUsers +
+        '\n\n' +
+        'Number of unpaid slots: ' +
+        numUnpaidSlots
+      : '';
+
     return (
       '<raffle-tool>\n\n' +
       auditText +
       payPalInfo +
       cashAppInfo +
       '&#x200b;\n\n**[Tip BoyAndHisBlob](https://blobware-tips.firebaseapp.com)**\n\n' +
-      'Number of vacant slots: ' +
-      numOpenSlots +
-      '\n\n' +
-      'Number of unpaid users: ' +
-      numUnpaidUsers +
-      '\n\n' +
-      'Number of unpaid slots: ' +
-      numUnpaidSlots +
+      metrics +
       '\n\n' +
       'This slot list is created and updated by ' +
       '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' +
@@ -581,6 +585,10 @@ export class HomeComponent implements OnInit {
   }
 
   private getPaypalInfo(): string {
+    if (['FiftyFiftyToken'].includes(this.currentRaffle.subreddit)) {
+      return '';
+    }
+
     if (this.payPalInfo) {
       let payPalFormatted = this.payPalInfo;
       const ppRegEx = new RegExp('(paypal.me)', 'i');
@@ -601,6 +609,10 @@ export class HomeComponent implements OnInit {
   }
 
   private getCashAppInfo(): string {
+    if (['FiftyFiftyToken'].includes(this.currentRaffle.subreddit)) {
+      return '';
+    }
+
     if (this.cashAppInfo) {
       let cashAppFormatted = this.cashAppInfo;
       const cashAppRegEx = new RegExp('(cash.app)', 'i');
