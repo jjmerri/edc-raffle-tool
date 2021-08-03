@@ -102,7 +102,7 @@ export class HomeComponent implements OnInit {
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
 
-  private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest', 'FiftyFiftyToken'];
+  private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken'];
   private mods = {
     lego_raffles: ['viljedi', 'legorafflemod', 'Zunger', 'Nathan_Lego_Raffles'],
     WatchURaffle: [
@@ -130,7 +130,7 @@ export class HomeComponent implements OnInit {
     SSBM: ['UNKNOWN'],
     RocketLeagueExchange: ['UNKNOWN'],
     Knife_Swap: ['UNKNOWN'],
-    raffleTest: ['BoyAndHisBlob'],
+    raffleTest2: ['BlobAndHisBoy'],
     PenRaffle: ['Turokman123'],
     FiftyFiftyToken: ['BoyAndHisBlob'],
   };
@@ -689,7 +689,7 @@ export class HomeComponent implements OnInit {
       recipient &&
       this.raffleProperties.willSendParticipantPm &&
       this.paypalPmRecipients.indexOf(recipient.toUpperCase()) === -1 &&
-      ((this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') ||
+      ((this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest2') ||
         this.userName.toUpperCase() === recipient.toUpperCase())
     ) {
       const subject = 'Payment Info For: ' + this.currentRaffle.title;
@@ -2672,7 +2672,7 @@ export class HomeComponent implements OnInit {
             const raffler = unpaidUsersArrayCopy[x];
             if (
               this.currentRaffle.subreddit !== 'testingground4bots' &&
-              this.currentRaffle.subreddit !== 'raffleTest'
+              this.currentRaffle.subreddit !== 'raffleTest2'
             ) {
               pageList.push(raffler);
             } else {
@@ -2807,7 +2807,7 @@ export class HomeComponent implements OnInit {
   }
 
   private getSanitizedUserName(userName): string {
-    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest') {
+    if (this.currentRaffle.subreddit !== 'testingground4bots' && this.currentRaffle.subreddit !== 'raffleTest2') {
       return userName;
     } else {
       return this.userName;

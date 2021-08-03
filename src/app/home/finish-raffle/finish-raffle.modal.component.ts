@@ -28,13 +28,13 @@ export class FinishRaffleModalComponent implements OnInit, ModalComponent<Finish
   private subFees = {
     WatchURaffle: 0.01,
     lego_raffles: 0.03,
-    raffleTest: 0.03,
+    raffleTest2: 0.03,
   };
   private subFee: number;
   public discountsLabels = {
     WatchURaffle: 'Total Discounts:',
     lego_raffles: 'Discounts + Shipping:',
-    raffleTest: 'Discounts + Shipping:',
+    raffleTest2: 'Discounts + Shipping:',
   };
   public discountsLabel: string;
 

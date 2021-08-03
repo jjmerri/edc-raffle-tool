@@ -126,7 +126,7 @@ export class SlotConfirmationModalComponent
           this.confirmationMessageText += ['lego_raffles'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not put any comments in your payment message or you will be permanently banned.**'
             : '';
-          this.confirmationMessageText += ['WatchURaffle', 'raffleTest'].includes(this.context.comment.data.subreddit)
+          this.confirmationMessageText += ['WatchURaffle', 'raffleTest2'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not include any comments with your payment or you will be permanently banned.**'
             : '';
           if (!['FiftyFiftyToken'].includes(this.context.comment.data.subreddit)) {
@@ -205,7 +205,7 @@ export class SlotConfirmationModalComponent
     if (username && username !== this.context.comment.data.author && !this.isDonationComment) {
       let tagPrefix = '';
       if (
-        this.context.comment.data.subreddit !== 'raffleTest' &&
+        this.context.comment.data.subreddit !== 'raffleTest2' &&
         this.context.comment.data.subreddit !== 'testingground4bots'
       ) {
         tagPrefix = '/u/';
