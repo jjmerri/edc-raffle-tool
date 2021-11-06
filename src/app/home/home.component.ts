@@ -73,7 +73,7 @@ export class HomeComponent implements OnInit {
   private confirmedComments = [];
   private shownNewFeatureMessage = true;
   private hasNewFeature = true;
-  private isModtober = true;
+  private isModtober = false;
   private raffleToolUri = environment.redirectUri;
   private tosKey = 'showTermsOfService_09182017';
   private numPayPmsProcessed = 0;
