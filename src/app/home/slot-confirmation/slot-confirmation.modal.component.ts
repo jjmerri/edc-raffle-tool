@@ -131,7 +131,7 @@ export class SlotConfirmationModalComponent
             : '';
           if (!['FiftyFiftyToken'].includes(this.context.comment.data.subreddit)) {
             this.confirmationMessageText +=
-              '\n\nIf you do not receive an automated PM from me then you can confirm your payment by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
+              '\n\nIf you do not receive an automated PM from me, then you can confirm your payment **only after you have paid** by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}).';
             this.confirmationMessageText +=
               "\n\nIf the above link doesn't work then try [this one]({IOS_PAYMENT_MESSAGE_LINK}).";
           }
