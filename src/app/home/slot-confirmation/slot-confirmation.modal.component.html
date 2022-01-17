@@ -109,7 +109,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-sm btn-success" *ngIf="slotAssignments[0].username === 'BoyAndHisBlob' && context.numOpenSlots > 0 && !context.inOrderMode && !isDonationComment" [disabled] = "!confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom" (click)="donateSlot()">Donate Slot to /u/BoyAndHisBlob...</button>
+        <button type="button" class="btn btn-sm btn-success" *ngIf="slotAssignments[0].username === 'BlobAndHisBoy' && context.numOpenSlots > 0 && !context.inOrderMode && !isDonationComment" [disabled] = "!confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom" (click)="donateSlot()">Donate Slot to /u/BlobAndHisBoy...</button>
         <button *ngIf="context.numOpenSlots > 0 || context.inOrderMode" type="button" class="btn btn-default" [disabled] = "!confirmationMessageText || numRequestedSlots <= 0 || hasDuplicateSlots || requestedTooManySlots || invalidRandom || invalidinOrder || slotAssignmentMissingSlots" (click)="assignSlots()">Assign Slots</button>
         <button *ngIf="context.numOpenSlots === 0 && !context.inOrderMode" type="button" class="btn btn-default" [disabled] = "!confirmationMessageText" (click)="postWaitlistCommentAndClose()">Post Waitlist Comment</button>
         <button type="button" class="btn btn-default" [disabled] = "numRequestedSlots > 0" (click)="skipComment(false)">Skip Comment</button>

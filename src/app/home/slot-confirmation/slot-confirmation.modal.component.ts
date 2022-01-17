@@ -40,7 +40,7 @@ export class SlotConfirmationModalComponent
   public isCommentFromBoyAndHisBlob = false;
   public isDonationComment = false;
   private donatedCommentSnippet =
-    'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool';
+    'I am donating a random slot to /u/BlobAndHisBoy as a thank you for creating and maintaining the Raffle Tool';
   private urlRegex = /\[?\bhttps?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/gi;
   public linksInfo = [];
 
@@ -103,12 +103,12 @@ export class SlotConfirmationModalComponent
     //only allow one open modal at a time
     if (SlotConfirmationModalComponent.numOpenModals === 1) {
       this.isDonationComment = this.context.comment.data.body.indexOf(this.donatedCommentSnippet) !== -1;
-      this.isCommentFromBoyAndHisBlob = this.context.comment.data.author === 'BoyAndHisBlob';
+      this.isCommentFromBoyAndHisBlob = this.context.comment.data.author === 'BlobAndHisBoy';
       if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
         if (!this.isDonationComment) {
           this.confirmationMessageText = 'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
         } else {
-          this.confirmationMessageText = 'BoyAndHisBlob got {BoyAndHisBlob_ALL_SLOTS}';
+          this.confirmationMessageText = 'BlobAndHisBoy got {BoyAndHisBlob_ALL_SLOTS}';
         }
       } else {
         this.confirmationMessageText = 'Waitlist starts here.';
@@ -137,7 +137,7 @@ export class SlotConfirmationModalComponent
           }
         }
       } else {
-        this.addSlotAssignment('BoyAndHisBlob');
+        this.addSlotAssignment('BlobAndHisBoy');
       }
     } else {
       this.closeModal(null);
@@ -343,7 +343,7 @@ export class SlotConfirmationModalComponent
               this.confirmationMessageText += commentText;
               for (let i = 0; i < this.slotAssignments.length; i++) {
                 let slotAssignment = this.slotAssignments[i];
-                if (slotAssignment.username === 'BoyAndHisBlob') {
+                if (slotAssignment.username === 'BlobAndHisBoy') {
                   slotAssignment.donateSlot = true;
                   break;
                 }

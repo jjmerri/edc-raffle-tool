@@ -132,7 +132,7 @@ export class HomeComponent implements OnInit {
     Knife_Swap: ['UNKNOWN'],
     raffleTest2: ['BlobAndHisBoy'],
     PenRaffle: ['Turokman123'],
-    FiftyFiftyToken: ['BoyAndHisBlob'],
+    FiftyFiftyToken: ['BlobAndHisBoy'],
   };
 
   private auditPercentageMap = { WatchURaffle: 0.03 };
@@ -452,7 +452,7 @@ export class HomeComponent implements OnInit {
 
         swal2(
           'Error Importing Raffle Slots!',
-          'Please relink The Raffle Tool. If you continue to get this error PM BoyAndHisBlob.',
+          'Please relink The Raffle Tool. If you continue to get this error PM BlobAndHisBoy.',
           'error',
         );
       },
@@ -574,11 +574,11 @@ export class HomeComponent implements OnInit {
       auditText +
       payPalInfo +
       cashAppInfo +
-      '&#x200b;\n\n**[Tip BoyAndHisBlob](https://blobware-tips.firebaseapp.com)**\n\n' +
+      '&#x200b;\n\n**[Tip BlobAndHisBoy](https://blobware-tips.firebaseapp.com)**\n\n' +
       metrics +
       '\n\n' +
       'This slot list is created and updated by ' +
-      '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BoyAndHisBlob.\n\n' +
+      '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BlobAndHisBoy.\n\n' +
       slotList +
       '\n\n</raffle-tool>'
     );
@@ -705,7 +705,7 @@ export class HomeComponent implements OnInit {
               ? '**Please find my payment info at the top of the slot list in the raffle right after <raffle-tool>.**\n\n' +
                 'Because Reddit flags payment links as spam the link actually performs a redirect through The Raffle Tool and will not link directly to the payment provider\n\n'
               : '') +
-            '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BoyAndHisBlob.)\n\n',
+            '\n\n&#x200b;\n\n\n^(Message auto sent from The EDC Raffle Tool by BlobAndHisBoy.)\n\n',
         )
         .subscribe(
           (res) => {},
@@ -729,7 +729,7 @@ export class HomeComponent implements OnInit {
 
   private donateSlot() {
     const commentText =
-      'I am donating a random slot to /u/BoyAndHisBlob as a thank you for creating and maintaining the Raffle Tool.' +
+      'I am donating a random slot to /u/BlobAndHisBoy as a thank you for creating and maintaining the Raffle Tool.' +
       '\n\nThis slot request will be processed in the order it was received in the queue.';
 
     if (this.currentRaffle) {
@@ -808,7 +808,7 @@ export class HomeComponent implements OnInit {
             swal2(
               'Error Running Payment Confirmer!',
               'Please wait a few minutes and try again. ' +
-                'If the issue persists send a PM to BoyAndHisBlob and confirm payments manually.',
+                'If the issue persists send a PM to BlobAndHisBoy and confirm payments manually.',
               'error',
             );
           }
@@ -823,7 +823,7 @@ export class HomeComponent implements OnInit {
         swal2(
           'Error Retrieving PMs!',
           'There was an error retrieving your PMs. This could be an issue with Reddit. ' +
-            'Try again and if the error persists please let BoyAndHisBlob know so he can check the logs.',
+            'Try again and if the error persists please let BlobAndHisBoy know so he can check the logs.',
           'error',
         );
       },
@@ -1103,7 +1103,7 @@ export class HomeComponent implements OnInit {
         swal2(
           'Error Getting Post Comments!',
           'There was an error retrieving comments for your raffle. ' +
-            'This could be a temporary Reddit issue. Wait a minute and try again. If the error persists please let BoyAndHisBlob know.',
+            'This could be a temporary Reddit issue. Wait a minute and try again. If the error persists please let BlobAndHisBoy know.',
           'error',
         );
       },
@@ -1525,7 +1525,7 @@ export class HomeComponent implements OnInit {
           'Error Getting Previous Processed Comments!',
           'There was an error retrieving comments you already processed. ' +
             'This could cause you to process comments again. Try relinking The Raffle Tool to resolve the issue. ' +
-            'If it persists please let BoyAndHisBlob know.',
+            'If it persists please let BlobAndHisBoy know.',
           'error',
         );
       },
@@ -1716,7 +1716,7 @@ export class HomeComponent implements OnInit {
 
     const commentText =
       '#Modtober Is Here!!!\n\n' +
-      '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
+      '/u/BlobAndHisBoy has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
       'are encouraged to **show appreciation for a [random mod](' +
       randomModUrl +
       ')** by donating a slot to them.\n\n' +
@@ -1842,7 +1842,7 @@ export class HomeComponent implements OnInit {
         if (result.value) {
           const commentText =
             '#Modtober Is Here!!!\n\n' +
-            '/u/BoyAndHisBlob has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
+            '/u/BlobAndHisBoy has declared October mod appreciation month in The Raffle Tool. All rafflers and their participants ' +
             'are encouraged to **show appreciation for a [random mod](' +
             randomModUrl +
             ')** by donating a slot to them.\n\n' +
@@ -1947,7 +1947,7 @@ export class HomeComponent implements OnInit {
         } else {
           swal2({
             title: 'Error getting subreddit settings!',
-            text: 'Please try relinking the raffle tool. If the error persists please contact BoyAndHisBlob.',
+            text: 'Please try relinking the raffle tool. If the error persists please contact BlobAndHisBoy.',
             type: 'error',
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'OK',
@@ -1962,7 +1962,7 @@ export class HomeComponent implements OnInit {
           'Error Getting Subreddit Specific Settings!',
           'There was an error retrieving subreddit specific settings! ' +
             'Try relinking The Raffle Tool to resolve the issue. ' +
-            'If it persists please let BoyAndHisBlob know.',
+            'If it persists please let BlobAndHisBoy know.',
           'error',
         );
       },
