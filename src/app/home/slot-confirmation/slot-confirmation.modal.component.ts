@@ -37,7 +37,7 @@ export class SlotConfirmationModalComponent
   public numRequestedSlots = 0;
   public confirmationMessageText = '';
   public formattedMessage = '';
-  public isCommentFromBoyAndHisBlob = false;
+  public isCommentFromBlobAndHisBoy = false;
   public isDonationComment = false;
   private donatedCommentSnippet =
     'I am donating a random slot to /u/BlobAndHisBoy as a thank you for creating and maintaining the Raffle Tool';
@@ -103,12 +103,12 @@ export class SlotConfirmationModalComponent
     //only allow one open modal at a time
     if (SlotConfirmationModalComponent.numOpenModals === 1) {
       this.isDonationComment = this.context.comment.data.body.indexOf(this.donatedCommentSnippet) !== -1;
-      this.isCommentFromBoyAndHisBlob = this.context.comment.data.author === 'BlobAndHisBoy';
+      this.isCommentFromBlobAndHisBoy = this.context.comment.data.author === 'BlobAndHisBoy';
       if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
         if (!this.isDonationComment) {
           this.confirmationMessageText = 'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
         } else {
-          this.confirmationMessageText = 'BlobAndHisBoy got {BoyAndHisBlob_ALL_SLOTS}';
+          this.confirmationMessageText = 'BlobAndHisBoy got {BlobAndHisBoy_ALL_SLOTS}';
         }
       } else {
         this.confirmationMessageText = 'Waitlist starts here.';

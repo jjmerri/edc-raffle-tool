@@ -1,7 +1,7 @@
 <div class="modal-content">
     <div class="modal-header">
         <button type="button" class="close" (click)="closeModal(null)">&times;</button>
-        <h4 class="modal-title">Top Level Comment from <b [ngClass]="{'jackpots': isCommentFromBoyAndHisBlob}">{{context.comment.data.author}}</b> <b *ngIf="context.comment.data.author_flair_text"> [{{context.comment.data.author_flair_text}}]</b> <b *ngIf="context.comment.data.edited" class="text-danger"><br/>This comment has been edited!</b></h4>
+        <h4 class="modal-title">Top Level Comment from <b [ngClass]="{'jackpots': isCommentFromBlobAndHisBoy}">{{context.comment.data.author}}</b> <b *ngIf="context.comment.data.author_flair_text"> [{{context.comment.data.author_flair_text}}]</b> <b *ngIf="context.comment.data.edited" class="text-danger"><br/>This comment has been edited!</b></h4>
     </div>
     <div class="modal-body well" innerHtml="{{formattedMessage}}">
     </div>
