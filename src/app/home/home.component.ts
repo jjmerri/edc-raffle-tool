@@ -1988,9 +1988,9 @@ export class HomeComponent implements OnInit {
                 this.botCalled = true;
 
                 this.redactPaymentInfo();
-                if (['WatchURaffle'].includes(this.currentRaffle.subreddit)) {
-                  this.openFinishRaffleModal();
-                }
+                // if (['WatchURaffle'].includes(this.currentRaffle.subreddit)) {
+                //   this.openFinishRaffleModal();
+                // }
                 // else if (['lego_raffles'].includes(this.currentRaffle.subreddit)) {
                 //   this.openFinishRaffleModal2();
                 // }
