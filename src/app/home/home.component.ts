@@ -1994,15 +1994,15 @@ export class HomeComponent implements OnInit {
                 // else if (['lego_raffles'].includes(this.currentRaffle.subreddit)) {
                 //   this.openFinishRaffleModal2();
                 // }
-                else {
-                  swal2(
-                    'The Bot Has Been Called!',
-                    'Congrats on a successful raffle! The bot should respond to your comment shortly.',
-                    'success',
-                  );
+                // else {
+                swal2(
+                  'The Bot Has Been Called!',
+                  'Congrats on a successful raffle! The bot should respond to your comment shortly.',
+                  'success',
+                );
 
-                  this.updateFlair(this.completeFlairId, 'Complete');
-                }
+                this.updateFlair(this.completeFlairId, 'Complete');
+                // }
               },
               (err) => {
                 this.loggingService.logMessage('callTheBotError:' + JSON.stringify(err), LoggingLevel.ERROR);
