@@ -76,7 +76,8 @@ export class SlotConfirmationModalComponent
               const userRegex = new RegExp(`[0-9]+ \/u\/${comment.author} \\*\\*PAID\\*\\*`);
 
               const parentIsPost = post.name === comment.parent_id;
-              const postIsComplete = post.link_flair_text.toUpperCase() === 'COMPLETE';
+              const postIsComplete =
+                post.link_flair_text != undefined && post.link_flair_text.toUpperCase() === 'COMPLETE';
               const userIsInRaffle = userRegex.test(post.selftext);
               const dateCommentCreated = new Date(comment.created_utc * 1000);
               const linkAuthorMatches = comment.author === this.context.comment.data.author;
