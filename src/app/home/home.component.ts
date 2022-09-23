@@ -104,7 +104,16 @@ export class HomeComponent implements OnInit {
 
   private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken'];
   private mods = {
-    lego_raffles: ['viljedi', 'legorafflemod', 'Zunger', 'legorafflefund', 'barkerjc66', 'TronicZomB', 'LegoRafflesBot', 'HorizonXP'],
+    lego_raffles: [
+      'viljedi',
+      'legorafflemod',
+      'Zunger',
+      'legorafflefund',
+      'barkerjc66',
+      'TronicZomB',
+      'LegoRafflesBot',
+      'HorizonXP',
+    ],
     WatchURaffle: [
       'WatchRaffleAdmin',
       'WatchRaffleMod',
@@ -3021,11 +3030,15 @@ export class HomeComponent implements OnInit {
       //check if greater than 0 because system time might not be right
       if (
         comments[x].data.author === 'AutoModerator' ||
+        comments[x].data.author === '[deleted]' ||
+        comments[x].data.removed ||
         (commentAge >= 0 && commentAge < 10) ||
         (youngestSkippedCommentTime && comments[x].data.created_utc >= youngestSkippedCommentTime)
       ) {
         if (
           comments[x].data.author !== 'AutoModerator' &&
+          comments[x].data.author !== '[deleted]' &&
+          !comments[x].data.removed &&
           (!youngestSkippedCommentTime || youngestSkippedCommentTime > comments[x].data.created_utc)
         ) {
           youngestSkippedCommentTime = comments[x].data.created_utc;
