@@ -104,17 +104,7 @@ export class HomeComponent implements OnInit {
 
   private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken'];
   private mods = {
-    lego_raffles: [
-      'viljedi',
-      'legorafflemod',
-      'Zunger',
-      'barkerjc66',
-      'TronicZomB',
-      'LegoRafflesBot',
-      'HorizonXP',
-      'lukemfrank',
-      'heavyboots79',
-    ],
+    lego_raffles: ['Zunger', 'barkerjc66', 'TronicZomB', 'HorizonXP', 'lukemfrank', 'heavyboots79', 'BlobAndHisBoy'],
     WatchURaffle: [
       'immaletyouwatch',
       'runsogood',
