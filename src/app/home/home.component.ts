@@ -73,6 +73,7 @@ export class HomeComponent implements OnInit {
   private confirmedComments = [];
   private shownNewFeatureMessage = true;
   private hasNewFeature = true;
+  // private isModtober = new Date().getMonth() + 1 === 10;
   private isModtober = true;
   private raffleToolUri = environment.redirectUri;
   private tosKey = 'showTermsOfService_09182017';
@@ -3028,6 +3029,7 @@ export class HomeComponent implements OnInit {
         comments[x].data.author === 'AutoModerator' ||
         comments[x].data.author === '[deleted]' ||
         comments[x].data.removed ||
+        comments[x].data.banned_by ||
         (commentAge >= 0 && commentAge < 10) ||
         (youngestSkippedCommentTime && comments[x].data.created_utc >= youngestSkippedCommentTime)
       ) {
@@ -3035,6 +3037,7 @@ export class HomeComponent implements OnInit {
           comments[x].data.author !== 'AutoModerator' &&
           comments[x].data.author !== '[deleted]' &&
           !comments[x].data.removed &&
+          !comments[x].data.banned_by &&
           (!youngestSkippedCommentTime || youngestSkippedCommentTime > comments[x].data.created_utc)
         ) {
           youngestSkippedCommentTime = comments[x].data.created_utc;
