@@ -74,7 +74,6 @@ export class HomeComponent implements OnInit {
   private shownNewFeatureMessage = true;
   private hasNewFeature = true;
   private isModtober = new Date().getMonth() + 1 === 10;
-  // private isModtober = true;
   private raffleToolUri = environment.redirectUri;
   private tosKey = 'showTermsOfService_09182017';
   private numPayPmsProcessed = 0;
