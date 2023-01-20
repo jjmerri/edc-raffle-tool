@@ -2006,7 +2006,18 @@ export class HomeComponent implements OnInit {
                   'success',
                 );
 
+                // I am pretty sure There is a race condition somewhere
+                // this is a bad way to deal with it but hopefully a quick fix most of the time
+                // updateFlair is called once in case they close the browser before 5 sec
+                // then called again to overwrite the race condition.
+                // The terrible nature of this "fix" cannot be overstated.
+                // I do not want to put the time into this app toimplement a real fix like promise chaining.
+                // This is a horrible band-aid. So horrible that not using it and bleeding out is almost as good an option.
                 this.updateFlair(this.completeFlairId, 'Complete');
+                setTimeout(() => {
+                  this.updateFlair(this.completeFlairId, 'Complete');
+                }, 5000);
+
                 // }
               },
               (err) => {
