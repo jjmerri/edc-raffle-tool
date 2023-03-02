@@ -36,6 +36,8 @@ export class SlotConfirmationModalComponent
   private slotAssignmentMissingSlots = false;
   public numRequestedSlots = 0;
   public confirmationMessageText = '';
+  public additionalMessage = false;
+  public additionalMessageText = '';
   public formattedMessage = '';
   public isCommentFromBlobAndHisBoy = false;
   public isDonationComment = false;
@@ -110,6 +112,13 @@ export class SlotConfirmationModalComponent
           this.confirmationMessageText = 'You got {' + this.context.comment.data.author + '_ALL_SLOTS}';
         } else {
           this.confirmationMessageText = 'BlobAndHisBoy got {BlobAndHisBoy_ALL_SLOTS}';
+        }
+
+        this.additionalMessage = JSON.parse(localStorage.getItem('additionalMessage') || 'false');
+        this.additionalMessageText = JSON.parse(localStorage.getItem('additionalMessageText') || 'null');
+
+        if (this.additionalMessage) {
+          this.addAdditionalMessagePlaceholderToConfirmation();
         }
       } else {
         this.confirmationMessageText = 'Waitlist starts here.';
@@ -198,7 +207,9 @@ export class SlotConfirmationModalComponent
     }
     this.closeModal({
       slotAssignments: this.slotAssignments,
-      confirmationMessageText: this.confirmationMessageText,
+      confirmationMessageText: !this.additionalMessage
+        ? this.confirmationMessageText
+        : this.confirmationMessageText.replace('{ADDITIONAL_MESSAGE_TEXT}', this.additionalMessageText || ''),
     });
   }
 
@@ -355,5 +366,26 @@ export class SlotConfirmationModalComponent
           })
           .catch((error) => {});
       });
+  }
+
+  private updateAdditionalMessage(event: any) {
+    localStorage.setItem('additionalMessage', JSON.stringify(event.target.checked));
+    if (event.target.checked) {
+      this.addAdditionalMessagePlaceholderToConfirmation();
+    } else {
+      this.removAdditionalMessagePlaceholderFromConfirmation();
+    }
+  }
+
+  private updateAdditionalMessageText(event: any) {
+    localStorage.setItem('additionalMessageText', JSON.stringify(event.target.value));
+  }
+
+  private addAdditionalMessagePlaceholderToConfirmation() {
+    this.confirmationMessageText = '{ADDITIONAL_MESSAGE_TEXT}\n\n' + this.confirmationMessageText;
+  }
+
+  private removAdditionalMessagePlaceholderFromConfirmation() {
+    this.confirmationMessageText = this.confirmationMessageText.replace(/{ADDITIONAL_MESSAGE_TEXT}(\n\n)?/gim, '');
   }
 }

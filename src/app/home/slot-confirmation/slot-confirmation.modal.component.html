@@ -17,6 +17,22 @@
         </div>
     </div>
 
+    <div *ngIf="context.numOpenSlots > 0 || context.inOrderMode" class="modal-body" >
+        <label  for="additionalMessage">Additional Message?</label>
+        <input
+          type="checkbox"
+          id="additionalMessage"
+          name="additionalMessage"
+          [(ngModel)]="additionalMessage"
+          (change)="
+            updateAdditionalMessage($event);
+          "
+        />
+        <div *ngIf="additionalMessage" required="additionalMessage" class="input-group">
+            <span class="input-group-addon"><i style="font-size:1.5em;" class="glyphicon glyphicon-info-sign" title="The following text will be added to your reply in place of {{'{ADDITIONAL_MESSAGE_TEXT}'}}"></i></span>
+            <textarea (change)="updateAdditionalMessageText($event)" class="form-control" style="min-width: 100%" id="additionalMessageText" rows="3" [(ngModel)]="additionalMessageText" title="The following text will be added to your reply in place of {{'{ADDITIONAL_MESSAGE_TEXT}'}}"></textarea>
+        </div>
+    </div>
     <div class="modal-body" >
         <label *ngIf="context.numOpenSlots > 0 || context.inOrderMode" for="confirmationMessage">Confirmation Reply:</label>
         <label *ngIf="context.numOpenSlots === 0 && !context.inOrderMode" for="confirmationMessage">Waitlist Reply: </label>
