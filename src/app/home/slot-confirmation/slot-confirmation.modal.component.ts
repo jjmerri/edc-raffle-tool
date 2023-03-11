@@ -11,6 +11,7 @@ export class SlotConfirmationModalContext extends BSModalContext {
   public callingComponent: any;
   public numOpenSlots: number;
   public inOrderMode: boolean;
+  public raffleParticipants: any;
 }
 
 /**
@@ -387,5 +388,10 @@ export class SlotConfirmationModalComponent
 
   private removAdditionalMessagePlaceholderFromConfirmation() {
     this.confirmationMessageText = this.confirmationMessageText.replace(/{ADDITIONAL_MESSAGE_TEXT}(\n\n)?/gim, '');
+  }
+
+  private getNumSlots(user: string) {
+    return this.context.raffleParticipants.filter((participant) => participant.name.toUpperCase() == user.toUpperCase())
+      .length;
   }
 }
