@@ -1182,6 +1182,7 @@ export class HomeComponent implements OnInit {
             callingComponent: this,
             numOpenSlots: this.numOpenSlots,
             inOrderMode: this.raffleProperties.inOrderMode,
+            raffleParticipants: this.raffleParticipants,
           },
           BSModalContext,
         ),
