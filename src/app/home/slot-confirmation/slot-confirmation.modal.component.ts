@@ -390,8 +390,14 @@ export class SlotConfirmationModalComponent
     this.confirmationMessageText = this.confirmationMessageText.replace(/{ADDITIONAL_MESSAGE_TEXT}(\n\n)?/gim, '');
   }
 
-  private getNumSlots(user: string) {
+  private getNumOwnedSlots(user: string) {
     return this.context.raffleParticipants.filter((participant) => participant.name.toUpperCase() == user.toUpperCase())
       .length;
+  }
+
+  private getNumRequestedSlots(user: string) {
+    return this.context.raffleParticipants.filter(
+      (participant) => participant.requester.toUpperCase() == user.toUpperCase(),
+    ).length;
   }
 }

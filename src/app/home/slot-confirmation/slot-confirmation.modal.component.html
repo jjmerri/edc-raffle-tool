@@ -97,7 +97,7 @@
                 <div class="form-group">
                     <label for="username{{i}}">Assign Slots To: </label>
                     <input id="username{{i}}" type="text" [ngModel]="slotAssignment.username" (ngModelChange)="updateReplyText($event, i)"/>
-                    <span *ngIf="slotAssignment.username"> currently has {{getNumSlots(slotAssignment.username)}} slot(s)</span>
+                    <span *ngIf="slotAssignment.username"> owns: {{getNumOwnedSlots(slotAssignment.username)}}, previously requested: {{getNumRequestedSlots(slotAssignment.username)}}</span>
                 </div>
 
                 <div class="form-group" *ngIf="!context.inOrderMode">
