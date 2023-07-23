@@ -66,6 +66,7 @@ export class HomeComponent implements OnInit {
     '**Please reply to this message in this format:**\n\n' +
     '*Raffle:*\n\n' +
     '*Spot Numbers:*\n\n' +
+    '*Payment App (e.g. Venmo):*\n\n' +
     '*Payment Name:*\n\n' +
     '*Payment Email:*\n\n' +
     '**Please submit your payment without adding any notes.**\n\n';
