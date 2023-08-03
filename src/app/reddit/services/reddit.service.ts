@@ -22,6 +22,7 @@ export class RedditService {
   private childrenUrl = this.secureRedditUrl + '/api/morechildren';
   private infoUrl = this.secureRedditUrl + '/api/info';
   private selectFlairUrl = this.secureRedditUrl + '/api/selectflair';
+  private readMessageUrl = this.secureRedditUrl + '/api/read_message';
   private approvedSubs = [
     'WatchURaffle',
     'PenRaffle',
@@ -688,6 +689,43 @@ export class RedditService {
           return this.http.post(this.submitUrl, form, { headers: headers }).subscribe(
             (composeResponse) => {
               observer.next(composeResponse);
+              observer.complete();
+            },
+            (err) => {
+              console.error(err);
+              observer.error(err);
+            },
+          );
+        },
+        (err) => {
+          console.error(err);
+          observer.error(err);
+        },
+      );
+    });
+  }
+
+  public markMessageRead(messageId: string): Observable<any> {
+    if (!messageId) {
+      return observableThrowError({
+        error: 'Missing message',
+      });
+    }
+
+    return Observable.create((observer) => {
+      this.oauthService.getAccessToken().subscribe(
+        (response) => {
+          let form = new FormData();
+          form.append('api_type', 'json');
+          form.append('id', messageId);
+
+          let headers = new HttpHeaders({
+            Authorization: 'Bearer ' + response.access_token,
+          });
+          headers.append('Accept', 'application/json');
+          return this.http.post(this.readMessageUrl, form, { headers: headers }).subscribe(
+            (markReadResponse) => {
+              observer.next(markReadResponse);
               observer.complete();
             },
             (err) => {

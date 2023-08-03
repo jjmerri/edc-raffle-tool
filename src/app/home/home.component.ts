@@ -958,11 +958,14 @@ export class HomeComponent implements OnInit {
         switch (value) {
           case 'markAll':
             this.markAllRequestedAsPaid(message.data.author);
+            this.redditService.markMessageRead(message.data.name).subscribe();
             break;
           case 'markUser':
             this.markAsPaid(message.data.author);
+            this.redditService.markMessageRead(message.data.name).subscribe();
             break;
           case 'skip':
+            this.redditService.markMessageRead(message.data.name).subscribe();
             break;
           default:
             // dont show any more PMs
