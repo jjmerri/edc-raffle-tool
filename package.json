@@ -28,6 +28,7 @@
     "@angular/platform-server": "^8.2.14",
     "@angular/router": "^8.2.14",
     "angular2-modal": "^3.0.3",
+    "axios": "^0.21.4",
     "bootstrap": "^3.4.1",
     "core-js": "^2.4.1",
     "firebase": "^5.11.1",

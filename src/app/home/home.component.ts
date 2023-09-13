@@ -29,6 +29,7 @@ import { RaffleProperties } from './RaffleProperties';
 import { SlotConfirmationModalComponent } from './slot-confirmation/slot-confirmation.modal.component';
 import { SlotTextModalComponent } from './slot-text/slot-text.modal.component';
 import { TermsOfServiceModalComponent } from './terms-of-service/terms-of-service.modal.component';
+import axios from 'axios';
 
 declare var fuckAdBlock: FuckAdBlock;
 
@@ -2759,7 +2760,7 @@ export class HomeComponent implements OnInit {
       showCancelButton: true,
       inputValidator: (value) => {
         return new Promise((resolve) => {
-          const permalinkRegex = /^(https:\/\/www\.reddit\.com)?\/?r\/.+$/g;
+          const permalinkRegex = /^(https:\/\/(www\.)?reddit\.com)?\/?r\/.+$/g;
           if (permalinkRegex.test(value)) {
             resolve();
           } else {
@@ -2769,7 +2770,7 @@ export class HomeComponent implements OnInit {
       },
     }).then((text) => {
       if (text && !text.dismiss) {
-        this.tagUsersInRaffle(text.value.replace('https://www.reddit.com', ''));
+        this.tagUsersInRaffle(text.value);
       } else if (text && text.dismiss) {
       } else {
         swal2({
@@ -2781,7 +2782,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private tagUsersInRaffle(permalink: string) {
+  private async tagUsersInRaffle(url: string) {
+    const permalink = await this.getPermalink(url);
+
     const commentMessage = 'Tagging users who requested tags [here.](' + permalink + ')';
     const tagTrainMessage =
       '[Raffle live!](' +
@@ -3128,5 +3131,18 @@ Payment Email: `);
       this.shouldRetryRedactPaymentInfo = false;
       this.redactPaymentInfo();
     }
+  }
+
+  // follow redirects of share link to get real permalink
+  private async getPermalink(url: string): Promise<string> {
+    // if not share link then strip domain if it is there
+    // might already be in the proper permalink format without the domain
+    if (!url.toLowerCase().includes('/s/')) {
+      const pathAndQueryString = url.replace(/^(https:\/\/(www\.)?reddit\.com)?/, '');
+      return pathAndQueryString.substring(0, pathAndQueryString.indexOf('?'));
+    }
+
+    const response = await axios.get(url);
+    return this.getPermalink(response.headers['location']);
   }
 }
