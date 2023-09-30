@@ -105,17 +105,17 @@ export class HomeComponent implements OnInit {
 
   private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken'];
   private mods = {
-    lego_raffles: ['Zunger', 'barkerjc66', 'TronicZomB', 'HorizonXP', 'lukemfrank', 'heavyboots79', 'BlobAndHisBoy'],
+    lego_raffles: ['Zunger', 'barkerjc66', 'TronicZomB', 'HorizonXP', 'lukemfrank', 'heavyboots79', 'stollba'],
     WatchURaffle: [
       'immaletyouwatch',
       'runsogood',
-      'EDCDramaMod',
       'wurlazymod',
       'watchmemod1',
       'WatchRaffleMod2',
       'ModuRaffle',
       'WatchRaffleMod6',
       'WatchRaffleMod7',
+      'ChronoMod1',
     ],
     testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
     KnifeRaffle: [
@@ -128,10 +128,9 @@ export class HomeComponent implements OnInit {
       'MatchesMalone_247',
       'thaaatguy',
       'PMMeYourDadJoke',
-      'rhinocf',
-      'ViciousSnipe',
       'claaark',
       'kiss_the_homies_gn',
+      'SrulDog',
     ],
     SSBM: ['UNKNOWN'],
     RocketLeagueExchange: ['UNKNOWN'],
