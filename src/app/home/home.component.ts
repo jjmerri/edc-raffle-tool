@@ -2168,7 +2168,6 @@ export class HomeComponent implements OnInit {
         }
       },
     }).then((result) => {
-      console.log(result);
       if (result && result.value) {
         const slotCost = result.value;
         const totalCost = slotCost * this.numSlots;
@@ -2758,12 +2757,12 @@ export class HomeComponent implements OnInit {
       title: 'Tag Users?',
       text: 'Enter a permalink and click "Tag Users" to tag everyone who replied to that comment.',
       input: 'text',
-      inputPlaceholder: '/r/WatchURaffle/comments/the_rest_of_your_permalink/',
+      inputPlaceholder: 'https://reddit.com/r/WatchURaffle/comments/the_rest_of_your_permalink/',
       confirmButtonText: 'Tag Users',
       showCancelButton: true,
       inputValidator: (value) => {
         return new Promise((resolve) => {
-          const permalinkRegex = /^(https:\/\/www\.reddit\.com)?\/?r\/.+$/g;
+          const permalinkRegex = /^(https:\/\/(((www)|(old))\.)?reddit\.com)?\/?r\/.+$/g;
           if (permalinkRegex.test(value)) {
             resolve();
           } else {
@@ -2773,7 +2772,9 @@ export class HomeComponent implements OnInit {
       },
     }).then((text) => {
       if (text && !text.dismiss) {
-        this.tagUsersInRaffle(text.value.replace('https://www.reddit.com', ''));
+        this.getPermalink(text.value).then((permalink) => {
+          this.tagUsersInRaffle(permalink);
+        });
       } else if (text && text.dismiss) {
       } else {
         swal2({
@@ -3132,5 +3133,47 @@ Payment Email: `);
       this.shouldRetryRedactPaymentInfo = false;
       this.redactPaymentInfo();
     }
+  }
+
+  private async getPermalink(text: string): Promise<string> {
+    let permalink = text;
+    if (text.includes('/s/')) {
+      permalink = await this.getRedditFromShareLink(text);
+    }
+
+    permalink = permalink.replace(/(https:\/\/(((www)|(old))\.)?reddit\.com)/, '');
+    return permalink;
+  }
+
+  private async getRedditFromShareLink(text: string): Promise<string> {
+    let permalink = text;
+    let followRedirects = true;
+    let redirects = 0;
+
+    while (followRedirects && redirects < 10) {
+      redirects++;
+      try {
+        const proxyUrl = atob(
+          'aHR0cHM6Ly9qcHB1YTZzbms1bjJpMm9hYTZ4dXZuZW96ZTBsc3Fpay5sYW1iZGEtdXJsLnVzLWVhc3QtMS5vbi5hd3M=',
+        );
+        const response = await (
+          await fetch(`${proxyUrl}/${permalink}`, {
+            method: 'GET',
+            redirect: 'manual',
+          })
+        ).json();
+
+        if (response.headers['location'] && !response.headers['location'].startsWith('/r/')) {
+          permalink = response.headers['location'];
+        } else {
+          followRedirects = false;
+        }
+      } catch (err) {
+        console.log('err', err);
+        followRedirects = false;
+      }
+    }
+
+    return permalink;
   }
 }
