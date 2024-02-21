@@ -1982,7 +1982,16 @@ export class HomeComponent implements OnInit {
     if (this.numOpenSlots === 0 && !this.unpaidUsers) {
       swal2({
         title: 'Call The Bot?',
-        text: 'Click "Call The Bot" to post a comment that will summon the bot to pick a winner.',
+        text: 'Click "Call The Bot" to post a comment that will summon the bot to pick a winner. How many winners to choose?',
+        input: 'number',
+        inputValue: '1',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Enter the number of winners to continue.';
+          } else if (parseInt(value) <= 0 || parseInt(value) >= this.numSlots) {
+            return 'Number of winners must be between 0 and the number of slots';
+          }
+        },
         type: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -1990,7 +1999,10 @@ export class HomeComponent implements OnInit {
       }).then((result) => {
         if (result.value) {
           this.redditService
-            .postComment('/u/' + this.botUsername + ' ' + this.numSlots, this.currentRaffle.name)
+            .postComment(
+              `/u/${this.botUsername} ${result.value == '1' ? '' : result.value + ' '}${this.numSlots}`,
+              this.currentRaffle.name,
+            )
             .subscribe(
               (res) => {
                 this.loggingService.logMessage('callTheBot:' + JSON.stringify(res), LoggingLevel.INFO);
