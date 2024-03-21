@@ -607,6 +607,11 @@ export class HomeComponent implements OnInit {
       if (ppRegEx.test(this.payPalInfo) || pp2RegEx.test(this.payPalInfo)) {
         payPalFormatted = '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
       }
+
+      if (this.raffleProperties.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
+        payPalFormatted = 'Provided once raffle is 50% full';
+      }
+
       return '**PayPal Info: ' + payPalFormatted + '**\n\n';
     } else {
       return '';
@@ -629,6 +634,10 @@ export class HomeComponent implements OnInit {
       }
       if (cashAppRegEx.test(this.cashAppInfo)) {
         cashAppFormatted = '[' + cashAppText + '](' + this.redirectUrl + this.cashAppInfo + ')';
+      }
+
+      if (this.raffleProperties.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
+        cashAppFormatted = 'Provided once raffle is 50% full';
       }
       return '**Cash App Info: ' + cashAppFormatted + '**\n\n';
     } else {

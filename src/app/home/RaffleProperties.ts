@@ -9,6 +9,7 @@ export class RaffleProperties {
   public inOrderMode: boolean;
   public lastUpdated: Date;
   public escrowBotCalled: boolean;
+  public hidePaymentInfo: boolean;
 
   constructor() {
     this.customFlair = '';
