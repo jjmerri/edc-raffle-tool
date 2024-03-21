@@ -224,6 +224,16 @@
 
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-3">
+            <label for="hidePaymentInfo">Hide payment info till 50% full?</label>
+            <input
+              type="checkbox"
+              id="hidePaymentInfo"
+              name="hidePaymentInfo"
+              [(ngModel)]="raffleProperties.hidePaymentInfo"
+              (change)="updateRaffleProperties()"
+            />
+          </div>
+          <div class="col-xs-3">
             <label for="inOrderMode">In Order Mode?</label>
             <input
               type="checkbox"
