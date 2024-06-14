@@ -1213,7 +1213,7 @@ export class HomeComponent implements OnInit {
               );
             }
 
-            if (result) {
+            if (result && result.processComment) {
               this.confirmedComments.push(comments[commentIndex].data.name);
 
               this.databaseService
