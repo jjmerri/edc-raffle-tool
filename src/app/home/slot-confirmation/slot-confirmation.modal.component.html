@@ -18,6 +18,15 @@
     </div>
 
     <div *ngIf="context.numOpenSlots > 0 || context.inOrderMode" class="modal-body" >
+        <label  for="processComment">Mark comment as processed?</label>
+        <input
+          type="checkbox"
+          id="processComment"
+          name="processComment"
+          [(ngModel)]="processComment"
+        />
+    </div>
+    <div *ngIf="context.numOpenSlots > 0 || context.inOrderMode" class="modal-body" >
         <label  for="additionalMessage">Additional Message?</label>
         <input
           type="checkbox"

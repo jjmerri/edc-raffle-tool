@@ -46,6 +46,7 @@ export class SlotConfirmationModalComponent
     'I am donating a random slot to /u/BlobAndHisBoy as a thank you for creating and maintaining the Raffle Tool';
   private urlRegex = /\[?\bhttps?:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|]/gi;
   public linksInfo = [];
+  public processComment = true;
 
   constructor(
     public dialog: DialogRef<SlotConfirmationModalContext>,
@@ -122,6 +123,7 @@ export class SlotConfirmationModalComponent
           this.addAdditionalMessagePlaceholderToConfirmation();
         }
       } else {
+        this.processComment = false;
         this.confirmationMessageText = 'Waitlist starts here.';
       }
 
@@ -207,6 +209,7 @@ export class SlotConfirmationModalComponent
       }
     }
     this.closeModal({
+      processComment: this.processComment,
       slotAssignments: this.slotAssignments,
       confirmationMessageText: !this.additionalMessage
         ? this.confirmationMessageText
