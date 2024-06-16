@@ -183,7 +183,7 @@ export class SlotConfirmationModalComponent
       if (sendReplyMessage) {
         this.redditService.postComment(this.confirmationMessageText, this.context.comment.data.name).subscribe();
       }
-      this.closeModal({ slotAssignments: [] });
+      this.closeModal({ slotAssignments: [], processComment: true });
     } else {
       swal2(
         'Reply Not Written!',
