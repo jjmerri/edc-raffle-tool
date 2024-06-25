@@ -102,6 +102,7 @@ export class HomeComponent implements OnInit {
   private modToolsDiscordUrl = null;
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
+  private hidePaymentInfo = false;
 
   private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken'];
   private mods = {
@@ -608,7 +609,7 @@ export class HomeComponent implements OnInit {
         payPalFormatted = '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
       }
 
-      if (this.raffleProperties.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
+      if (this.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
         payPalFormatted = 'Provided once raffle is 50% full';
       }
 
@@ -636,7 +637,7 @@ export class HomeComponent implements OnInit {
         cashAppFormatted = '[' + cashAppText + '](' + this.redirectUrl + this.cashAppInfo + ')';
       }
 
-      if (this.raffleProperties.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
+      if (this.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
         cashAppFormatted = 'Provided once raffle is 50% full';
       }
       return '**Cash App Info: ' + cashAppFormatted + '**\n\n';
@@ -1597,6 +1598,11 @@ export class HomeComponent implements OnInit {
       this.showAdBlockerMessage = showAdBlockerMessage;
     }
 
+    const hidePaymentInfo = JSON.parse(localStorage.getItem('hidePaymentInfo'));
+    if (hidePaymentInfo !== null) {
+      this.hidePaymentInfo = hidePaymentInfo;
+    }
+
     const payPalInfo = JSON.parse(localStorage.getItem('payPalInfo'));
     if (payPalInfo !== null) {
       this.loggingService.logMessage(`loading paypal info: ${payPalInfo}`, LoggingLevel.INFO);
@@ -1908,6 +1914,10 @@ export class HomeComponent implements OnInit {
     }
     localStorage.setItem('cashAppInfo', JSON.stringify(this.cashAppInfo));
     this.loggingService.logMessage(`modified Cash App info from ${source}: ${this.cashAppInfo}`, LoggingLevel.INFO);
+  }
+
+  private modifyHidePaymentInfo() {
+    localStorage.setItem('hidePaymentInfo', JSON.stringify(this.hidePaymentInfo));
   }
 
   public shuffleSlots() {
