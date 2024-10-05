@@ -106,7 +106,7 @@ export class HomeComponent implements OnInit {
 
   private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken'];
   private mods = {
-    lego_raffles: ['Zunger', 'barkerjc66', 'TronicZomB', 'HorizonXP', 'lukemfrank', 'heavyboots79', 'stollba'],
+    lego_raffles: ['Zunger', 'TronicZomB', 'HorizonXP', 'lukemfrank', 'heavyboots79', 'dasxce'],
     WatchURaffle: [
       'immaletyouwatch',
       'runsogood',
@@ -121,14 +121,12 @@ export class HomeComponent implements OnInit {
     testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
     KnifeRaffle: [
       'accidentlyporn',
-      'theoddjosh',
       'Fbolanos',
       'TheVector',
       'BrianR383',
       'cooperred',
       'MatchesMalone_247',
       'thaaatguy',
-      'PMMeYourDadJoke',
       'claaark',
       'kiss_the_homies_gn',
       'SrulDog',
