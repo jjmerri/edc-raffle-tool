@@ -47,7 +47,7 @@ export class RedditService {
     KnifeRaffle: 14,
     SSBM: 4,
     raffleTest2: 2,
-    lego_raffles: 2,
+    lego_raffles: 7,
     Knife_Swap: 2,
     FiftyFiftyToken: 7,
   };
