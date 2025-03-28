@@ -136,7 +136,7 @@ export class SlotConfirmationModalComponent
           match = userMentionRegex.exec(this.context.comment.data.body);
         }
         if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
-          this.confirmationMessageText += ['lego_raffles'].includes(this.context.comment.data.subreddit)
+          this.confirmationMessageText += ['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not put any comments in your payment message or you will be permanently banned.** If comments are required, you should put "." or 🍕 or ☕️. Contact the host for any questions or other comment.'
             : '';
           this.confirmationMessageText += ['WatchURaffle', 'raffleTest2'].includes(this.context.comment.data.subreddit)

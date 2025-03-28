@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit {
   private publicRedditUrl = 'https://www.reddit.com';
   private hidePaymentInfo = false;
 
-  private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken'];
+  private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken', 'PokemonRaffles'];
   private mods = {
     lego_raffles: ['Zunger', 'TronicZomB', 'HorizonXP', 'lukemfrank', 'heavyboots79', 'dasxce'],
     WatchURaffle: [
@@ -137,6 +137,7 @@ export class HomeComponent implements OnInit {
     raffleTest2: ['BlobAndHisBoy'],
     PenRaffle: ['Turokman123'],
     FiftyFiftyToken: ['BlobAndHisBoy'],
+    PokemonRaffles: ['No-Conversation7867', 'MurkyLingonberry3331', 'WhoFedZed', 'imjakemon', 'Paskin21', 'hyrule_hobo', 'FlatwormBig9148'],
   };
 
   private auditPercentageMap = { WatchURaffle: 0.03 };
@@ -600,7 +601,7 @@ export class HomeComponent implements OnInit {
 
       //move this to a config item instead of being lazy
       let payPalText = this.payPalInfo;
-      if (this.currentRaffle.subreddit === 'lego_raffles') {
+      if (this.currentRaffle.subreddit === 'lego_raffles' || this.currentRaffle.subreddit === 'PokemonRaffles') {
         payPalText = 'https://www.paypal.me';
       }
       if (ppRegEx.test(this.payPalInfo) || pp2RegEx.test(this.payPalInfo)) {
@@ -628,7 +629,7 @@ export class HomeComponent implements OnInit {
 
       //move this to a config item instead of being lazy
       let cashAppText = this.cashAppInfo;
-      if (this.currentRaffle.subreddit === 'lego_raffles') {
+      if (this.currentRaffle.subreddit === 'lego_raffles' || this.currentRaffle.subreddit === 'PokemonRaffles') {
         cashAppText = 'https://cash.app';
       }
       if (cashAppRegEx.test(this.cashAppInfo)) {
@@ -711,7 +712,7 @@ export class HomeComponent implements OnInit {
           recipient,
           subject.substr(0, 100),
           this.pmMessage +
-            (['lego_raffles'].includes(this.currentRaffle.subreddit)
+            (['lego_raffles', 'PokemonRaffles'].includes(this.currentRaffle.subreddit)
               ? '#IF YOU INCLUDE COMMENTS IN YOUR PAYMENT, YOU WILL BE PERMANENTLY BANNED\n\n'
               : '') +
             (this.payPalInfo
