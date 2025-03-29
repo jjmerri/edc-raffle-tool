@@ -3106,11 +3106,11 @@ export class HomeComponent implements OnInit {
   private getPaymentPmLink(iosLink: boolean): string {
     let encodedBody = this.enodeUrl(`Raffle: ${this.currentRaffle.title}
 
-Spot Numbers: 
+Number of Spots Requested: 
 
-Payment Name: 
+Name of Payment App: 
 
-Payment Email: `);
+Your First and Last Name in the Payment App: `);
 
     // the official reddit app cant handle encoded newlines in links
     if (iosLink) {
