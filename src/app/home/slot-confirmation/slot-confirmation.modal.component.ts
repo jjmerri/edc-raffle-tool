@@ -139,6 +139,9 @@ export class SlotConfirmationModalComponent
           this.confirmationMessageText += ['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not put any comments in your payment message or you will be permanently banned.** If comments are required, you should put "." or 🍕 or ☕️. Contact the host for any questions or other comment.'
             : '';
+          this.confirmationMessageText += ['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)
+            ? '\n\nIf you requested a specifc spot and that spot is already assigned to someone else, then a random spot will be assigned by default. If you do not want random spots in such cases, your request must explicitly asks for no substitutions.'
+            : '';
           this.confirmationMessageText += ['WatchURaffle', 'raffleTest2'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not include any comments with your payment or you will be permanently banned.**'
             : '';

@@ -3104,7 +3104,15 @@ export class HomeComponent implements OnInit {
   }
 
   private getPaymentPmLink(iosLink: boolean): string {
-    let encodedBody = this.enodeUrl(`Raffle: ${this.currentRaffle.title}
+    let encodedBody = ['lego_raffles', 'PokemonRaffles'].includes(this.currentRaffle.subreddit)
+      ? this.enodeUrl(`Raffle: ${this.currentRaffle.title}
+
+Number of Spots Requested: 
+
+Name of Payment App: 
+
+Your First and Last Name in the Payment App: `)
+      : this.enodeUrl(`Raffle: ${this.currentRaffle.title}
 
 Spot Numbers: 
 
