@@ -645,14 +645,24 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private updateAffectedSlots(name: string, event: any) {
+  private updateAffectedSlots(name: string, event: any, i:  number) {
     this.hasPmsToProcess = false;
     let numAffected = 1;
 
     this.closePopOver = false;
 
-    for (let x = 0; x < this.raffleParticipants.length; x++) {
-      const raffler = this.raffleParticipants[x];
+    if (this.raffleProperties.allSpotsPaidMode) {
+      for (let x = 0; x < this.raffleParticipants.length; x++) {
+        const raffler = this.raffleParticipants[x];
+        if (raffler.name && raffler.name.toUpperCase() === name.toUpperCase()) {
+          if (raffler.paid !== event.target.checked) {
+            raffler.paid = event.target.checked;
+            numAffected++;
+          }
+        }
+      }
+    } else {
+      const raffler = this.raffleParticipants[i];
       if (raffler.name && raffler.name.toUpperCase() === name.toUpperCase()) {
         if (raffler.paid !== event.target.checked) {
           raffler.paid = event.target.checked;
