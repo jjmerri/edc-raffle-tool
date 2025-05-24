@@ -272,6 +272,16 @@
               (change)="updateRaffleProperties()"
             />
           </div>
+          <div class="col-xs-3">
+            <label for="">All Spots Paid Mode?</label>
+            <input
+              type="checkbox"
+              id="allSpotsPaidMode"
+              name="allSpotsPaidMode"
+              [(ngModel)]="raffleProperties.allSpotsPaidMode"
+              (change)="updateRaffleProperties()"
+            />
+          </div>
           <div class="col-xs-12" style="height:10px;"></div>
         </div>
 
@@ -392,7 +402,7 @@
               "
               [(ngModel)]="raffleParticipant.paid"
               (change)="
-                updateAffectedSlots(raffleParticipant.name, $event);
+                updateAffectedSlots(raffleParticipant.name, $event, i);
                 paidPopOver.toggle($event)
               "
             />
