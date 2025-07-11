@@ -1265,7 +1265,7 @@ export class HomeComponent implements OnInit {
 
   private slotListUpToDate(): Observable<boolean> {
     return Observable.create((observer) => {
-      this.loadRaffleProperties(this.currentRaffle.name, this.userId)
+      this.loadRaffleProperties(this.currentRaffle, this.userId)
         .then(() => {
           if (this.raffleProperties.latestSessionId !== this.loggingService.sessionId) {
             this.redditService.getPostByName(this.currentRaffle.name).subscribe((raffle) => {
@@ -1538,7 +1538,8 @@ export class HomeComponent implements OnInit {
     return updatedText;
   }
 
-  private loadRaffleStorage(raffleName: string, userId: string): Promise<any> {
+  private loadRaffleStorage(raffle: any, userId: string): Promise<any> {
+    const raffleName = raffle.name;
     this.databaseService.getProcessedComments(userId, raffleName).subscribe(
       (comments) => {
         if (comments) {
@@ -1565,12 +1566,12 @@ export class HomeComponent implements OnInit {
       }
     });
 
-    return this.loadRaffleProperties(raffleName, userId);
+    return this.loadRaffleProperties(raffle, userId);
   }
 
-  private loadRaffleProperties(raffleName: string, userId: string): Promise<any> {
+  private loadRaffleProperties(raffle: any, userId: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.databaseService.getRaffleProperties(userId, raffleName).subscribe(
+      this.databaseService.getRaffleProperties(userId, raffle.name).subscribe(
         (raffleProperties) => {
           if (raffleProperties) {
             if (!raffleProperties.skippedPms) {
@@ -1580,6 +1581,9 @@ export class HomeComponent implements OnInit {
           } else {
             this.raffleProperties = new RaffleProperties();
           }
+	  if (raffle.subreddit === 'lego_raffles' || raffle.subreddit === 'PokemonRaffles') {
+	    this.raffleProperties.willSendParticipantPm = false;
+	  }
           resolve();
         },
         (err) => {
@@ -1824,7 +1828,7 @@ export class HomeComponent implements OnInit {
 
                   this.setSubredditSettings(submission.subreddit);
 
-                  this.loadRaffleStorage(submission.name, this.userId).then(() => {
+                  this.loadRaffleStorage(submission, this.userId).then(() => {
                     this.auditRaffle();
                   });
 
