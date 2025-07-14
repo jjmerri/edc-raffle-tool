@@ -136,24 +136,26 @@ export class SlotConfirmationModalComponent
           match = userMentionRegex.exec(this.context.comment.data.body);
         }
         if (this.context.numOpenSlots > 0 || this.context.inOrderMode) {
-          this.confirmationMessageText += ['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)
-            ? '\n\n**Do not put any comments in your payment message or you will be permanently banned.** If comments are required, you should put "." or 🍕 or ☕️. Contact the host for any questions or other comment.'
+          if (['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)) {
+            this.confirmationMessageText += '\n\nPlease follow these instructions now:';
+	    this.confirmationMessageText += '\n\n1. Send payment for your spots using the link in the raffle description. Put an **empty comment** or "." or 🍕 or ☕️  in your payment message, and be sure to send as **Friends & Family** (if applicable). **Do NOT use any other comments or payment type.** If there is no link, wait until the raffle is 50% full or message the host.';
+            this.confirmationMessageText += '\n\n2. After payment, please fill and send a [private message]({PAYMENT_MESSAGE_LINK}) to the host. If the prior link doesn\'t work then try [this one]({IOS_PAYMENT_MESSAGE_LINK})."\n\n';
+            this.confirmationMessageText += '\n\n3. If you requested a specific spot that is already assigned to someone else, then a random spot will be assigned. If you do not want random spots, your request must explicitly ask for **"no substitutions" (or "no subs")**.';
+            this.confirmationMessageText += '\n\n4. If you violate these terms, your spots will be removed, and you may be permanently banned from the subreddit.';
+            this.confirmationMessageText += '\n\nPlease contact the host or the sub moderators for any questions about the raffle.';
+          }
+          this.confirmationMessageText += ['lego_raffles'].includes(this.context.comment.data.subreddit)
+            ? '\n\nLastly, we have a [Discord](https://discord.gg/legoraffles)! Join us to chat, trade, and play mini-games for free raffle spots!'
             : '';
-          this.confirmationMessageText += ['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)
-            ? '\n\nIf you requested a specifc spot and that spot is already assigned to someone else, then a random spot will be assigned by default. If you do not want random spots in such cases, your request must explicitly asks for no substitutions.'
+          this.confirmationMessageText += ['PokemonRaffles'].includes(this.context.comment.data.subreddit)
+            ? '\n\nLastly, we have a [Discord](https://discord.gg/JW8z4BpMga)! Join us to chat, trade, and play mini-games for free raffle spots!'
             : '';
           this.confirmationMessageText += ['WatchURaffle', 'raffleTest2'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not include any comments with your payment or you will be permanently banned.**'
             : '';
-          if (!['FiftyFiftyToken'].includes(this.context.comment.data.subreddit)) {
+          if (!['FiftyFiftyToken'].includes(this.context.comment.data.subreddit) && !['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)) {
             this.confirmationMessageText +=
               '\n\nIf you do not receive an automated PM from me,  then you can confirm your payment **only after you have paid** by filling in and sending [this PM]({PAYMENT_MESSAGE_LINK}). If the prior link doesn\'t work then try [this one]({IOS_PAYMENT_MESSAGE_LINK}).';
-            this.confirmationMessageText += ['lego_raffles'].includes(this.context.comment.data.subreddit)
-              ? '\n\nThe Lego_Raffles subreddit has a Discord! Join us using this [link](https://discord.gg/legoraffles) to chat and trade!'
-	      : '';
-            this.confirmationMessageText += ['PokemonRaffles'].includes(this.context.comment.data.subreddit)
-	      ? '\n\nThe PokemonRaffles subreddit has a Discord! Join us using this [link](https://discord.gg/JW8z4BpMga) to chat, trade, and play some mini-games!'
-	      : '';
           }
         }
       } else {
