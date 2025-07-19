@@ -137,7 +137,15 @@ export class HomeComponent implements OnInit {
     raffleTest2: ['BlobAndHisBoy'],
     PenRaffle: ['Turokman123'],
     FiftyFiftyToken: ['BlobAndHisBoy'],
-    PokemonRaffles: ['No-Conversation7867', 'MurkyLingonberry3331', 'WhoFedZed', 'imjakemon', 'Paskin21', 'hyrule_hobo', 'FlatwormBig9148'],
+    PokemonRaffles: [
+      'No-Conversation7867',
+      'MurkyLingonberry3331',
+      'WhoFedZed',
+      'imjakemon',
+      'Paskin21',
+      'hyrule_hobo',
+      'FlatwormBig9148',
+    ],
   };
 
   private auditPercentageMap = { WatchURaffle: 0.03 };
@@ -645,7 +653,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private updateAffectedSlots(name: string, event: any, i:  number) {
+  private updateAffectedSlots(name: string, event: any, i: number) {
     this.hasPmsToProcess = false;
     let numAffected = 1;
 
@@ -1581,9 +1589,7 @@ export class HomeComponent implements OnInit {
           } else {
             this.raffleProperties = new RaffleProperties();
           }
-	  if (raffle.subreddit === 'lego_raffles' || raffle.subreddit === 'PokemonRaffles') {
-	    this.raffleProperties.willSendParticipantPm = false;
-	  }
+          this.raffleProperties.willSendParticipantPm = false;
           resolve();
         },
         (err) => {
