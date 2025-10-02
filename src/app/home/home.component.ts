@@ -106,7 +106,16 @@ export class HomeComponent implements OnInit {
 
   private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken', 'PokemonRaffles'];
   private mods = {
-    lego_raffles: ['Zunger', 'TronicZomB', 'HorizonXP', 'lukemfrank', 'heavyboots79', 'dasxce'],
+    lego_raffles: [
+      'Zunger',
+      'TronicZomB',
+      'HorizonXP',
+      'lukemfrank',
+      'heavyboots79',
+      'dasxce',
+      'porvis',
+      'admin-tattler',
+    ],
     WatchURaffle: [
       'immaletyouwatch',
       'runsogood',
@@ -120,16 +129,18 @@ export class HomeComponent implements OnInit {
     ],
     testingground4bots: ['raffleTestMod1', 'raffleTestMod2', 'raffleTestMod3', 'raffleTestMod4'],
     KnifeRaffle: [
-      'accidentlyporn',
       'Fbolanos',
-      'TheVector',
       'BrianR383',
-      'cooperred',
-      'MatchesMalone_247',
       'thaaatguy',
+      'MatchesMalone_247',
       'claaark',
-      'kiss_the_homies_gn',
       'SrulDog',
+      'kiss_the_homies_gn',
+      'cooperred',
+      'accidentlyporn',
+      'TheVector',
+      'Dense_Elephant_699',
+      'RyMill4',
     ],
     SSBM: ['UNKNOWN'],
     RocketLeagueExchange: ['UNKNOWN'],
@@ -144,7 +155,9 @@ export class HomeComponent implements OnInit {
       'imjakemon',
       'Paskin21',
       'hyrule_hobo',
-      'FlatwormBig9148',
+      'dasxce',
+      'MarvelionA',
+      'bien-fait',
     ],
   };
 
