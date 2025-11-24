@@ -139,16 +139,16 @@ export class SlotConfirmationModalComponent
           if (['lego_raffles', 'PokemonRaffles'].includes(this.context.comment.data.subreddit)) {
             this.confirmationMessageText += '\n\nPlease follow these instructions now:';
 	    this.confirmationMessageText += '\n\n1. Send payment for your spots using the link in the raffle description. Put an **empty comment** or "." or 🍕 or ☕️  in your payment message, and be sure to send as **Friends & Family** (if applicable). **Do NOT use any other comments or payment type.** If there is no link, wait until the raffle is 50% full or message the host.';
-            this.confirmationMessageText += '\n\n2. After payment, please fill and send a [private message]({PAYMENT_MESSAGE_LINK}) to the host. If the prior link doesn\'t work then try [this one]({IOS_PAYMENT_MESSAGE_LINK})."\n\n';
-            this.confirmationMessageText += '\n\n3. If you requested a specific spot that is already assigned to someone else, then a random spot will be assigned. If you do not want random spots, your request must explicitly ask for **"no substitutions" (or "no subs")**.';
-            this.confirmationMessageText += '\n\n4. If you violate these terms, your spots will be removed, and you may be permanently banned from the subreddit.';
+            this.confirmationMessageText += '\n\n2. After payment, please fill and send a [private message]({PAYMENT_MESSAGE_LINK}) to the host. If the prior link doesn\'t work then try [this one]({IOS_PAYMENT_MESSAGE_LINK}).\n\n';
+            this.confirmationMessageText += '\n\n3. If you violate these terms, your spots will be removed, and you may be permanently banned from the subreddit.';
+            this.confirmationMessageText += '\n\nSpot requests with a single number (e.g., "8") will be treated as if you want "spot 8". If you want "8 randoms", be sure to include "randoms" in the request. If you requested a specific spot that is already assigned to someone else, then a random spot will be assigned. If you do not want random spots, your request must explicitly ask for **"no substitutions" (or "no subs")**.';  
             this.confirmationMessageText += '\n\nPlease contact the host or the sub moderators for any questions about the raffle.';
           }
           this.confirmationMessageText += ['lego_raffles'].includes(this.context.comment.data.subreddit)
             ? '\n\nLastly, we have a [Discord](https://discord.gg/legoraffles)! Join us to chat, trade, and play mini-games for free raffle spots!'
             : '';
           this.confirmationMessageText += ['PokemonRaffles'].includes(this.context.comment.data.subreddit)
-            ? '\n\nLastly, we have a [Discord](https://discord.gg/JW8z4BpMga)! Join us to chat, trade, and play mini-games for free raffle spots!'
+            ? '\n\nLastly, we have a [Discord](https://discord.gg/pokemonraffles)! Join us to chat, trade, and play mini-games for free raffle spots!'
             : '';
           this.confirmationMessageText += ['WatchURaffle', 'raffleTest2'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not include any comments with your payment or you will be permanently banned.**'
