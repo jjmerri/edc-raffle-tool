@@ -148,7 +148,7 @@ export class SlotConfirmationModalComponent
             ? '\n\nLastly, we have a [Discord](https://discord.gg/legoraffles)! Join us to chat, trade, and play mini-games for free raffle spots!'
             : '';
           this.confirmationMessageText += ['PokemonRaffles'].includes(this.context.comment.data.subreddit)
-            ? '\n\nLastly, we have a [Discord](https://discord.gg/JW8z4BpMga)! Join us to chat, trade, and play mini-games for free raffle spots!'
+            ? '\n\nLastly, we have a [Discord](https://discord.gg/pokemonraffles)! Join us to chat, trade, and play mini-games for free raffle spots!'
             : '';
           this.confirmationMessageText += ['WatchURaffle', 'raffleTest2'].includes(this.context.comment.data.subreddit)
             ? '\n\n**Do not include any comments with your payment or you will be permanently banned.**'
