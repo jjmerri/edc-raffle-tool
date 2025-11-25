@@ -1,5 +1,5 @@
-# use latest Node LTS (Erbium)	
-FROM node:erbium	
+# use latest Node LTS (Iron)
+FROM node:20	
 # install Firebase CLI	
 RUN npm install -g firebase-tools	
 
