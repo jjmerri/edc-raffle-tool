@@ -103,6 +103,8 @@ export class HomeComponent implements OnInit {
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
   private hidePaymentInfo = false;
+  private useDefaultPmReply = false;
+  private defaultPmReplyText = 'Marked you as paid, thank you!';
 
   private subs = ['WatchURaffle', 'KnifeRaffle', 'lego_raffles', 'raffleTest2', 'FiftyFiftyToken', 'PokemonRaffles'];
   private mods = {
@@ -946,7 +948,13 @@ export class HomeComponent implements OnInit {
       ' <h4 class="text-left col-xs-12">Message Body:</h4> <div class="well text-left col-xs-12">' +
       txt.innerText +
       '</div>';
+    const defaultPmCheckboxName = 'useDefaultPmReplyCheckbox';
+
     requestedSlotHtml +=
+      '<div class="col-xs-12">' +
+      '<label for="' + defaultPmCheckboxName + '">Use default PM reply</label>' +
+      '<input type="checkbox" id="' + defaultPmCheckboxName + '" ' + (this.useDefaultPmReply ? 'checked' : '') + ' style="margin-left: 5px;" />' +
+      '</div>' +
       '<div class="col-xs-12">' +
       '<label for="' +
       pmReplyElementName +
@@ -954,12 +962,25 @@ export class HomeComponent implements OnInit {
       '<div class="col-xs-12 input-group">' +
       '<textarea class="form-control" style="min-width: 100%" id="' +
       pmReplyElementName +
-      '" rows="3"></textarea>' +
+      '" rows="3">' + (this.useDefaultPmReply ? this.escapeHtml(this.defaultPmReplyText) : '') + '</textarea>' +
       '</div>' +
       '</div>';
 
     const contentDiv: any = document.createElement('div');
     contentDiv.innerHTML = requestedSlotHtml;
+
+    const defaultPmCheckbox: any = contentDiv.querySelector('#' + defaultPmCheckboxName);
+    const pmReplyTextArea: any = contentDiv.querySelector('#' + pmReplyElementName);
+
+    if (defaultPmCheckbox) {
+      defaultPmCheckbox.addEventListener('change', (e: any) => {
+        this.useDefaultPmReply = e.target.checked;
+        localStorage.setItem('useDefaultPmReply', JSON.stringify(this.useDefaultPmReply));
+        if (e.target.checked) {
+          pmReplyTextArea.value = this.defaultPmReplyText;
+        }
+      });
+    }
 
     if (slotNumberMap.size && !authorPaid && this.raffleProperties.skippedPms.indexOf(message.data.name) === -1) {
       this.loggingService.logMessage('slotNumberMap:' + JSON.stringify(slotNumberMap), LoggingLevel.INFO);
@@ -1014,6 +1035,11 @@ export class HomeComponent implements OnInit {
         let replyTextArea: any;
         replyTextArea = document.getElementById(pmReplyElementName);
 
+        if (this.useDefaultPmReply && replyTextArea.value) {
+          this.defaultPmReplyText = replyTextArea.value;
+          localStorage.setItem('defaultPmReplyText', JSON.stringify(this.defaultPmReplyText));
+        }
+
         if (replyTextArea.value) {
           this.redditService.postComment(replyTextArea.value, message.data.name).subscribe(
             (response) => {},
@@ -1033,6 +1059,12 @@ export class HomeComponent implements OnInit {
     } else {
       this.showPm(messages, messageIndex - 1);
     }
+  }
+
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
   }
 
   private getNumberSlots(userName: string): number {
@@ -1647,6 +1679,16 @@ export class HomeComponent implements OnInit {
       this.loggingService.logMessage(`loading Cash App info: ${cashAppInfo}`, LoggingLevel.INFO);
       this.cashAppInfo = cashAppInfo;
       this.modifyCashApp('loadStorage');
+    }
+
+    const useDefaultPmReply = JSON.parse(localStorage.getItem('useDefaultPmReply'));
+    if (useDefaultPmReply !== null) {
+      this.useDefaultPmReply = useDefaultPmReply;
+    }
+
+    const defaultPmReplyText = JSON.parse(localStorage.getItem('defaultPmReplyText'));
+    if (defaultPmReplyText !== null) {
+      this.defaultPmReplyText = defaultPmReplyText;
     }
   }
 
