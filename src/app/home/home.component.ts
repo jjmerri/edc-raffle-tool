@@ -978,6 +978,8 @@ export class HomeComponent implements OnInit {
         localStorage.setItem('useDefaultPmReply', JSON.stringify(this.useDefaultPmReply));
         if (e.target.checked) {
           pmReplyTextArea.value = this.defaultPmReplyText;
+        } else {
+          pmReplyTextArea.value = '';
         }
       });
     }
