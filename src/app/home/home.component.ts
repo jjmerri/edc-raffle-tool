@@ -98,7 +98,6 @@ export class HomeComponent implements OnInit {
   private isSlotAssignmentHelperRunning = false;
   private interuptSlotAssignmentHelper = false;
   private haveShownModChatMessage = false;
-  private redirectUrl = 'https://redirect-14762.firebaseapp.com/index.html?redirectUrl=';
   private modToolsDiscordUrl = null;
   private notificationSettings = null;
   private publicRedditUrl = 'https://www.reddit.com';
@@ -602,11 +601,11 @@ export class HomeComponent implements OnInit {
       auditText +
       payPalInfo +
       cashAppInfo +
-      '&#x200b;\n\n**[Tip BlobAndHisBoy](https://blobware-tips.firebaseapp.com)**\n\n' +
+      '&#x200b;\n\n' +
       metrics +
       '\n\n' +
       'This slot list is created and updated by ' +
-      '[The EDC Raffle Tool](https://edc-raffle-tool.firebaseapp.com) by BlobAndHisBoy.\n\n' +
+      'The EDC Raffle Tool by BlobAndHisBoy.\n\n' +
       slotList +
       '\n\n</raffle-tool>'
     );
@@ -628,7 +627,7 @@ export class HomeComponent implements OnInit {
         payPalText = 'https://www.paypal.me';
       }
       if (ppRegEx.test(this.payPalInfo) || pp2RegEx.test(this.payPalInfo)) {
-        payPalFormatted = '[' + payPalText + '](' + this.redirectUrl + this.payPalInfo + ')';
+        payPalFormatted = '[' + payPalText + '](' + this.payPalInfo + ')';
       }
 
       if (this.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
@@ -656,7 +655,7 @@ export class HomeComponent implements OnInit {
         cashAppText = 'https://cash.app';
       }
       if (cashAppRegEx.test(this.cashAppInfo)) {
-        cashAppFormatted = '[' + cashAppText + '](' + this.redirectUrl + this.cashAppInfo + ')';
+        cashAppFormatted = '[' + cashAppText + '](' + this.cashAppInfo + ')';
       }
 
       if (this.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
