@@ -56,11 +56,13 @@ export class HomeComponent implements OnInit {
   private raffleImported = false;
   private payPalMessageShown = false;
   private cashAppMessageShown = false;
+  private venmoMessageShown = false;
   private paidPopoverProperties = {};
   public closePopOver = false;
   public numOpenSlots = this.numSlots;
   private payPalInfo: string;
   private cashAppInfo: string;
+  private venmoInfo: string;
   private pmMessage =
     'Thank you for participating in the raffle.\n\n' +
     '**Please reply to this message in this format:**\n\n' +
@@ -579,6 +581,7 @@ export class HomeComponent implements OnInit {
   private getSlotListText(numOpenSlots, numUnpaidUsers, numUnpaidSlots, slotList): string {
     let payPalInfo = this.getPaypalInfo();
     let cashAppInfo = this.getCashAppInfo();
+    let venmoInfo = this.getVenmoInfo();
     let auditText = '';
 
     if (this.raffleProperties.audited) {
@@ -601,6 +604,7 @@ export class HomeComponent implements OnInit {
       auditText +
       payPalInfo +
       cashAppInfo +
+      venmoInfo +
       '&#x200b;\n\n' +
       metrics +
       '\n\n' +
@@ -667,6 +671,33 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  private getVenmoInfo(): string {
+    if (['FiftyFiftyToken'].includes(this.currentRaffle.subreddit)) {
+      return '';
+    }
+
+    if (this.venmoInfo) {
+      let venmoFormatted = this.venmoInfo;
+      const venmoRegEx = new RegExp('(venmo.com)', 'i');
+
+      //move this to a config item instead of being lazy
+      let venmoText = this.venmoInfo;
+      if (this.currentRaffle.subreddit === 'lego_raffles' || this.currentRaffle.subreddit === 'PokemonRaffles') {
+        venmoText = 'https://venmo.com';
+      }
+      if (venmoRegEx.test(this.venmoInfo)) {
+        venmoFormatted = '[' + venmoText + '](' + this.venmoInfo + ')';
+      }
+
+      if (this.hidePaymentInfo && this.numOpenSlots / this.numSlots > 0.5) {
+        venmoFormatted = 'Provided once raffle is 50% full';
+      }
+      return '**Venmo Info: ' + venmoFormatted + '**\n\n';
+    } else {
+      return '';
+    }
+  }
+
   private updateAffectedSlots(name: string, event: any, i: number) {
     this.hasPmsToProcess = false;
     let numAffected = 1;
@@ -727,6 +758,17 @@ export class HomeComponent implements OnInit {
         'info',
       );
       this.cashAppMessageShown = true;
+    }
+  }
+
+  private showVenmoWarning(event: any) {
+    if (!this.venmoMessageShown) {
+      swal2(
+        '',
+        "Entering your Venmo info will cause your Venmo link to be displayed in your raffle. You won't get this message again.",
+        'info',
+      );
+      this.venmoMessageShown = true;
     }
   }
 
@@ -1682,6 +1724,13 @@ export class HomeComponent implements OnInit {
       this.modifyCashApp('loadStorage');
     }
 
+    const venmoInfo = JSON.parse(localStorage.getItem('venmoInfo'));
+    if (venmoInfo !== null) {
+      this.loggingService.logMessage(`loading Venmo info: ${venmoInfo}`, LoggingLevel.INFO);
+      this.venmoInfo = venmoInfo;
+      this.modifyVenmo('loadStorage');
+    }
+
     const useDefaultPmReply = JSON.parse(localStorage.getItem('useDefaultPmReply'));
     if (useDefaultPmReply !== null) {
       this.useDefaultPmReply = useDefaultPmReply;
@@ -1989,6 +2038,19 @@ export class HomeComponent implements OnInit {
     }
     localStorage.setItem('cashAppInfo', JSON.stringify(this.cashAppInfo));
     this.loggingService.logMessage(`modified Cash App info from ${source}: ${this.cashAppInfo}`, LoggingLevel.INFO);
+  }
+
+  private modifyVenmo(source: string) {
+    const venmoRegEx = new RegExp('(www.)?(venmo.com)', 'i');
+    const httpsRegEx = new RegExp('(https://)venmo.com', 'i');
+
+    if (venmoRegEx.test(this.venmoInfo)) {
+      if (!httpsRegEx.test(this.venmoInfo)) {
+        this.venmoInfo = this.venmoInfo.replace(venmoRegEx, 'https://$2');
+      }
+    }
+    localStorage.setItem('venmoInfo', JSON.stringify(this.venmoInfo));
+    this.loggingService.logMessage(`modified Venmo info from ${source}: ${this.venmoInfo}`, LoggingLevel.INFO);
   }
 
   private modifyHidePaymentInfo() {
@@ -2331,6 +2393,9 @@ export class HomeComponent implements OnInit {
 
         const cashAppRe = /(\n\n\*\*Cash App Info: )(\[https:\/\/(?:www.)?cash.app[^*]*)(\*\*\n\n)/i;
         postText = postText.replace(cashAppRe, '$1[REDACTED]$3');
+
+        const venmoRe = /(\n\n\*\*Venmo Info: )(\[https:\/\/(?:www.)?venmo.com[^*]*)(\*\*\n\n)/i;
+        postText = postText.replace(venmoRe, '$1[REDACTED]$3');
 
         this.redditService.updatePostText(postText, this.currentRaffle.name).subscribe(
           (postResponse) => {
