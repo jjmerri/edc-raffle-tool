@@ -24,3 +24,13 @@ body {
   right: 20px;
   width: 400px;
 }
+
+.payment-info {
+  margin-bottom: 6px;
+}
+.payment-info .payment-input-line {
+  white-space: nowrap;
+}
+.payment-info-last {
+  margin-bottom: 20px;
+}

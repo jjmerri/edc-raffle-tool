@@ -185,19 +185,20 @@
           </div>
 
           <div class="col-xs-5">
-            <div class="text-right">
-              <label for="payPalInfo"
-                ><a href="https://www.paypal.me" target="_blank"
-                  >Get a PayPal.Me link here</a
-                ><br />PayPal Info:
-              </label>
-              <input
-                type="text"
-                id="payPalInfo"
-                [(ngModel)]="payPalInfo"
-                (focus)="showPayPalWarning($event)"
-                (change)='modifyPayPalMe("MANUAL")'
-              />
+            <div class="text-right payment-info">
+              <a href="https://www.paypal.me" target="_blank"
+                >Get a PayPal.Me link here</a
+              ><br />
+              <span class="payment-input-line">
+                <label for="payPalInfo">PayPal Info:</label>
+                <input
+                  type="text"
+                  id="payPalInfo"
+                  [(ngModel)]="payPalInfo"
+                  (focus)="showPayPalWarning($event)"
+                  (change)='modifyPayPalMe("MANUAL")'
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -205,19 +206,20 @@
           <div class="col-xs-7">
           </div>
           <div class="col-xs-5">
-            <div class="text-right">
-              <label for="cashApplInfo"
-                ><a href="https://cash.app/help/us/en-us/3123-cashtags" target="_blank"
-                  >e.g. https://cash.app/$yourcashtag</a
-                ><br />Cash App Cash Tag URL:
-              </label>
-              <input
-                type="text"
-                id="cashApplInfo"
-                [(ngModel)]="cashAppInfo"
-                (focus)="showCashAppWarning($event)"
-                (change)='modifyCashApp("MANUAL")'
-              />
+            <div class="text-right payment-info">
+              <a href="https://cash.app/help/us/en-us/3123-cashtags" target="_blank"
+                >e.g. https://cash.app/$yourcashtag</a
+              ><br />
+              <span class="payment-input-line">
+                <label for="cashApplInfo">Cash App Cash Tag URL:</label>
+                <input
+                  type="text"
+                  id="cashApplInfo"
+                  [(ngModel)]="cashAppInfo"
+                  (focus)="showCashAppWarning($event)"
+                  (change)='modifyCashApp("MANUAL")'
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -225,19 +227,20 @@
           <div class="col-xs-7">
           </div>
           <div class="col-xs-5">
-            <div class="text-right">
-              <label for="venmoInfo"
-                ><a href="https://venmo.com" target="_blank"
-                  >e.g. https://venmo.com/u/yourusername</a
-                ><br />Venmo URL:
-              </label>
-              <input
-                type="text"
-                id="venmoInfo"
-                [(ngModel)]="venmoInfo"
-                (focus)="showVenmoWarning($event)"
-                (change)='modifyVenmo("MANUAL")'
-              />
+            <div class="text-right payment-info payment-info-last">
+              <a href="https://venmo.com" target="_blank"
+                >e.g. https://venmo.com/u/yourusername</a
+              ><br />
+              <span class="payment-input-line">
+                <label for="venmoInfo">Venmo URL:</label>
+                <input
+                  type="text"
+                  id="venmoInfo"
+                  [(ngModel)]="venmoInfo"
+                  (focus)="showVenmoWarning($event)"
+                  (change)='modifyVenmo("MANUAL")'
+                />
+              </span>
             </div>
           </div>
         </div>
