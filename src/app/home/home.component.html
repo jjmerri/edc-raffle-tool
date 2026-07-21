@@ -221,6 +221,26 @@
             </div>
           </div>
         </div>
+        <div class="row" *ngIf="currentRaffle">
+          <div class="col-xs-7">
+          </div>
+          <div class="col-xs-5">
+            <div class="text-right">
+              <label for="venmoInfo"
+                ><a href="https://venmo.com" target="_blank"
+                  >e.g. https://venmo.com/u/yourusername</a
+                ><br />Venmo URL:
+              </label>
+              <input
+                type="text"
+                id="venmoInfo"
+                [(ngModel)]="venmoInfo"
+                (focus)="showVenmoWarning($event)"
+                (change)='modifyVenmo("MANUAL")'
+              />
+            </div>
+          </div>
+        </div>
 
         <div class="row" *ngIf="currentRaffle">
           <div class="col-xs-3">
