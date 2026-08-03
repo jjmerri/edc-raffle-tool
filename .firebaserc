@@ -1,7 +1,23 @@
 {
   "projects": {
-	"default": "test-edc-raffle-tool",
-	"test": "test-edc-raffle-tool",
-	"prod": "edc-raffle-tool"
+    "default": "test-edc-raffle-tool",
+    "test": "test-edc-raffle-tool",
+    "prod": "edc-raffle-tool"
+  },
+  "targets": {
+    "test-edc-raffle-tool": {
+      "hosting": {
+        "app": [
+          "test-edc-raffle-tool"
+        ]
+      }
+    },
+    "edc-raffle-tool": {
+      "hosting": {
+        "app": [
+          "edc-raffle-tool"
+        ]
+      }
+    }
   }
 }
