@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  client_id: '1e2XSCxJRd4EjRliLG1avw',
+  client_id: '40BtLpGGLTlHow',
   client_secret: '7h5f44rpxZlG-MRHkPhAVyqH-8hqcA',
   redirectUri: 'https://edc-raffle-tool.firebaseapp.com/home',
   baseUri: 'https://edc-raffle-tool.firebaseapp.com',
