@@ -147,7 +147,7 @@ export class HomeComponent implements OnInit {
     ],
     SSBM: ['UNKNOWN'],
     RocketLeagueExchange: ['UNKNOWN'],
-    Knife_Swap: ['UNKNOWN'],
+    // Knife_Swap: ['UNKNOWN'],
     raffleTest2: ['BlobAndHisBoy'],
     PenRaffle: ['Turokman123'],
     FiftyFiftyToken: ['BlobAndHisBoy'],
